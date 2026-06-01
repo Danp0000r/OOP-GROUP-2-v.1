@@ -1,0 +1,660 @@
+{% extends "base.html" %}
+{% block title %}PC Builder{% endblock %}
+
+{% block content %}
+<div class="builder-layout">
+  <div id="auth-required-modal" style="display: {{ 'flex' if not session.get('user_id') else 'none' }}; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,.85);">
+    <div style="max-width:420px; width:100%; padding:32px; border-radius:24px; background:rgba(15,23,42,.96); border:1px solid rgba(255,255,255,.08); text-align:center; color:#f8fafc;">
+      <h2 style="margin-bottom:16px; font-size:24px; font-weight:900;">Sign in required</h2>
+      <p style="margin-bottom:24px; color:rgba(248,250,252,.8); line-height:1.6;">You need to sign in first before using the builder.</p>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="width:100%;">Sign In</a>
+    </div>
+  </div>
+
+  <!-- Left: component browser -->
+  <div class="builder-left">
+    <div class="bl-header">
+      <span class="bl-title">Components</span>
+      <span class="bl-count" id="comp-count">{{ components|length }} items</span>
+    </div>
+
+    <div class="bl-search-wrap">
+      <svg class="bl-search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="component-search" placeholder="Search components..." oninput="filterComponents(this.value)" class="bl-search-input">
+    </div>
+
+    <div class="cat-pills" id="cat-pills">
+      <button class="filter-pill active" onclick="setCat('ALL',this)">ALL</button>
+      {% for cat in ["Case","Motherboard","CPU","GPU","RAM","PSU","Storage","Cooling"] %}
+        <button class="filter-pill cat-{{ cat | lower }}" onclick="setCat('{{ cat }}',this)">{{ cat | upper }}</button>
+      {% endfor %}
+    </div>
+
+    <!-- Scrollable component list -->
+    <div class="component-list-wrap">
+    <div id="component-list" class="component-list">
+      {% for cat in ["Case","Motherboard","CPU","GPU","RAM","PSU","Storage","Cooling"] %}
+        {% for c in components if c.category == cat %}
+        <div class="component-card cat-{{ c.category | lower }}" data-cat="{{ c.category }}" data-name="{{ c.name }}" data-id="{{ c.id }}" data-default-price="{{ c.price }}"
+             draggable="true" ondragstart="onDragStart(event,{{ c.id }},'{{ c.category }}')">
+          <div class="cc-check-badge" id="check-{{ c.id }}">
+            <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="cc-body">
+            <div class="cc-row">
+              <div class="cc-name">{{ c.name }}</div>
+              <div class="cc-price">&#8369;{{ '{:,.0f}'.format(c.price) }}</div>
+            </div>
+            <div class="cc-meta-row">
+              <div class="cc-brand">{{ c.brand }}</div>
+              <span class="avail-badge avail-instock" id="avail-{{ c.id }}" title="Part availability">● In Stock</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-block cc-add-btn" id="addbtn-{{ c.id }}">
+              + Add to Build
+            </button>
+
+            {# ── Where to Buy links ── #}
+            {% set links = c.links if c.links else [] %}
+            <div class="cc-where-to-buy">
+              <div class="cc-wtb-label">🛒 Where to Buy</div>
+              {% if links %}
+              <div class="cc-store-links">
+                {% for link in links %}
+                <div class="cc-store-btn" role="button" data-url="{{ link.url }}" data-price="{{ link.price|default(0) }}">
+                  <span class="cc-store-name">{{ link.store_name }}</span>
+                  <span class="cc-store-price">&#8369;{{ '{:,.0f}'.format(link.price) }}</span>
+                  <a class="cc-store-icon" href="{{ link.url }}" target="_blank" rel="noopener" title="Open store" onclick="event.stopPropagation()">
+                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  </a>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <span class="cc-no-links">No store links available</span>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    </div><!-- end component-list-wrap -->
+  </div>
+
+  <!-- Right: build slots -->
+  <div class="builder-right">
+    <div class="build-topbar">
+      <div>
+        <div class="topbar-label">Build Name</div>
+        <h2 id="build-name" contenteditable="true">My Build</h2>
+      </div>
+      <div class="topbar-actions">
+        <button onclick="openLoadModal()" class="btn btn-ghost">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Load
+        </button>
+
+        <button onclick="shareBuild()" class="btn btn-ghost">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+        <button onclick="exportBuildImage()" class="btn btn-ghost">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Export
+        </button>
+        <button onclick="saveBuild()" class="btn btn-primary">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save
+        </button>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="topbar-label">Progress <span id="prog-label" style="color:var(--primary-l);margin-left:6px;">0/8</span></span>
+        <span id="build-total" class="total-price">&#8369;0</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog-bar" style="width:0%"></div></div>
+    </div>
+
+    <div class="template-bar">
+      <span class="topbar-label">Quick Build</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="loadTemplate('budget')" class="btn btn-ghost">Budget</button>
+        <button onclick="loadTemplate('mid')" class="btn btn-ghost">Mid-Range</button>
+        <button onclick="loadTemplate('gaming')" class="btn btn-ghost">Gaming</button>
+        <div style="width:1px;height:24px;background:rgba(255,255,255,.1);margin:0 4px;"></div>
+        <button onclick="clearAllComponents()" class="btn btn-ghost" style="color:#f472b6;">Clear All</button>
+      </div>
+      <!-- Compatibility quick info (power / status / More Info) placed at the right -->
+      <div class="compat-short" style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <div style="background:rgba(255,255,255,.03);padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.04);min-width:110px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,.6);">Power Draw</div>
+          <div id="compat-power" style="font-weight:800;font-size:14px;color:#a78bfa;">— W</div>
+        </div>
+        <div id="compat-status-wrap" style="background:rgba(255,255,255,.03);padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.04);min-width:150px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,.6);">Status</div>
+          <div id="compat-status" style="font-weight:900;font-size:13px;color:var(--muted);">Unknown</div>
+        </div>
+        <button id="compat-deep-btn" onclick="openCompatDeepInfo()" class="btn btn-primary" style="margin-left:8px;">More Info</button>
+      </div>
+    </div>
+    <style> @keyframes spin { to { transform: rotate(360deg); } } </style>
+    <div class="slots-columns">
+      <div class="slots-list-wrap">
+        <div id="slots" class="slots-list">
+          {% for cat in ["Case","Motherboard","CPU","GPU","RAM","PSU","Storage","Cooling"] %}
+          <div class="slot" id="slot-{{ cat }}" data-cat="{{ cat }}"
+               ondragover="event.preventDefault(); onDragOver(event,'{{ cat }}')"
+               ondragleave="onDragLeave(event)"
+               ondrop="onDrop(event,'{{ cat }}')"
+               onclick="selectSlotComponent('{{ cat }}', event)">
+        <div class="slot-icon cat-{{ cat | lower }}">
+          <span style="font-size:10px;font-weight:800;letter-spacing:.05em;">{{ cat[:3] | upper }}</span>
+        </div>
+        <div class="slot-info">
+          <div class="slot-cat">{{ cat | upper }}</div>
+          <div class="slot-empty-text">Click to browse, or drag a card here</div>
+        </div>
+      </div>
+      {% endfor %}
+        </div>
+      </div><!-- end slots-list-wrap -->
+      <div class="slots-extra" id="slots-extra" style="flex:1;min-width:0;">
+        <div id="nexus-canvas-container" class="glass" style="height:100%;display:flex;flex-direction:column;position:relative;">
+          <div id="nexus-canvas-frame" style="flex:1;position:relative;overflow:hidden;padding:0;">
+            <div id="nexus-loader" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:20;">
+              <div style="text-align:center;color:rgba(255,255,255,.6);">
+                <div style="width:48px;height:48px;margin:0 auto;border-radius:50%;border:3px solid rgba(255,255,255,.05);border-top-color:#06b6d4;animation:spin 1s linear infinite"></div>
+                <div style="margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.08em;color:#a78bfa;">LOADING 3D</div>
+              </div>
+            </div>
+
+            <div class="builder-canvas-overlay top-left" style="position:absolute;top:16px;left:16px;display:flex;flex-direction:column;gap:10px;pointer-events:auto;z-index:25;">
+              <div id="focus-label" style="padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.7);color:#cbd5e1;font-size:11px;border:1px solid rgba(255,255,255,.08);">Free Orbit Mode</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="toggleEnvironmentMode()" id="env-mode-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Dark Studio</button>
+                <button onclick="toggleAirflow()" id="airflow-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Airflow</button>
+                {% if is_admin %}
+                <button onclick="toggleAdminMode()" id="admin-mode-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Admin Mode</button>
+                {% endif %}
+              </div>
+            </div>
+            {% if is_admin %}
+            <div id="subpart-selector" class="builder-canvas-overlay top-left" style="position:absolute;top:118px;left:16px;display:none;flex-direction:column;gap:8px;pointer-events:auto;z-index:25;max-width:340px;">
+              <div style="padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.72);color:#cbd5e1;font-size:11px;border:1px solid rgba(255,255,255,.08);">
+                Admin Mode only: select a specific subpart to move independently. Available parts include case, front, rear, radiator, and block.
+              </div>
+              <div id="subpart-selector-buttons" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+            </div>
+            <div id="admin-mode-hint" class="builder-canvas-overlay top-left" style="position:absolute;top:280px;left:16px;display:none;flex-direction:column;gap:8px;pointer-events:auto;z-index:25;">
+              <div style="padding:10px 14px;border-radius:14px;background:rgba(0,0,0,.72);color:#cbd5e1;font-size:11px;border:1px solid rgba(255,255,255,.08);max-width:320px;">
+                Click a slot to select the matching part in 3D. Then enable Admin Mode, drag the gizmo arrows on the selected component, and press <strong>Ctrl+Z</strong> to undo.
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="builder-canvas-overlay top-right" style="position:absolute;top:16px;right:16px;display:flex;gap:8px;pointer-events:auto;z-index:25;">
+              {% if is_admin %}
+              <button onclick="exportPositionJSON()" id="position-export-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;display:none;">Export Pos</button>
+              <button onclick="triggerImportPositions()" id="position-import-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;display:none;">Import Pos</button>
+              {% endif %}
+              <button onclick="toggleExplode()" id="explode-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Explode</button>
+              <button onclick="toggleWireframe()" id="wire-btn" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Wire</button>
+            </div>
+            <input type="file" id="position-import-input" accept=".json,application/json" style="display:none;" onchange="handlePositionImport(event)">
+
+            <div class="builder-canvas-overlay bottom-controls" style="position:absolute;bottom:16px;left:16px;right:16px;display:flex;gap:8px;flex-wrap:wrap;pointer-events:auto;z-index:25;">
+              <button onclick="setCam('diag')" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Default</button>
+              <button onclick="setCam('inside')" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Inside</button>
+              <button onclick="setCam('top')" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Top</button>
+              <button onclick="setCam('rear')" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Rear</button>
+              <button onclick="setCam('side')" class="btn btn-ghost btn-sm" style="background:rgba(15,23,42,.88);color:#e2e8f0;">Side</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+<!-- Load Build Modal -->
+<div id="load-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px);">
+  <div style="background:#13131f;border-radius:20px;border:1px solid rgba(255,255,255,.1);width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
+      <h3 style="font-size:17px;font-weight:900;color:#f0f0ff;">Load Saved Build</h3>
+      <button onclick="closeLoadModal()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;">&times;</button>
+    </div>
+    <div id="load-builds-list" style="overflow-y:auto;padding:16px 24px;flex:1;">
+      <p style="color:rgba(255,255,255,.5);font-size:13px;">Loading your builds…</p>
+    </div>
+  </div>
+</div>
+
+<!-- Share Preview Modal -->
+<div id="share-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);">
+  <div style="background:#13131f;border-radius:20px;border:1px solid rgba(255,255,255,.12);width:100%;max-width:560px;">
+    <div style="padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
+      <h3 style="font-size:17px;font-weight:900;color:#f0f0ff;">Share Your Build</h3>
+      <button onclick="closeShareModal()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;">&times;</button>
+    </div>
+    <div id="share-preview-card" style="margin:20px 24px;border-radius:14px;border:1px solid rgba(255,255,255,.1);overflow:hidden;background:#0d0d1a;"></div>
+    <div style="padding:0 24px 20px;display:flex;gap:10px;">
+      <button id="share-copy-btn" onclick="copyShareText()" class="btn btn-primary" style="flex:1;">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copy to Clipboard
+      </button>
+      <button onclick="closeShareModal()" class="btn btn-ghost">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Compatibility Deep Info Modal -->
+<div id="compat-deep-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);">
+  <div style="background:#13131f;border-radius:20px;border:1px solid rgba(255,255,255,.12);width:100%;max-width:900px;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
+      <h3 style="font-size:17px;font-weight:900;color:#f0f0ff;">Build Compatibility Report</h3>
+      <button onclick="closeCompatDeepInfo()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;">&times;</button>
+    </div>
+    <div id="compat-deep-body" style="overflow-y:auto;padding:20px 24px;flex:1;font-size:13px;color:rgba(255,255,255,.9);display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;justify-content:center;">
+      <div id="compat-deep-left" style="flex:1 1 480px;min-width:320px;display:flex;flex-direction:column;gap:18px;">
+        <div id="compat-deep-summary" style="min-height:120px;display:flex;align-items:flex-start;justify-content:flex-start;color:rgba(255,255,255,.9);background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px;line-height:1.5;text-align:left;">Loading report…</div>
+        <div id="compat-deep-issues" style="display:grid;gap:10px;min-height:80px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;"></div>
+        <div id="compat-deep-recs" style="display:grid;gap:10px;min-height:80px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;"></div>
+      </div>
+      <div id="compat-deep-right" style="flex:0 1 320px;min-width:280px;display:flex;flex-direction:column;gap:16px;">
+        <div style="font-size:14px;font-weight:800;color:#a78bfa;">Detected Parts</div>
+        <div id="compat-detected-list" style="display:grid;gap:10px;min-height:320px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;"></div>
+      </div>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:center;">
+      <button onclick="closeCompatDeepInfo()" class="btn btn-ghost" style="min-width:140px;">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrade Checker Modal -->
+<div id="upgrade-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);">
+  <div style="background:#13131f;border-radius:20px;border:1px solid rgba(255,255,255,.12);width:100%;max-width:600px;max-height:80vh;display:flex;flex-direction:column;">
+    <div style="padding:22px 24px 16px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;">
+      <h3 style="font-size:17px;font-weight:900;color:#f0f0ff;">Upgrade Checker</h3>
+      <button onclick="closeUpgradeChecker()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:15px;">&times;</button>
+    </div>
+    <div style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.07);display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+      <input type="text" id="uc-socket" placeholder="Socket (e.g. AM4)" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:11px;">
+      <input type="text" id="uc-ram" placeholder="RAM Type (DDR4)" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:11px;">
+      <input type="number" id="uc-psu" placeholder="PSU Watts" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:11px;">
+      <button onclick="runUpgradeCheck()" class="btn btn-primary">Check</button>
+    </div>
+    <div id="upgrade-results" style="overflow-y:auto;padding:16px 24px;flex:1;"></div>
+    <div style="padding:16px 24px;border-top:1px solid rgba(255,255,255,.07);">
+      <button onclick="closeUpgradeChecker()" class="btn btn-ghost" style="width:100%;">Close</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load Three.js and Nexus3D helper
+(function(){
+  var s1=document.createElement('script'); s1.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s1.defer=true;
+  s1.onload = function(){
+    var s2=document.createElement('script'); s2.src='https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js'; s2.defer=true; document.head.appendChild(s2);
+    s2.onload = function(){
+      var s3=document.createElement('script'); s3.src='https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js'; s3.defer=true; document.head.appendChild(s3);
+      s3.onload = function(){ var s4=document.createElement('script'); s4.src='{{ url_for('static', filename='js/nexus3d_full.js') }}'; document.body.appendChild(s4); };
+    };
+  };
+  document.head.appendChild(s1);
+})();
+</script>
+<script>
+window.builderIsAdmin = {{ 'true' if is_admin else 'false' }};
+
+// Pre-populate with questionnaire build if provided
+const initialComponents = {{ selected_build_components | tojson }};
+const componentIdToData = {};
+{% for comp in components %}
+componentIdToData[{{ comp.component_id }}] = {
+  id: {{ comp.component_id }},
+  name: '{{ comp.name }}',
+  brand: '{{ comp.brand }}',
+  cat: '{{ comp.category }}',
+  price: {{ comp.price }}
+};
+{% endfor %}
+
+// Load initial components into selectedParts when ready
+function loadInitialBuildComponents() {
+  if (!initialComponents || initialComponents.length === 0) return;
+  
+  // Wait for selectedParts to be defined
+  const maxRetries = 100;
+  let retries = 0;
+  const intervalId = setInterval(() => {
+    if (typeof selectedParts !== 'undefined') {
+      clearInterval(intervalId);
+      // Now populate selectedParts
+      for (const compId of initialComponents) {
+        const data = componentIdToData[compId];
+        if (data) {
+          selectedParts[data.cat] = {
+            id: data.id,
+            name: data.name,
+            brand: data.brand,
+            price: data.price
+          };
+        }
+      }
+      // Render the slots after populating
+      setTimeout(() => {
+        Object.keys(selectedParts).forEach(cat => {
+          if (typeof renderSlot === 'function') renderSlot(cat);
+        });
+        if (typeof updateProgress === 'function') updateProgress();
+        if (window.nexus3d_full && typeof window.nexus3d_full.refresh === 'function') {
+          window.nexus3d_full.refresh();
+        }
+      }, 100);
+      return;
+    }
+    retries++;
+    if (retries > maxRetries) {
+      clearInterval(intervalId);
+      console.warn('selectedParts object not initialized after timeout');
+    }
+  }, 50);
+}
+
+document.addEventListener('DOMContentLoaded', loadInitialBuildComponents);
+
+// Set build name if loaded
+{% if selected_build %}
+window.addEventListener('DOMContentLoaded', function() {
+  const buildNameEl = document.getElementById('build-name');
+  if (buildNameEl) {
+    buildNameEl.textContent = '{{ selected_build.name }}';
+  }
+});
+{% endif %}
+
+/* ── Component socket/RAM lookup ────────────────────── */
+const COMP_META = {
+  'Ryzen 5 5600G':   {socket:'AM4', ramType:'DDR4', tdp:65},
+  'Ryzen 5 5600':    {socket:'AM4', ramType:'DDR4', tdp:65},
+  'Ryzen 7 5700X':   {socket:'AM4', ramType:'DDR4', tdp:65},
+  'Intel i3-12100F': {socket:'LGA1700', ramType:'DDR4', tdp:58},
+  'Intel i5-12400F': {socket:'LGA1700', ramType:'DDR4', tdp:65},
+  'Intel i5-13400F': {socket:'LGA1700', ramType:'DDR4', tdp:65},
+  'Gigabyte A520M DS3H':  {socket:'AM4'},
+  'MSI B450M Pro-VDH Max':{socket:'AM4'},
+  'Gigabyte B550M DS3H':  {socket:'AM4'},
+  'MSI B550 Tomahawk':    {socket:'AM4'},
+  'Gigabyte H610M H':     {socket:'LGA1700'},
+  'ASUS B760M-A WIFI':    {socket:'LGA1700'},
+  '8GB DDR4 3200MHz':  {ramType:'DDR4'},
+  '16GB DDR4 3200MHz': {ramType:'DDR4'},
+  '32GB DDR4 3200MHz': {ramType:'DDR4'},
+  '32GB DDR4 3600MHz': {ramType:'DDR4'},
+  '16GB DDR5 6000MHz': {ramType:'DDR5'},
+  '32GB DDR5 6000MHz': {ramType:'DDR5'},
+  'GTX 1650':       {requiredPSU:300},
+  'GTX 1660 Super': {requiredPSU:450},
+  'RX 6600':        {requiredPSU:500},
+  'RTX 3060 12GB':  {requiredPSU:550},
+  'RTX 4060':       {requiredPSU:550},
+  'RTX 4070':       {requiredPSU:650},
+  'RX 7700 XT':     {requiredPSU:600},
+};
+
+function scrollToCategory(cat) {
+  const pill = Array.from(document.querySelectorAll('.cat-pills .filter-pill')).find(b => b.textContent.trim() === cat.toUpperCase());
+  if (pill) setCat(cat, pill);
+  else setCat('ALL', document.querySelector('.cat-pills .filter-pill'));
+}
+
+const _origAddToSlot = addToSlot;
+window.addToSlot = function(id, name, brand, cat, price) {
+  _origAddToSlot(id, name, brand, cat, price);
+  refreshCardStates();
+};
+
+function refreshCardStates() {
+  document.querySelectorAll('.component-card').forEach(card => {
+    const id = parseInt(card.dataset.id);
+    const cat = card.dataset.cat;
+    const isSelected = selectedParts[cat] && selectedParts[cat].id === id;
+    const btnEl   = document.getElementById('addbtn-' + id);
+    if (btnEl) {
+      if (isSelected) {
+        btnEl.textContent = 'Added to Build';
+        btnEl.style.background = 'var(--green)';
+        btnEl.style.color = '#fff';
+      } else {
+        btnEl.textContent = '+ Add to Build';
+        btnEl.style.background = '';
+        btnEl.style.color = '';
+      }
+    }
+  });
+}
+
+const _slotObserver = new MutationObserver(() => refreshCardStates());
+document.addEventListener('DOMContentLoaded', () => {
+  const slotsEl = document.getElementById('slots');
+  if (slotsEl) _slotObserver.observe(slotsEl, { childList: true, subtree: true });
+  const params = new URLSearchParams(window.location.search);
+  const bid = params.get('build_id');
+  if (bid) loadBuildById(bid);
+});
+
+/* ── Load Build Modal ─────────────────────────────────── */
+function openLoadModal() {
+  document.getElementById('load-modal').style.display = 'flex';
+  fetch('/api/builds/user')
+    .then(r => r.json())
+    .then(builds => {
+      const list = document.getElementById('load-builds-list');
+      if (builds.error) { list.innerHTML = '<p style="color:#f87171;font-size:13px;">Please log in to load builds.</p>'; return; }
+      if (!builds.length) { list.innerHTML = '<p style="color:rgba(255,255,255,.5);font-size:13px;">No saved builds yet.</p>'; return; }
+      list.innerHTML = builds.map(b => `
+        <div style="padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;margin-bottom:10px;cursor:pointer;transition:border-color .15s;" onclick="loadBuildById(${b.id}); closeLoadModal();" onmouseover="this.style.borderColor='rgba(167,139,250,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:14px;font-weight:800;color:#f0f0ff;">${b.name}</span>
+            <span style="font-size:13px;font-weight:700;color:#a78bfa;">₱${Number(b.total).toLocaleString()}</span>
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,.5);">${b.part_count} parts · ${b.created_at}</div>
+        </div>`).join('');
+    })
+    .catch(() => { document.getElementById('load-builds-list').innerHTML = '<p style="color:#f87171;font-size:13px;">Failed to load builds.</p>'; });
+}
+function closeLoadModal() { document.getElementById('load-modal').style.display = 'none'; }
+
+function loadBuildById(id) {
+  fetch('/api/builds/' + id + '/load')
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+      currentBuildId = id; // Store build ID for updates
+      if (typeof resetAllStoreSelections === 'function') resetAllStoreSelections();
+      Object.keys(selectedParts).forEach(cat => delete selectedParts[cat]);
+      ['Case','Motherboard','CPU','GPU','RAM','PSU','Storage','Cooling'].forEach(renderSlot);
+      data.components.forEach(c => {
+        selectedParts[c.category] = { id: c.id, name: c.name, brand: c.brand, price: c.price };
+        renderSlot(c.category);
+      });
+      updateProgress();
+      const nameEl = document.getElementById('build-name');
+      if (nameEl) nameEl.textContent = data.name;
+      refreshCardStates();
+    })
+    .catch(() => alert('Failed to load build.'));
+}
+
+/* ── Share Build with Preview Card ────────────────────── */
+var _shareText = '';
+function shareBuild() {
+  const name = document.getElementById('build-name')?.textContent.trim() || 'My Build';
+  const parts = Object.values(selectedParts);
+  if (!parts.length) { alert('Add some parts first.'); return; }
+  const total = parts.reduce((s,p) => s+p.price, 0);
+  const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
+  const ORDER = ['Case','Motherboard','CPU','GPU','RAM','PSU','Storage','Cooling'];
+  const rows = ORDER.filter(cat => selectedParts[cat]).map(cat => {
+    const p = selectedParts[cat];
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,.07);color:${catFg[cat]||'#fff'};letter-spacing:.05em;">${cat}</span>
+        <span style="font-size:13px;font-weight:600;color:#f0f0ff;">${p.name}</span>
+      </div>
+      <span style="font-size:13px;font-weight:700;color:${catFg[cat]||'#fff'};">₱${p.price.toLocaleString()}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('share-preview-card').innerHTML = `
+    <div style="padding:18px 20px;background:linear-gradient(135deg,#1e0a3c,#0d0d1a);border-bottom:1px solid rgba(255,255,255,.1);">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:#a78bfa;margin-bottom:4px;">🖥️ BUILDLAB PC BUILD</div>
+      <div style="font-size:20px;font-weight:900;color:#ffffff;">${name}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">${parts.length} components selected</div>
+    </div>
+    <div style="padding:14px 20px;">${rows}</div>
+    <div style="padding:14px 20px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;background:rgba(167,139,250,.06);">
+      <span style="font-size:11px;color:rgba(255,255,255,.5);">Total Build Cost</span>
+      <span style="font-size:20px;font-weight:900;color:#a78bfa;">₱${total.toLocaleString()}</span>
+    </div>`;
+  _shareText = `🖥️ ${name} — BuildLab\n` + ORDER.filter(c=>selectedParts[c]).map(c=>`${c}: ${selectedParts[c].name} (₱${selectedParts[c].price.toLocaleString()})`).join('\n') + `\n💰 Total: ₱${total.toLocaleString()}`;
+  document.getElementById('share-modal').style.display = 'flex';
+}
+function closeShareModal() { document.getElementById('share-modal').style.display = 'none'; }
+function copyShareText() {
+  navigator.clipboard?.writeText(_shareText).then(() => {
+    const btn = document.getElementById('share-copy-btn');
+    btn.textContent = '✓ Copied!';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => {
+      btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy to Clipboard';
+      btn.style.background = '';
+    }, 2000);
+  });
+}
+
+/* ── Upgrade Checker ──────────────────────────────────── */
+function openUpgradeChecker() {
+  document.getElementById('upgrade-modal').style.display = 'flex';
+  document.getElementById('upgrade-results').innerHTML = '';
+}
+function closeUpgradeChecker() { document.getElementById('upgrade-modal').style.display = 'none'; }
+
+function runUpgradeCheck() {
+  const socket = document.getElementById('uc-socket').value;
+  const ram    = document.getElementById('uc-ram').value;
+  const psu    = parseInt(document.getElementById('uc-psu').value) || 0;
+  const results = [];
+  const ORDER = ['Case','Motherboard','CPU','GPU','RAM','PSU','Storage','Cooling'];
+  ORDER.forEach(cat => {
+    if (!selectedParts[cat]) return;
+    const p = selectedParts[cat];
+    const meta = COMP_META[p.name] || {};
+    if (cat === 'CPU' && socket) {
+      const ok = !meta.socket || meta.socket === socket;
+      results.push({cat, name: p.name, ok, msg: ok ? `Socket ${meta.socket||'?'} — compatible with your ${socket} system` : `Requires socket ${meta.socket}, but your board is ${socket}`});
+    }
+    if (cat === 'Motherboard' && socket) {
+      const ok = !meta.socket || meta.socket === socket;
+      results.push({cat, name: p.name, ok, msg: ok ? `Socket ${meta.socket||'?'} — fits your ${socket} platform` : `Board socket ${meta.socket} doesn't match your ${socket} CPU`});
+    }
+    if (cat === 'RAM' && ram) {
+      const ok = !meta.ramType || meta.ramType === ram;
+      results.push({cat, name: p.name, ok, msg: ok ? `${meta.ramType} — matches your system's ${ram}` : `${meta.ramType} RAM is not compatible with ${ram} systems`});
+    }
+    if (cat === 'GPU' && psu) {
+      const req = meta.requiredPSU || 300;
+      const ok = psu >= req;
+      results.push({cat, name: p.name, ok, msg: ok ? `Needs ${req}W — your ${psu}W PSU is sufficient` : `Needs ${req}W minimum, but your PSU is only ${psu}W`});
+    }
+  });
+  const el = document.getElementById('upgrade-results');
+  if (!results.length) { el.innerHTML = '<p style="color:rgba(255,255,255,.5);font-size:13px;">No parts in your build to check yet, or no current PC specs selected.</p>'; return; }
+  const allOk = results.every(r => r.ok);
+  const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7'};
+  el.innerHTML = `
+    <div style="padding:10px 14px;border-radius:10px;margin-bottom:12px;${allOk?'background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);':'background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);'}">
+      <span style="font-weight:800;font-size:14px;${allOk?'color:#4ade80;':'color:#f87171;'}">${allOk?'✓ All checked parts are compatible!':'⚠ Compatibility issues found'}</span>
+    </div>
+    ${results.map(r=>`
+      <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);">
+        <span style="font-size:16px;flex-shrink:0;">${r.ok?'✅':'❌'}</span>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:${catFg[r.cat]||'#a78bfa'};margin-bottom:2px;">${r.cat.toUpperCase()}</div>
+          <div style="font-size:13px;font-weight:600;color:#f0f0ff;margin-bottom:2px;">${r.name}</div>
+          <div style="font-size:12px;color:${r.ok?'rgba(110,231,183,.8)':'#f87171'};">${r.msg}</div>
+        </div>
+      </div>`).join('')}`;
+}
+
+/* ── Export Build as Image (canvas) ───────────────────── */
+function exportBuildImage() {
+  const parts = Object.values(selectedParts);
+  if (!parts.length) { alert('Add some parts first.'); return; }
+  const name = document.getElementById('build-name')?.textContent.trim() || 'My Build';
+  const total = parts.reduce((s,p) => s+p.price, 0);
+  const ORDER = ['Case','Motherboard','CPU','GPU','RAM','PSU','Storage','Cooling'];
+  const rows = ORDER.filter(c => selectedParts[c]);
+  const W = 600, rowH = 44, headerH = 90, footerH = 60, padding = 28;
+  const H = headerH + rows.length * rowH + footerH;
+  const canvas = document.createElement('canvas');
+  canvas.width = W * 2; canvas.height = H * 2;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+  const catFgMap = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#1e0a3c'); grad.addColorStop(1, '#0d0d1a');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,255,255,.06)';
+  ctx.beginPath(); ctx.roundRect(padding, 14, W - padding*2, headerH - 20, 10); ctx.fill();
+  ctx.font = 'bold 9px monospace'; ctx.fillStyle = '#a78bfa';
+  ctx.fillText('BUILDLAB PC BUILD', padding + 14, 33);
+  ctx.font = 'bold 22px sans-serif'; ctx.fillStyle = '#ffffff';
+  ctx.fillText(name, padding + 14, 60);
+  ctx.font = '11px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.5)';
+  ctx.fillText(rows.length + ' components', padding + 14, 78);
+  rows.forEach((cat, i) => {
+    const p = selectedParts[cat];
+    const y = headerH + i * rowH;
+    if (i % 2 === 0) { ctx.fillStyle = 'rgba(255,255,255,.03)'; ctx.fillRect(0, y, W, rowH); }
+    ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.beginPath(); ctx.roundRect(padding, y + 12, 68, 18, 5); ctx.fill();
+    ctx.font = 'bold 9px monospace'; ctx.fillStyle = catFgMap[cat] || '#fff';
+    ctx.fillText(cat.toUpperCase(), padding + 6, y + 25);
+    ctx.font = '13px sans-serif'; ctx.fillStyle = '#f0f0ff';
+    const maxW = W - padding*2 - 90 - 80;
+    let displayName = p.name;
+    while (ctx.measureText(displayName).width > maxW && displayName.length > 10) displayName = displayName.slice(0,-1);
+    if (displayName !== p.name) displayName += '…';
+    ctx.fillText(displayName, padding + 80, y + 26);
+    ctx.font = 'bold 13px sans-serif'; ctx.fillStyle = catFgMap[cat] || '#a78bfa';
+    const priceStr = '₱' + p.price.toLocaleString();
+    ctx.fillText(priceStr, W - padding - ctx.measureText(priceStr).width, y + 26);
+    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padding, y + rowH - 0.5); ctx.lineTo(W - padding, y + rowH - 0.5); ctx.stroke();
+  });
+  const fy = headerH + rows.length * rowH;
+  ctx.fillStyle = 'rgba(167,139,250,.12)'; ctx.fillRect(0, fy, W, footerH);
+  ctx.font = 'bold 12px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.6)';
+  ctx.fillText('TOTAL BUILD COST', padding, fy + 28);
+  ctx.font = 'bold 22px sans-serif'; ctx.fillStyle = '#a78bfa';
+  const totalStr = '₱' + total.toLocaleString();
+  ctx.fillText(totalStr, W - padding - ctx.measureText(totalStr).width, fy + 28);
+  ctx.font = '10px sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.3)';
+  ctx.fillText('buildlab.app', padding, fy + 48);
+  const a = document.createElement('a');
+  a.download = name.replace(/\s+/g, '_') + '_build.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+</script>
+{% endblock %}

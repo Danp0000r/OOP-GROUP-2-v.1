@@ -1,0 +1,26 @@
+[
+  {
+    "username": "admin",
+    "email": "admin@buildlab.ph",
+    "password": "admin123",
+    "is_admin": true,
+    "builds": [
+      {
+        "name": "Starter Build",
+        "component_ids": [1,7,14,20,26,30,34,39]
+      }
+    ]
+  },
+  {
+    "username": "alice",
+    "email": "alice@example.com",
+    "password": "alicepass",
+    "is_admin": false,
+    "builds": [
+      {
+        "name": "Alice Gaming",
+        "component_ids": [6,12,16,25,29,33,37,41]
+      }
+    ]
+  }
+]

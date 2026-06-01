@@ -1,0 +1,723 @@
+{% extends "base.html" %}
+{% block title %}Manage Components — Admin — BuildLab{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-3xl font-black uppercase">Manage Components</h1>
+      <p class="text-gray-400 text-sm mt-1">{{ components|length }} components</p>
+    </div>
+    <button onclick="openAddModal()"
+      class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors">
+      + Add Component
+    </button>
+  </div>
+
+  <style>
+    .admin-page-select {
+      color: #fff !important;
+      background-color: #13131f !important;
+      border-color: rgba(255,255,255,.15) !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+    }
+    .admin-page-select option {
+      background: #13131f !important;
+      color: #fff !important;
+    }
+  </style>
+  <!-- Filters -->
+  <form method="GET" class="flex gap-3 mb-6 flex-wrap">
+    <input name="search" value="{{ search }}" placeholder="Search name…"
+      class="h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:border-primary/50 w-56"/>
+    <select name="category" class="admin-select h-10 px-3 rounded-xl text-sm focus:outline-none w-56">
+      <option value="">All Categories</option>
+      {% for cat in categories %}
+        <option value="{{ cat }}" {% if cat == active_category %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="px-5 h-10 rounded-xl bg-primary/20 text-primary font-bold text-sm hover:bg-primary/30 transition-colors">Filter</button>
+  </form>
+
+  <!-- Table -->
+  <div class="rounded-2xl border border-white/10 overflow-hidden">
+    <table class="admin-comp-table w-full text-sm">
+      <thead>
+        <tr class="border-b border-white/10 bg-white/3">
+          <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400">Image</th>
+          <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400 sortable" onclick="sortManageTable('name', this)">Name</th>
+          <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400 sortable" onclick="sortManageTable('brand', this)">Brand</th>
+          <th class="px-5 py-3 text-left text-xs font-bold uppercase tracking-widest text-gray-400 sortable" onclick="sortManageTable('category', this)">Category</th>
+          <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-widest text-gray-400 sortable" onclick="sortManageTable('perf', this)">Perf</th>
+          <th class="px-5 py-3 text-right text-xs font-bold uppercase tracking-widest text-gray-400 sortable" onclick="sortManageTable('price', this)">Price</th>
+          <th class="px-5 py-3 text-center text-xs font-bold uppercase tracking-widest text-gray-400">Links</th>
+          <th class="px-5 py-3 text-center text-xs font-bold uppercase tracking-widest text-gray-400">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-white/5">
+        {% for c in components %}
+        <tr id="component-row-{{ c.id }}" class="hover:bg-white/3 transition-colors"
+            data-specs="{{ c.specs | tojson | e }}"
+            data-compatibility="{{ c.compatibility | tojson | e }}"
+            data-image-url="{{ c.image_url | replace("'", "\\'") }}"
+            data-description="{{ c.description | replace("'", "\\'") }}"
+            data-performance-score="{{ c.performance_score }}"
+            data-price="{{ c.price }}"
+            data-name="{{ c.name | lower }}"
+            data-brand="{{ c.brand | lower }}"
+            data-category="{{ c.category | lower }}"
+            data-external-id="{{ c.external_id | replace("'", "\\'") }}">
+          <td class="px-5 py-3">
+            {% if c.image_url %}
+              <img src="{{ c.image_url }}" alt="{{ c.name }}" class="manage-img-thumb" />
+            {% else %}
+              <div class="px-2 py-1 rounded-full bg-white/5 text-[10px] font-bold uppercase text-gray-300">{{ c.category }}</div>
+            {% endif %}
+          </td>
+          <td class="px-5 py-3 font-semibold">{{ c.name }}</td>
+          <td class="px-5 py-3 text-gray-400">{{ c.brand }}</td>
+          <td class="px-5 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-primary/15 text-primary">{{ c.category }}</span></td>
+          <td class="px-5 py-3 text-right font-black text-primary">{{ c.performance_score }}</td>
+          <td class="px-5 py-3 text-right font-black text-primary">₱{{ "{:,}".format(c.price) }}</td>
+          <td class="px-5 py-3 text-center">
+            <button onclick="openLinksModal({{ c.id }}, '{{ c.name | replace("'", "\\'") }}')"
+              class="px-3 py-1 rounded-lg bg-white/8 hover:bg-blue-500/20 text-blue-400 text-xs font-bold transition-colors">
+              {{ c.links | length }} link{% if c.links | length != 1 %}s{% endif %}
+            </button>
+          </td>
+          <td class="px-5 py-3 text-center flex justify-center gap-2">
+            <button onclick="loadComponent({{ c.id }})"
+              class="px-3 py-1 rounded-lg bg-[#2d1f67] hover:bg-[#3f2a8b] text-xs font-bold text-white transition-colors">Load Component</button>
+            <form method="POST" action="{{ url_for('admin.delete_component', cid=c.id) }}"
+              onsubmit="return confirm('Delete {{ c.name }}?')">
+              <button class="px-3 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs font-bold transition-colors">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="px-5 py-12 text-center text-gray-500">No components found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Add Modal -->
+<div id="add-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+  <div class="bg-[#13131f] rounded-2xl border border-white/10 w-full max-w-4xl p-6 overflow-y-auto max-h-[90vh]">
+    <h2 class="text-lg font-black mb-4">Add Component</h2>
+    <div class="grid gap-6 md:grid-cols-[1fr_360px]">
+      <form id="add-component-form" method="POST" action="{{ url_for('admin.add_component') }}" class="space-y-4">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <input name="name" placeholder="Name" required class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input name="external_id" placeholder="External ID" required class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input name="brand" placeholder="Brand" required class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <select name="category" required class="w-full h-10 px-3 rounded-xl border border-white/10 bg-[#1a1a2e] text-sm text-white focus:outline-none">
+          {% for cat in ["CPU","GPU","RAM","Storage","Motherboard","PSU","Cooling","Case"] %}
+            <option>{{ cat }}</option>
+          {% endfor %}
+        </select>
+        <input name="performance_score" type="number" min="0" placeholder="Performance Score" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input name="image_url" type="url" placeholder="Image URL" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50 col-span-1 sm:col-span-2"/>
+      </div>
+      <textarea name="description" placeholder="Description" rows="3" class="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50 resize-none"></textarea>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-sm uppercase tracking-widest text-gray-400">Specs</div>
+          <button type="button" onclick="addKeyValueRow('add-specs-container')" class="text-primary text-xs font-bold">+ Add spec</button>
+        </div>
+        <div id="add-specs-container" class="space-y-2"></div>
+        <input type="hidden" name="specs" id="add-specs-input" />
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-sm uppercase tracking-widest text-gray-400">Compatibility</div>
+          <button type="button" onclick="addKeyValueRow('add-compatibility-container')" class="text-primary text-xs font-bold">+ Add compatibility</button>
+        </div>
+        <div id="add-compatibility-container" class="space-y-2"></div>
+        <input type="hidden" name="compatibility" id="add-compatibility-input" />
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-sm uppercase tracking-widest text-gray-400">Additional Properties</div>
+          <button type="button" onclick="addKeyValueRow('add-extra-container')" class="text-primary text-xs font-bold">+ Add property</button>
+        </div>
+        <div id="add-extra-container" class="space-y-2"></div>
+        <input type="hidden" name="extra" id="add-extra-input" />
+        <input type="hidden" name="pending_links" id="add-pending-links" />
+      </div>
+        <button type="submit" onclick="syncPendingLinksHiddenField()" class="flex-1 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors">Add</button>
+        <button type="button" onclick="closeAddModal()"
+          class="px-5 py-2.5 rounded-xl border border-white/15 text-sm font-bold hover:border-white/30 transition-colors">Cancel</button>
+      </div>
+      </form>
+      <aside class="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm uppercase tracking-widest text-gray-400">Shop Links</h3>
+          <span class="text-xs text-gray-400">Price auto from lowest link</span>
+        </div>
+        <div id="add-links-list" class="space-y-3 min-h-[180px] text-sm text-gray-400">
+          <p>No links yet. Add one below.</p>
+        </div>
+        <div class="space-y-3 rounded-2xl border border-white/10 bg-[#13131f] p-4">
+          <input id="add-new-store-name" placeholder="Store name" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50" />
+          <input id="add-new-link-url" placeholder="URL" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50" />
+          <input id="add-new-link-price" type="number" step="0.01" placeholder="Price at this store (₱)" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50" />
+          <button type="button" onclick="addLink()" class="w-full py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors">+ Add Link</button>
+        </div>
+      </aside>
+  </div>
+</div>
+
+<!-- Edit Modal (Load & Edit Component) -->
+<div id="edit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+  <div class="bg-[#13131f] rounded-2xl border border-white/10 w-full max-w-4xl p-6 overflow-y-auto max-h-[90vh]">
+    <h2 class="text-lg font-black mb-4">Edit Component</h2>
+    <div class="grid gap-6 md:grid-cols-[1fr_360px]">
+      <form id="edit-form" method="POST" class="space-y-4">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <input id="edit-name" name="name" placeholder="Name" required class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input id="edit-external-id" name="external_id" placeholder="External ID" required class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input id="edit-brand" name="brand" placeholder="Brand" required class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <select id="edit-category" name="category" required class="w-full h-10 px-3 rounded-xl border border-white/10 bg-[#1a1a2e] text-sm text-white focus:outline-none">
+          {% for cat in ["CPU","GPU","RAM","Storage","Motherboard","PSU","Cooling","Case"] %}
+            <option>{{ cat }}</option>
+          {% endfor %}
+        </select>
+        <input id="edit-performance-score" type="number" min="0" placeholder="Performance Score" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input id="edit-image-url" type="url" placeholder="Image URL" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50 col-span-1 sm:col-span-2"/>
+      </div>
+      <textarea id="edit-description" placeholder="Description" rows="3" class="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50 resize-none"></textarea>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-sm uppercase tracking-widest text-gray-400">Specs</div>
+          <button type="button" onclick="addKeyValueRow('edit-specs-container')" class="text-primary text-xs font-bold">+ Add spec</button>
+        </div>
+        <div id="edit-specs-container" class="space-y-2"></div>
+        <input type="hidden" name="specs" id="edit-specs-input" />
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-sm uppercase tracking-widest text-gray-400">Compatibility</div>
+          <button type="button" onclick="addKeyValueRow('edit-compatibility-container')" class="text-primary text-xs font-bold">+ Add compatibility</button>
+        </div>
+        <div id="edit-compatibility-container" class="space-y-2"></div>
+        <input type="hidden" name="compatibility" id="edit-compatibility-input" />
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="font-bold text-sm uppercase tracking-widest text-gray-400">Additional Properties</div>
+          <button type="button" onclick="addKeyValueRow('edit-extra-container')" class="text-primary text-xs font-bold">+ Add property</button>
+        </div>
+        <div id="edit-extra-container" class="space-y-2"></div>
+        <input type="hidden" name="extra" id="edit-extra-input" />
+      </div>
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors">Save Changes</button>
+          <button type="button" onclick="closeEditModal()"
+            class="px-5 py-2.5 rounded-xl border border-white/15 text-sm font-bold hover:border-white/30 transition-colors">Cancel</button>
+        </div>
+      </form>
+      <aside class="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div class="flex items-center justify-between">
+          <h3 class="font-bold text-sm uppercase tracking-widest text-gray-400">Shop Links</h3>
+          <span class="text-xs text-gray-400">Auto from lowest</span>
+        </div>
+        <div id="edit-links-list" class="space-y-3 min-h-[180px] text-sm text-gray-400 overflow-y-auto" style="max-height:46vh;">
+          <p>Loading links…</p>
+        </div>
+        <div class="space-y-3 rounded-2xl border border-white/10 bg-[#13131f] p-4">
+          <input id="edit-new-store-name" placeholder="Store name" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50" />
+          <input id="edit-new-link-url" placeholder="URL" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50" />
+          <input id="edit-new-link-price" type="number" step="0.01" placeholder="Price at this store (₱)" class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50" />
+          <button type="button" onclick="addLinkToEditComponent()" class="w-full py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors">+ Add Link</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- Links Modal -->
+<div id="links-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+  <div class="bg-[#13131f] rounded-2xl border border-white/10 w-full max-w-4xl p-6 overflow-hidden max-h-[90vh] mx-auto">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-black">Store Links — <span id="links-modal-name" class="text-primary"></span></h2>
+      <button onclick="closeLinksModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+    </div>
+    <div class="grid gap-5 links-modal-grid">
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-bold uppercase text-gray-400 tracking-widest">Existing Links</p>
+          <span id="links-count" class="text-xs text-gray-400"></span>
+        </div>
+        <div id="links-list" class="space-y-2 overflow-y-auto" style="max-height:46vh; min-height:220px;">
+          <p class="text-gray-500 text-sm" id="links-empty">Loading…</p>
+        </div>
+      </div>
+      <div class="space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div class="flex items-center justify-between gap-4">
+          <p class="text-sm font-bold uppercase text-gray-400 tracking-widest">Shop Links</p>
+          <button type="button" onclick="addLink()" class="text-primary text-xs font-bold">+ Add link</button>
+        </div>
+        <input id="new-store-name" placeholder="Store name (e.g. Shopee, Lazada, PC Express)"
+          class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input id="new-link-url" placeholder="URL (https://...)"
+          class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <input id="new-link-price" type="number" placeholder="Price at this store (₱)"
+          class="w-full h-10 px-4 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none focus:border-primary/50"/>
+        <button type="button" onclick="addLink()" class="w-full py-2.5 rounded-xl bg-primary text-white font-bold text-sm hover:bg-primary/90 transition-colors">
+          Save link
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var _currentComponentId = null;
+var _pendingLinks = [];
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"]+/g, function(match) {
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[match];
+  });
+}
+
+function syncPendingLinksHiddenField() {
+  const hidden = document.getElementById('add-pending-links');
+  if (!hidden) return;
+  hidden.value = JSON.stringify(_pendingLinks || []);
+}
+
+function renderLinksListForPending() {
+  // update both the standalone links modal list and the embedded add panel list
+  const lists = [document.getElementById('links-list'), document.getElementById('add-links-list')];
+  const counts = [document.getElementById('links-count'), document.getElementById('add-links-count')];
+  if (!_pendingLinks || _pendingLinks.length === 0) {
+    lists.forEach(l => { if (l) l.innerHTML = '<p class="text-gray-500 text-sm">No links yet. Add one below.</p>'; });
+    counts.forEach(c => { if (c) c.textContent = ''; });
+    syncPendingLinksHiddenField();
+    return;
+  }
+  const html = _pendingLinks.map((l, idx) => `
+    <div class="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8" id="link-row-pending-${idx}">
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold">${escapeHtml(l.store_name)}</div>
+        <a href="${escapeHtml(l.url)}" target="_blank" class="text-xs text-blue-400 truncate block hover:underline" style="max-width:280px;">${escapeHtml(l.url)}</a>
+        <div class="text-xs text-green-400 font-bold mt-0.5">₱${Number(l.price).toLocaleString()}</div>
+      </div>
+      <button type="button" onclick="removePendingLink(${idx})" class="px-3 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs font-bold transition-colors flex-shrink-0">Delete</button>
+    </div>
+  `).join('');
+  lists.forEach(l => { if (l) l.innerHTML = html; });
+  counts.forEach(c => { if (c) c.textContent = `${_pendingLinks.length} pending`; });
+  syncPendingLinksHiddenField();
+}
+
+function removePendingLink(idx) {
+  _pendingLinks.splice(idx, 1);
+  renderLinksListForPending();
+}
+function newKeyValueRow(key = '', value = '') {
+  const row = document.createElement('div');
+  row.className = 'grid grid-cols-[1fr_1fr_auto] gap-2 items-center kv-row';
+  row.innerHTML = `
+    <input type="text" class="kv-key w-full h-10 px-3 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none" placeholder="Key" value="${escapeHtml(key)}" />
+    <input type="text" class="kv-value w-full h-10 px-3 rounded-xl border border-white/10 bg-white/5 text-sm text-white focus:outline-none" placeholder="Value" value="${escapeHtml(value)}" />
+    <button type="button" class="h-10 px-3 rounded-xl bg-white/8 text-sm font-bold text-white hover:bg-white/15" onclick="removeKeyValueRow(this)">×</button>
+  `;
+  return row;
+}
+
+function addKeyValueRow(containerId, key = '', value = '') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.appendChild(newKeyValueRow(key, value));
+}
+
+function removeKeyValueRow(button) {
+  const row = button.closest('.kv-row');
+  if (row) row.remove();
+}
+
+function parseFieldValue(value) {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  if (/^-?\d+$/.test(value)) return parseInt(value, 10);
+  if (/^-?\d+\.\d+$/.test(value)) return parseFloat(value);
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
+}
+
+function gatherKeyValueRows(containerId) {
+  const data = {};
+  document.querySelectorAll(`#${containerId} .kv-row`).forEach(row => {
+    const keyInput = row.querySelector('.kv-key');
+    const valueInput = row.querySelector('.kv-value');
+    if (!keyInput || !valueInput) return;
+    const key = keyInput.value.trim();
+    const value = valueInput.value.trim();
+    if (!key) return;
+    data[key] = parseFieldValue(value);
+  });
+  return data;
+}
+
+function serializeComponentForm(formId, specsFieldId, compatibilityFieldId, extraFieldId, specsContainerId, compatibilityContainerId, extraContainerId) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    document.getElementById(specsFieldId).value = JSON.stringify(gatherKeyValueRows(specsContainerId));
+    document.getElementById(compatibilityFieldId).value = JSON.stringify(gatherKeyValueRows(compatibilityContainerId));
+    document.getElementById(extraFieldId).value = JSON.stringify(gatherKeyValueRows(extraContainerId));
+  });
+}
+
+function clearContainer(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) container.innerHTML = '';
+}
+
+function populateContainer(containerId, values) {
+  clearContainer(containerId);
+  if (!values || typeof values !== 'object') return;
+  Object.entries(values).forEach(([key, value]) => {
+    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+    addKeyValueRow(containerId, key, stringValue);
+  });
+}
+
+function openAddModal() {
+  document.getElementById('add-component-form').reset();
+  clearContainer('add-specs-container');
+  clearContainer('add-compatibility-container');
+  clearContainer('add-extra-container');
+  _pendingLinks = [];
+  renderLinksListForPending();
+  syncPendingLinksHiddenField();
+  document.getElementById('add-modal').classList.remove('hidden');
+  _currentComponentId = null;
+  const links = document.getElementById('links-modal');
+  if (links) {
+    links.classList.add('hidden');
+    links.classList.remove('links-modal-side');
+  }
+}
+
+function loadComponent(id) {
+  // Fetch the complete component data from the database
+  fetch(`/admin/components/${id}/details`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        alert('Failed to load component: ' + data.error);
+        return;
+      }
+      // Populate the edit modal with the fetched data
+      document.getElementById('edit-name').value = data.name;
+      document.getElementById('edit-brand').value = data.brand;
+      document.getElementById('edit-category').value = data.category;
+      document.getElementById('edit-performance-score').value = data.performance_score;
+      document.getElementById('edit-external-id').value = data.external_id;
+      document.getElementById('edit-image-url').value = data.image_url;
+      document.getElementById('edit-description').value = data.description;
+      populateContainer('edit-specs-container', data.specs || {});
+      populateContainer('edit-compatibility-container', data.compatibility || {});
+      clearContainer('edit-extra-container');
+      document.getElementById('edit-form').action = `/admin/components/edit/${id}`;
+      
+      // Load existing links for this component
+      loadEditComponentLinks(id);
+      
+      document.getElementById('edit-modal').classList.remove('hidden');
+    })
+    .catch(err => {
+      alert('Error loading component: ' + err.message);
+    });
+}
+
+
+function openLinksModal(componentId, componentName) {
+  _currentComponentId = componentId;
+  document.getElementById('links-modal-name').textContent = componentName;
+  document.getElementById('links-modal').classList.remove('hidden');
+  if (!componentId) {
+    // show pending links for new component
+    renderLinksListForPending();
+  } else {
+    loadLinks(componentId);
+  }
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  serializeComponentForm('add-component-form', 'add-specs-input', 'add-compatibility-input', 'add-extra-input', 'add-specs-container', 'add-compatibility-container', 'add-extra-container');
+  serializeComponentForm('edit-form', 'edit-specs-input', 'edit-compatibility-input', 'edit-extra-input', 'edit-specs-container', 'edit-compatibility-container', 'edit-extra-container');
+
+  const addForm = document.getElementById('add-component-form');
+  if (addForm) {
+    addForm.addEventListener('submit', function () {
+      const hidden = document.getElementById('add-pending-links');
+      if (hidden) hidden.value = JSON.stringify(_pendingLinks || []);
+    });
+  }
+
+  syncPendingLinksHiddenField();
+
+  const selectedComponentId = {{ selected_component_id | default(None) | tojson }};
+  if (selectedComponentId) {
+    loadComponent(selectedComponentId);
+  }
+});
+
+function sortManageTable(column, th) {
+  const tbody = document.querySelector('.admin-comp-table tbody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const currentDir = th.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+  document.querySelectorAll('.admin-comp-table th.sortable').forEach(header => {
+    header.classList.remove('sorted-asc', 'sorted-desc');
+    delete header.dataset.sortDir;
+  });
+  th.dataset.sortDir = currentDir;
+  th.classList.add(currentDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+
+  rows.sort((a, b) => {
+    const aKey = a.dataset[column] || '';
+    const bKey = b.dataset[column] || '';
+    if (column === 'price' || column === 'perf') {
+      return currentDir === 'asc' ? Number(aKey) - Number(bKey) : Number(bKey) - Number(aKey);
+    }
+    return currentDir === 'asc' ? aKey.localeCompare(bKey) : bKey.localeCompare(aKey);
+  });
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+function closeLinksModal() {
+  const links = document.getElementById('links-modal');
+  if (links) {
+    links.classList.add('hidden');
+    links.classList.remove('links-modal-side');
+    // clear any inline styles we set for side-panel mode
+    links.style.top = '';
+    links.style.right = '';
+    links.style.left = '';
+    links.style.bottom = '';
+    links.style.background = '';
+    links.style.padding = '';
+    links.style.display = '';
+    links.style.alignItems = '';
+    const inner = links.querySelector(':scope > div');
+    if (inner) {
+      inner.style.margin = '';
+      inner.style.maxWidth = '';
+      inner.style.width = '';
+    }
+  }
+  _currentComponentId = null;
+}
+
+function closeAddModal() {
+  const am = document.getElementById('add-modal');
+  if (am) am.classList.add('hidden');
+  const links = document.getElementById('links-modal');
+  if (links) {
+    links.classList.add('hidden');
+    links.classList.remove('links-modal-side');
+    links.style.top = '';
+    links.style.right = '';
+    links.style.left = '';
+    links.style.bottom = '';
+    links.style.background = '';
+    links.style.padding = '';
+    links.style.display = '';
+    links.style.alignItems = '';
+    const inner = links.querySelector(':scope > div');
+    if (inner) {
+      inner.style.margin = '';
+      inner.style.maxWidth = '';
+      inner.style.width = '';
+    }
+  }
+}
+
+function loadLinks(componentId) {
+  const list = document.getElementById('links-list');
+  if (!componentId) return renderLinksListForPending();
+  list.innerHTML = '<p class="text-gray-500 text-sm">Loading…</p>';
+  fetch(`/admin/components/${componentId}/links`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.links || data.links.length === 0) {
+        list.innerHTML = '<p class="text-gray-500 text-sm">No links yet. Add one below.</p>';
+        return;
+      }
+      list.innerHTML = data.links.map(l => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8" id="link-row-${l.id}">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold">${l.store_name}</div>
+            <a href="${l.url}" target="_blank" class="text-xs text-blue-400 truncate block hover:underline" style="max-width:280px;">${l.url}</a>
+            <div class="text-xs text-green-400 font-bold mt-0.5">₱${Number(l.price).toLocaleString()}</div>
+          </div>
+          <button onclick="deleteLink(${l.id})" class="px-3 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs font-bold transition-colors flex-shrink-0">
+            Delete
+          </button>
+        </div>
+      `).join('');
+    })
+    .catch(() => { list.innerHTML = '<p class="text-red-400 text-sm">Failed to load links.</p>'; });
+}
+
+function addLink() {
+  const storeEl = _currentComponentId ? document.getElementById('new-store-name') : document.getElementById('add-new-store-name');
+  const urlEl = _currentComponentId ? document.getElementById('new-link-url') : document.getElementById('add-new-link-url');
+  const priceEl = _currentComponentId ? document.getElementById('new-link-price') : document.getElementById('add-new-link-price');
+  const store = storeEl?.value.trim() || '';
+  const url = urlEl?.value.trim() || '';
+  const price = priceEl?.value;
+  if (!store || !url || !price) { alert('Please fill in all fields.'); return; }
+  if (!_currentComponentId) {
+    // store pending link locally until component is created
+    _pendingLinks.push({ store_name: store, url: url, price: parseFloat(price) });
+    if (storeEl) storeEl.value = '';
+    if (urlEl) urlEl.value = '';
+    if (priceEl) priceEl.value = '';
+    renderLinksListForPending();
+    syncPendingLinksHiddenField();
+    return;
+  }
+  fetch(`/admin/components/${_currentComponentId}/links/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ store_name: store, url: url, price: parseFloat(price) })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+      if (storeEl) storeEl.value = '';
+      if (urlEl) urlEl.value = '';
+      if (priceEl) priceEl.value = '';
+      loadLinks(_currentComponentId);
+    })
+    .catch(() => alert('Failed to add link.'));
+}
+
+// addPendingLinkFromAdd removed; addLink() handles both modal and add-form inputs
+
+function deleteLink(linkId) {
+  if (!confirm('Delete this link?')) return;
+  fetch(`/admin/links/${linkId}/delete`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+      document.getElementById('link-row-' + linkId)?.remove();
+      if (!document.querySelector('#links-list [id^="link-row-"]')) {
+        document.getElementById('links-list').innerHTML = '<p class="text-gray-500 text-sm">No links yet. Add one below.</p>';
+      }
+    })
+    .catch(() => alert('Delete failed.'));
+}
+
+function loadEditComponentLinks(componentId) {
+  const list = document.getElementById('edit-links-list');
+  if (!list) return;
+  list.innerHTML = '<p class="text-gray-500 text-sm">Loading…</p>';
+  fetch(`/admin/components/${componentId}/links`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.links || data.links.length === 0) {
+        list.innerHTML = '<p class="text-gray-500 text-sm">No links yet. Add one below.</p>';
+        return;
+      }
+      list.innerHTML = data.links.map(l => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8" id="edit-link-row-${l.id}">
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-bold">${escapeHtml(l.store_name)}</div>
+            <a href="${escapeHtml(l.url)}" target="_blank" class="text-xs text-blue-400 truncate block hover:underline" style="max-width:280px;">${escapeHtml(l.url)}</a>
+            <div class="text-xs text-green-400 font-bold mt-0.5">₱${Number(l.price).toLocaleString()}</div>
+          </div>
+          <button type="button" onclick="deleteEditLink(${l.id})" class="px-3 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs font-bold transition-colors flex-shrink-0">
+            Delete
+          </button>
+        </div>
+      `).join('');
+    })
+    .catch(() => { list.innerHTML = '<p class="text-red-400 text-sm">Failed to load links.</p>'; });
+}
+
+function addLinkToEditComponent() {
+  const componentId = document.getElementById('edit-form')?.action.split('/').pop();
+  if (!componentId) { alert('No component selected'); return; }
+  const store = document.getElementById('edit-new-store-name')?.value.trim() || '';
+  const url = document.getElementById('edit-new-link-url')?.value.trim() || '';
+  const price = document.getElementById('edit-new-link-price')?.value;
+  if (!store || !url || !price) { alert('Please fill in all fields.'); return; }
+  fetch(`/admin/components/${componentId}/links/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ store_name: store, url: url, price: parseFloat(price) })
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+      document.getElementById('edit-new-store-name').value = '';
+      document.getElementById('edit-new-link-url').value = '';
+      document.getElementById('edit-new-link-price').value = '';
+      loadEditComponentLinks(componentId);
+    })
+    .catch(() => alert('Failed to add link.'));
+}
+
+function deleteEditLink(linkId) {
+  if (!confirm('Delete this link?')) return;
+  const componentId = document.getElementById('edit-form')?.action.split('/').pop();
+  fetch(`/admin/links/${linkId}/delete`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+      document.getElementById('edit-link-row-' + linkId)?.remove();
+      if (componentId && !document.querySelector('#edit-links-list [id^="edit-link-row-"]')) {
+        document.getElementById('edit-links-list').innerHTML = '<p class="text-gray-500 text-sm">No links yet. Add one below.</p>';
+      }
+    })
+    .catch(() => alert('Delete failed.'));
+}
+
+function closeEditModal() {
+  const modal = document.getElementById('edit-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+// ensure pending links are serialized into the add form before submit
+const addForm = document.getElementById('add-component-form');
+if (addForm) {
+  addForm.addEventListener('submit', function () {
+    document.getElementById('add-pending-links').value = JSON.stringify(_pendingLinks || []);
+  });
+}
+
+// Close modals on backdrop click
+// Close modals on backdrop click
+['add-modal','edit-modal','links-modal'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', function(e) {
+    if (e.target !== this) return;
+    this.classList.add('hidden');
+    // if closing add-modal, also hide the side links panel
+    if (id === 'add-modal') {
+      const links = document.getElementById('links-modal');
+      if (links) {
+        links.classList.add('hidden');
+        links.classList.remove('links-modal-side');
+      }
+      // embedded add-links panel removed; nothing extra to hide
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1375 @@
+{% extends 'base.html' %}
+
+{% block title %}AI PC Builder Questionnaire{% endblock %}
+
+{% block content %}
+<div class="questionnaire-wrapper">
+    <div id="auth-required-modal" style="display: {{ 'flex' if not session.get('user_id') else 'none' }}; position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,.85);">
+      <div style="max-width:420px; width:100%; padding:32px; border-radius:24px; background:rgba(15,23,42,.96); border:1px solid rgba(255,255,255,.08); text-align:center; color:#f8fafc;">
+        <h2 style="margin-bottom:16px; font-size:24px; font-weight:900;">Sign in required</h2>
+        <p style="margin-bottom:24px; color:rgba(248,250,252,.8); line-height:1.6;">You need to sign in first before using the build finder.</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary" style="width:100%;">Sign In</a>
+      </div>
+    </div>
+    <!-- Top Navigation Bar -->
+    <header class="questionnaire-header">
+        <button id="resetBtn" class="questionnaire-reset-btn hidden">
+            Reset Questionnaire
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="questionnaire-main">
+        <div class="questionnaire-container">
+            <!-- Progress Sidebar (Desktop Only) -->
+            <aside class="questionnaire-sidebar">
+                <div class="questionnaire-progress-box">
+                    <div id="progress-step-1" class="progress-step active">
+                        <div class="step-number">1</div>
+                        <div class="step-info">
+                            <div class="step-label">Primary Intent</div>
+                            <div class="step-title">Purpose</div>
+                        </div>
+                    </div>
+
+                    <div id="progress-step-2" class="progress-step">
+                        <div class="step-number">2</div>
+                        <div class="step-info">
+                            <div class="step-label">Financial Planning</div>
+                            <div class="step-title">Budget</div>
+                        </div>
+                    </div>
+
+                    <div id="progress-step-3" class="progress-step">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <div class="step-label">Chassis Size</div>
+                            <div class="step-title">Form Factor</div>
+                        </div>
+                    </div>
+
+                    <div id="progress-step-4" class="progress-step">
+                        <div class="step-number">4</div>
+                        <div class="step-info">
+                            <div class="step-label">Thermal Vibe</div>
+                            <div class="step-title">Aesthetics</div>
+                        </div>
+                    </div>
+
+                    <div id="progress-step-5" class="progress-step">
+                        <div class="step-number">5</div>
+                        <div class="step-info">
+                            <div class="step-label">Ecosystem Architecture</div>
+                            <div class="step-title">Platform</div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="questionnaire-content">
+                <!-- Wizard Container -->
+                <div id="wizardContainer">
+
+                <!-- STEP 1: PC Usage / Primary Purpose -->
+                <div id="step-1" class="wizard-step">
+                    <div class="questionnaire-step-header">
+                        <span class="questionnaire-step-label">Primary Intent</span>
+                        <h2 class="questionnaire-step-title">What will you use this PC for?</h2>
+                        <p class="questionnaire-step-description">We will adapt the computing and graphic capability focus to your lifestyle.</p>
+                    </div>
+
+                    <div class="questionnaire-options-grid questionnaire-grid-3">
+                        <button onclick="selectOption(1, 'targetTier', 'Education, Office & Light Gaming', 'tier-entry')" id="tier-entry" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">📚</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Education & Office</h3>
+                                <p>Perfect for online school, productivity, general office applications, coding, and casual lightweight gaming.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(1, 'targetTier', 'Pure Gaming Focus', 'tier-mid')" id="tier-mid" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🎮</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Pure Gaming</h3>
+                                <p>Focused purely on pushing framerates, high refresh monitors, and immersive graphics in modern games.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(1, 'targetTier', 'Streaming, Video Editing & Creation', 'tier-high')" id="tier-high" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🎙️</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Streaming & Creation</h3>
+                                <p>High multitasking workload. Ideal for live streaming, 4K rendering, video editing, and content design.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Budget -->
+                <div id="step-2" class="wizard-step hidden">
+                    <div class="questionnaire-step-header">
+                        <span class="questionnaire-step-label">Financial Planning</span>
+                        <h2 class="questionnaire-step-title">What budget priority would you like?</h2>
+                        <p class="questionnaire-step-description">Choose a flexible budget tier to guide the recommendation, not a fixed maximum cap.</p>
+                    </div>
+
+                    <div class="questionnaire-options-grid questionnaire-grid-3">
+                        <button onclick="selectOption(2, 'budget', 'Low Budget', 'budget-low')" id="budget-low" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">💵</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Low Budget</h3>
+                                <p>Value-first recommendation with affordable components and optional cost-saving tradeoffs.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(2, 'budget', 'Normal Budget', 'budget-mid')" id="budget-mid" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">💳</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Normal Budget</h3>
+                                <p>Balanced recommendation for good performance and value without extreme overspend.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(2, 'budget', 'High Budget', 'budget-high')" id="budget-high" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">💎</span>
+                            <div class="questionnaire-option-text">
+                                <h3>High Budget</h3>
+                                <p>Performance-focused recommendation with stronger GPUs and higher-end components.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Form Factor -->
+                <div id="step-3" class="wizard-step hidden">
+                    <div class="questionnaire-step-header">
+                        <span class="questionnaire-step-label">Chassis Size</span>
+                        <h2 class="questionnaire-step-title">Select your system form factor</h2>
+                        <p class="questionnaire-step-description">We've constrained choices to match our physical motherboard sizes (Micro-ATX & ATX).</p>
+                    </div>
+
+                    <div class="questionnaire-options-grid questionnaire-grid-2">
+                        <button onclick="selectOption(3, 'formFactor', 'Micro-ATX (Compact Layout)', 'size-matx')" id="size-matx" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">📟</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Micro-ATX (Compact)</h3>
+                                <p>Space-efficient and cost-effective. Combines smaller chassis footings with robust connectivity.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(3, 'formFactor', 'Standard ATX (Spacious Layout)', 'size-atx')" id="size-atx" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🖥️</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Standard ATX (Full-Tower)</h3>
+                                <p>Unmatched expansion room, maximum airflow design layouts, and spacious case structures.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Aesthetics & Cooling -->
+                <div id="step-4" class="wizard-step hidden">
+                    <div class="questionnaire-step-header">
+                        <span class="questionnaire-step-label">Thermal Vibe</span>
+                        <h2 class="questionnaire-step-title">What is your visual and cooling aesthetic?</h2>
+                        <p class="questionnaire-step-description">Decide between clean air stealth and dynamic liquid glowing RGB radiators.</p>
+                    </div>
+
+                    <div class="questionnaire-options-grid questionnaire-grid-2">
+                        <button onclick="selectOption(4, 'style', 'Stealth Air Cooling (No-RGB)', 'vibe-stealth')" id="vibe-stealth" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🕶️</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Stealth Air Cooled</h3>
+                                <p>Focused on ultra-quiet operations, high-efficiency heatsinks, and dark components with zero illumination.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(4, 'style', 'Brilliant Liquid RGB Performance', 'vibe-rgb')" id="vibe-rgb" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🌈</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Liquid Cooled RGB</h3>
+                                <p>Features glowing addressable ARGB fan arrays and performance multi-chamber liquid pump setups.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 5: Platform -->
+                <div id="step-5" class="wizard-step hidden">
+                    <div class="questionnaire-step-header">
+                        <span class="questionnaire-step-label">Ecosystem Architecture</span>
+                        <h2 class="questionnaire-step-title">Choose your preferred memory platform</h2>
+                        <p class="questionnaire-step-description">We've tailored this to directly divide our AMD-DDR4 and Intel-DDR5 dataset pipelines.</p>
+                    </div>
+
+                    <div class="questionnaire-options-grid questionnaire-grid-3">
+                        <button onclick="selectOption(5, 'platform', 'Team AMD & DDR4 Memory', 'plat-amd')" id="plat-amd" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🔴</span>
+                            <div class="questionnaire-option-text">
+                                <h3>AMD & DDR4</h3>
+                                <p>Proven reliability. Ideal for budget to high-performance Ryzen sweet-spots.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(5, 'platform', 'Team Intel & DDR5 Memory', 'plat-intel')" id="plat-intel" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">🔵</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Intel & DDR5</h3>
+                                <p>Cutting edge bandwidth. Utilizes high frequency 6000MHz memory lines.</p>
+                            </div>
+                        </button>
+
+                        <button onclick="selectOption(5, 'platform', 'No Preference (Optimized Value)', 'plat-any')" id="plat-any" class="questionnaire-option-card">
+                            <span class="questionnaire-option-icon">⚖️</span>
+                            <div class="questionnaire-option-text">
+                                <h3>Optimized Value</h3>
+                                <p>No ecosystem allegiance. Automatically targets maximum value ratios.</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RESULTS SCREEN -->
+                <div id="step-result" class="wizard-step hidden">
+                    <div class="questionnaire-result-header">
+                        <div class="questionnaire-result-icon">⚙️</div>
+                        <div class="questionnaire-result-text">
+                            <span class="questionnaire-step-label">Build Optimized</span>
+                            <h2>This is the build for you!</h2>
+                            <p>Your configuration has been optimized against our component inventory for perfect compatibility.</p>
+                        </div>
+                    </div>
+
+                    <!-- Selected Specs Summary -->
+                    <div class="questionnaire-result-summary">
+                        <h3 class="questionnaire-result-summary-title">Target Configuration Profile</h3>
+                        
+                        <div class="questionnaire-result-grid">
+                            <div class="questionnaire-result-item">
+                                <span class="questionnaire-result-icon-small">🎯</span>
+                                <div>
+                                    <span class="questionnaire-result-label">Primary Purpose</span>
+                                    <span id="result-tier" class="questionnaire-result-value">—</span>
+                                </div>
+                            </div>
+                            
+                            <div class="questionnaire-result-item">
+                                <span class="questionnaire-result-icon-small">💵</span>
+                                <div>
+                                    <span class="questionnaire-result-label">Budget Threshold</span>
+                                    <span id="result-budget" class="questionnaire-result-value">—</span>
+                                </div>
+                            </div>
+
+                            <div class="questionnaire-result-item">
+                                <span class="questionnaire-result-icon-small">📏</span>
+                                <div>
+                                    <span class="questionnaire-result-label">Form Factor</span>
+                                    <span id="result-formfactor" class="questionnaire-result-value">—</span>
+                                </div>
+                            </div>
+
+                            <div class="questionnaire-result-item">
+                                <span class="questionnaire-result-icon-small">✨</span>
+                                <div>
+                                    <span class="questionnaire-result-label">Aesthetic Choice</span>
+                                    <span id="result-style" class="questionnaire-result-value">—</span>
+                                </div>
+                            </div>
+
+                            <div class="questionnaire-result-item questionnaire-result-item-full">
+                                <span class="questionnaire-result-icon-small">🧬</span>
+                                <div>
+                                    <span class="questionnaire-result-label">Platform Memory Standard</span>
+                                    <span id="result-platform" class="questionnaire-result-value">—</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Components List -->
+                        <div class="questionnaire-components-section">
+                            <h4 class="questionnaire-components-title">Recommended Components</h4>
+                            <div id="recommendedComponentsList" class="questionnaire-components-list">
+                                <!-- Will be populated by JS -->
+                            </div>
+                            <div class="questionnaire-total-price">
+                                <span>Total Build Cost:</span>
+                                <span id="totalPrice" class="questionnaire-price-amount">₱0</span>
+                            </div>
+                        </div>
+
+                        <!-- Info Banner -->
+                        <div class="questionnaire-info-banner">
+                            <span>💡</span>
+                            <p><strong>Setup mapped successfully!</strong> These configuration metrics have been validated against our component inventory data metrics for perfect compatibility.</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="questionnaire-action-buttons">
+                        <button onclick="restartWizard()" class="questionnaire-btn questionnaire-btn-secondary">
+                            Restart Selection
+                        </button>
+                        <button onclick="confirmAndCreate()" class="questionnaire-btn questionnaire-btn-primary">
+                            Lock In & Go to Builder
+                        </button>
+                    </div>
+
+                    <!-- Loading indicator (hidden by default) -->
+                    <div id="loadingIndicator" class="questionnaire-loading hidden">
+                        <div class="questionnaire-spinner"></div>
+                        <p>Creating your build...</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Navigation Controls -->
+            <div id="navigationControls" class="questionnaire-nav-controls">
+                <button id="backBtn" onclick="prevStep()" class="questionnaire-nav-btn questionnaire-nav-back" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <polyline points="15 19 8 12 15 5"></polyline>
+                    </svg>
+                    Back
+                </button>
+                <div class="questionnaire-nav-hint">Select an option to advance</div>
+                <div></div>
+            </div>
+        </div>
+    </main>
+
+</div>
+
+<style>
+    /* ===== IMPROVED QUESTIONNAIRE STYLES ===== */
+    .questionnaire-wrapper {
+        background: linear-gradient(135deg, #0b0f19 0%, #141820 50%, #0a0d14 100%);
+        color: #e5e7eb;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Animated background */
+    .questionnaire-wrapper::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: 
+            radial-gradient(ellipse 80% 60% at 20% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+            radial-gradient(ellipse 80% 60% at 80% 70%, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
+        animation: gradientShift 15s ease infinite;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    @keyframes gradientShift {
+        0%, 100% { transform: translate(0, 0); }
+        50% { transform: translate(20px, -20px); }
+    }
+
+    .questionnaire-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(11, 15, 25, 0.7);
+        backdrop-filter: blur(10px);
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        padding: 1rem 1.5rem;
+    }
+
+    .questionnaire-reset-btn {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #9ca3af;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        background: rgba(139, 92, 246, 0.05);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .questionnaire-reset-btn:hover {
+        color: #a78bfa;
+        border-color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.15);
+        transform: translateY(-1px);
+    }
+
+    .questionnaire-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Desktop: Two-column layout */
+    .questionnaire-container {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 3rem;
+        width: 100%;
+        max-width: 1100px;
+        align-items: flex-start;
+    }
+
+    /* Sidebar progress tracker (desktop) */
+    .questionnaire-sidebar {
+        display: none;
+    }
+
+    @media (min-width: 1024px) {
+        .questionnaire-sidebar {
+            display: block;
+            position: sticky;
+            top: 120px;
+        }
+
+        .questionnaire-progress-box {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .questionnaire-progress-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            left: 1.25rem;
+            top: 3.5rem;
+            width: 2px;
+            height: 1.5rem;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .progress-step.active .step-number {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .progress-step.completed .step-number {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .progress-step.completed .step-number::after {
+            content: '✓';
+            font-weight: 900;
+        }
+
+        .step-number {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            color: #9ca3af;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .step-info {
+            flex: 1;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .step-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+    }
+
+    /* Main content area */
+    .questionnaire-content {
+        background: rgba(17, 24, 39, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        border-radius: 2rem;
+        padding: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .questionnaire-content::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: 
+            radial-gradient(circle at top right, rgba(139, 92, 246, 0.08) 0%, transparent 70%),
+            radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.06) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .questionnaire-content > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .wizard-step {
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .wizard-step.hidden {
+        display: none;
+    }
+
+    .questionnaire-step-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .questionnaire-step-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #8b5cf6;
+        display: block;
+        margin-bottom: 0.75rem;
+    }
+
+    .questionnaire-step-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 0.75rem;
+        line-height: 1.2;
+    }
+
+    .questionnaire-step-description {
+        color: #9ca3af;
+        font-size: 0.95rem;
+        max-width: 400px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .questionnaire-options-grid {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .questionnaire-grid-3 {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .questionnaire-grid-2 {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    @media (min-width: 768px) {
+        .questionnaire-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .questionnaire-grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .questionnaire-option-card {
+        padding: 1.75rem;
+        border-radius: 1.25rem;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.3) 100%);
+        border: 1.5px solid rgba(139, 92, 246, 0.2);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        color: inherit;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .questionnaire-option-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .questionnaire-option-card:hover {
+        border-color: #8b5cf6;
+        background: linear-gradient(135deg, rgba(63, 63, 70, 0.4) 0%, rgba(39, 39, 42, 0.3) 100%);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(139, 92, 246, 0.15);
+    }
+
+    .questionnaire-option-card:hover::before {
+        opacity: 1;
+    }
+
+    .questionnaire-option-card.selected {
+        border-color: #8b5cf6;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%);
+        transform: scale(1.02);
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3), 0 8px 24px rgba(139, 92, 246, 0.2);
+    }
+
+    .questionnaire-option-card.selected::before {
+        opacity: 1;
+    }
+
+    .questionnaire-option-icon {
+        font-size: 2.5rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .questionnaire-option-text h3 {
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.35rem;
+        font-size: 1rem;
+    }
+
+    .questionnaire-option-text p {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        line-height: 1.5;
+    }
+
+    /* Result screen styling */
+    .questionnaire-result-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .questionnaire-result-icon {
+        width: 6rem;
+        height: 6rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%);
+        border: 2px solid rgba(139, 92, 246, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        animation: pulse 2s ease-in-out infinite;
+        box-shadow: 0 0 30px rgba(139, 92, 246, 0.2);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(139, 92, 246, 0.2); }
+        50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(139, 92, 246, 0.4); }
+    }
+
+    .questionnaire-result-text h2 {
+        font-size: 2.25rem;
+        font-weight: 900;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .questionnaire-result-text p {
+        color: #9ca3af;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    .questionnaire-result-summary {
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .questionnaire-result-summary-title {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #a78bfa;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .questionnaire-result-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .questionnaire-result-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        background: rgba(30, 41, 59, 0.4);
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        border-radius: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .questionnaire-result-item:hover {
+        background: rgba(30, 41, 59, 0.6);
+        border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .questionnaire-result-item-full {
+        grid-column: 1 / -1;
+    }
+
+    .questionnaire-result-icon-small {
+        font-size: 1.5rem;
+        background: rgba(139, 92, 246, 0.15);
+        padding: 0.6rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .questionnaire-result-label {
+        font-size: 0.7rem;
+        color: #9ca3af;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+    }
+
+    .questionnaire-result-value {
+        color: #e5e7eb;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: block;
+    }
+
+    .questionnaire-components-section {
+        background: rgba(139, 92, 246, 0.05);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .questionnaire-components-title {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #a78bfa;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .questionnaire-components-list {
+        display: grid;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .questionnaire-component-item {
+        display: grid;
+        grid-template-columns: 80px 1fr 130px;
+        gap: 1rem;
+        align-items: center;
+        padding: 1rem;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.3) 100%);
+        border: 1px solid rgba(139, 92, 246, 0.15);
+        border-radius: 1rem;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .questionnaire-component-item:hover {
+        border-color: rgba(139, 92, 246, 0.35);
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.4) 100%);
+    }
+
+    .questionnaire-component-category {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        font-weight: 700;
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.5rem;
+        letter-spacing: 0.05em;
+        text-align: center;
+    }
+
+    .questionnaire-component-name {
+        color: #e5e7eb;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .questionnaire-component-price {
+        color: #10b981;
+        font-weight: 800;
+        font-size: 1rem;
+        text-align: right;
+    }
+
+    .questionnaire-total-price {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 185, 129, 0.05) 100%);
+        border: 1.5px solid rgba(16, 185, 129, 0.3);
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .questionnaire-price-amount {
+        color: #10b981;
+        font-size: 1.5rem;
+        font-weight: 900;
+    }
+
+    .questionnaire-info-banner {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 1rem;
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .questionnaire-info-banner p {
+        font-size: 0.9rem;
+        color: #d1d5db;
+        line-height: 1.6;
+    }
+
+    .questionnaire-action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .questionnaire-action-buttons {
+            flex-direction: row;
+        }
+    }
+
+    .questionnaire-btn {
+        padding: 1.2rem 1.5rem;
+        border-radius: 1.25rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.9rem;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+        border: none;
+        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .questionnaire-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: translateX(-100%);
+    }
+
+    .questionnaire-btn:hover::before {
+        animation: shimmer 0.6s;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .questionnaire-btn-secondary {
+        background: rgba(107, 114, 128, 0.2);
+        color: #d1d5db;
+        border: 1.5px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .questionnaire-btn-secondary:hover {
+        background: rgba(139, 92, 246, 0.15);
+        border-color: rgba(139, 92, 246, 0.4);
+        color: #e5e7eb;
+    }
+
+    .questionnaire-btn-primary {
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        color: #fff;
+        box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35);
+        border: none;
+    }
+
+    .questionnaire-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(139, 92, 246, 0.45);
+    }
+
+    .questionnaire-btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .questionnaire-loading {
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .questionnaire-loading.hidden {
+        display: none;
+    }
+
+    .questionnaire-spinner {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid rgba(139, 92, 246, 0.5);
+        border-top-color: #8b5cf6;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .questionnaire-nav-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(139, 92, 246, 0.15);
+        position: relative;
+        z-index: 1;
+    }
+
+    .questionnaire-nav-btn {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #9ca3af;
+        background: rgba(139, 92, 246, 0.08);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        cursor: pointer;
+        padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.25s ease;
+    }
+
+    .questionnaire-nav-btn:hover:not(:disabled) {
+        color: #e5e7eb;
+        background: rgba(139, 92, 246, 0.18);
+        border-color: rgba(139, 92, 246, 0.4);
+        transform: translateY(-1px);
+    }
+
+    .questionnaire-nav-btn:disabled {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .questionnaire-nav-hint {
+        font-size: 0.8rem;
+        color: #6b7280;
+        font-style: italic;
+    }
+
+    .questionnaire-footer {
+        text-align: center;
+        padding: 2rem;
+        border-top: 1px solid rgba(139, 92, 246, 0.1);
+        color: #6b7280;
+        font-size: 0.8rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Mobile responsive */
+    @media (max-width: 1023px) {
+        .questionnaire-container {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            max-width: 600px;
+        }
+
+        .questionnaire-content {
+            padding: 2rem;
+        }
+
+        .questionnaire-main {
+            padding: 2rem 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .questionnaire-content {
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+        }
+
+        .questionnaire-step-title {
+            font-size: 1.5rem;
+        }
+
+        .questionnaire-option-card {
+            padding: 1.25rem;
+        }
+
+        .questionnaire-result-icon {
+            width: 5rem;
+            height: 5rem;
+            font-size: 2rem;
+        }
+
+        .questionnaire-result-text h2 {
+            font-size: 1.75rem;
+        }
+
+        .questionnaire-result-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .questionnaire-components-list {
+            gap: 0.5rem;
+        }
+
+        .questionnaire-component-item {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .questionnaire-btn {
+            padding: 1rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .questionnaire-main {
+            padding: 1.5rem 0.75rem;
+        }
+
+        .questionnaire-grid-3 {
+            grid-template-columns: 1fr;
+        }
+
+        .questionnaire-grid-2 {
+            grid-template-columns: 1fr;
+        }
+
+        .questionnaire-content {
+            padding: 1.25rem;
+            border-radius: 1.25rem;
+        }
+
+        .questionnaire-step-title {
+            font-size: 1.35rem;
+        }
+
+        .questionnaire-step-description {
+            font-size: 0.85rem;
+        }
+
+        .questionnaire-nav-controls {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .questionnaire-nav-hint {
+            width: 100%;
+            text-align: center;
+            order: 2;
+        }
+    }
+</style>
+
+<script>
+    // Initialize progress sidebar (for desktop)
+    function initializeProgressSidebar() {
+        const isMobile = window.innerWidth < 1024;
+        if (isMobile) return;
+
+        updateProgressSidebar();
+    }
+
+    function updateProgressSidebar() {
+        const isMobile = window.innerWidth < 1024;
+        if (isMobile) return;
+
+        for (let i = 1; i <= 5; i++) {
+            const stepEl = document.getElementById(`progress-step-${i}`);
+            if (!stepEl) continue;
+
+            stepEl.classList.remove('active', 'completed');
+
+            if (i < wizardState.currentStep) {
+                stepEl.classList.add('completed');
+            } else if (i === wizardState.currentStep) {
+                stepEl.classList.add('active');
+            }
+        }
+    }
+
+    // Wizard state
+    const wizardState = {
+        currentStep: 1,
+        totalSteps: 5,
+        answers: {
+            targetTier: '',
+            budget: '',
+            formFactor: '',
+            style: '',
+            platform: ''
+        },
+        recommendation: null
+    };
+
+    function selectOption(step, key, val, elementId) {
+        wizardState.answers[key] = val;
+
+        const currentStepEl = document.getElementById(`step-${step}`);
+        const cards = currentStepEl.getElementsByClassName('questionnaire-option-card');
+        
+        for (let card of cards) {
+            card.classList.remove('selected');
+        }
+
+        const selectedCard = document.getElementById(elementId);
+        selectedCard.classList.add('selected');
+
+        setTimeout(() => {
+            nextStep();
+        }, 400);
+    }
+
+    function nextStep() {
+        if (wizardState.currentStep < wizardState.totalSteps) {
+            document.getElementById(`step-${wizardState.currentStep}`).classList.add('hidden');
+            wizardState.currentStep++;
+            document.getElementById(`step-${wizardState.currentStep}`).classList.remove('hidden');
+            updateProgressSidebar();
+        } else if (wizardState.currentStep === wizardState.totalSteps) {
+            document.getElementById(`step-${wizardState.currentStep}`).classList.add('hidden');
+            showResults();
+        }
+    }
+
+    function prevStep() {
+        if (wizardState.currentStep > 1) {
+            document.getElementById(`step-${wizardState.currentStep}`).classList.add('hidden');
+            wizardState.currentStep--;
+            document.getElementById(`step-${wizardState.currentStep}`).classList.remove('hidden');
+            updateProgressSidebar();
+        }
+    }
+
+    function updateProgress() {
+        document.getElementById('resetBtn').classList.toggle('hidden', wizardState.currentStep === 1);
+        document.getElementById('backBtn').disabled = wizardState.currentStep === 1;
+        updateProgressSidebar();
+    }
+
+    async function showResults() {
+        document.getElementById(`step-${wizardState.currentStep}`).classList.add('hidden');
+        document.getElementById('navigationControls').classList.add('hidden');
+
+        // Fetch recommendations
+        try {
+            const response = await fetch('/questionnaire/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(wizardState.answers)
+            });
+
+            if (!response.ok) throw new Error('Failed to get recommendations');
+
+            const data = await response.json();
+            wizardState.recommendation = data;
+
+            // Update result display
+            document.getElementById('result-tier').innerText = wizardState.answers.targetTier;
+            document.getElementById('result-budget').innerText = wizardState.answers.budget;
+            document.getElementById('result-formfactor').innerText = wizardState.answers.formFactor;
+            document.getElementById('result-style').innerText = wizardState.answers.style;
+            document.getElementById('result-platform').innerText = wizardState.answers.platform;
+
+            // Display components
+            const componentsList = document.getElementById('recommendedComponentsList');
+            componentsList.innerHTML = '';
+            
+            if (data.components && data.components.length > 0) {
+                data.components.forEach(comp => {
+                    const item = document.createElement('div');
+                    item.className = 'questionnaire-component-item';
+                    item.innerHTML = `
+                        <span class="questionnaire-component-category">${comp.category}</span>
+                        <span class="questionnaire-component-name">${comp.name}</span>
+                        <span class="questionnaire-component-price">₱${comp.price.toLocaleString()}</span>
+                    `;
+                    componentsList.appendChild(item);
+                });
+            }
+
+            document.getElementById('totalPrice').innerText = `₱${data.total_price.toLocaleString()}`;
+
+            document.getElementById('step-result').classList.remove('hidden');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to generate recommendations. Please try again.');
+        }
+    }
+
+    function restartWizard() {
+        wizardState.currentStep = 1;
+        wizardState.answers = { targetTier: '', budget: '', formFactor: '', style: '', platform: '' };
+
+        const cards = document.getElementsByClassName('questionnaire-option-card');
+        for (let card of cards) {
+            card.classList.remove('selected');
+        }
+
+        const steps = document.querySelectorAll('.wizard-step');
+        steps.forEach(step => step.classList.add('hidden'));
+        
+        document.getElementById('step-1').classList.remove('hidden');
+        document.getElementById('navigationControls').classList.remove('hidden');
+        updateProgressSidebar();
+    }
+
+    async function confirmAndCreate() {
+        if (!wizardState.recommendation) return;
+
+        document.getElementById('loadingIndicator').classList.remove('hidden');
+        document.querySelector('.questionnaire-btn-primary').disabled = true;
+
+        try {
+            const response = await fetch('/questionnaire/create-build', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    component_ids: wizardState.recommendation.component_ids,
+                    build_name: 'AI Questionnaire Build',
+                    answers: wizardState.answers
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    sessionStorage.setItem('pendingBuild', JSON.stringify({
+                        component_ids: wizardState.recommendation.component_ids,
+                        build_name: 'AI Questionnaire Build'
+                    }));
+                    window.location.href = '/auth/login';
+                    return;
+                }
+                throw new Error(data.error || 'Failed to create build');
+            }
+
+            if (data.build_id) {
+                window.location.href = `/builder?build_id=${data.build_id}`;
+            } else {
+                window.location.href = '/builder';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to create build: ' + error.message);
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.querySelector('.questionnaire-btn-primary').disabled = false;
+        }
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', restartWizard);
+
+    // Initialize on page load
+    window.addEventListener('load', initializeProgressSidebar);
+    window.addEventListener('resize', initializeProgressSidebar);
+</script>
+{% endblock %}

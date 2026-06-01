@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<!-- ── Hero ──────────────────────────────────────────── -->
+<section class="hero" id="hero" style="background-image:url('{{ url_for('static', filename='hero image.png') }}'); background-size:cover; background-position:center; background-repeat:no-repeat;">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="badge">
+        <span class="badge-pulse"></span>Philippines' #1 Custom PC Builder
+      </div>
+      <h1 class="hero-h1">
+        <span class="hero-line" data-delay="0">Build it.</span><br>
+        <span class="hero-line accent" data-delay="120">Your way.</span><br>
+        <span class="hero-line" data-delay="240">No limits.</span>
+      </h1>
+      <p class="hero-sub"><strong>Build your dream PC with confidence. Premium components, intelligent compatibility checking, and trusted local suppliers in the Philippines.</strong></p>
+      <div class="hero-btns">
+        <a href="{{ url_for('build.builder') }}" class="btn btn-primary btn-lg btn-glow">Start Building &rarr;</a>
+        <a href="{{ url_for('components.parts') }}" class="btn btn-outline btn-lg">Browse Parts</a>
+      </div>
+      <ul class="checklist">
+        <li><strong>Advanced compatibility analysis</strong></li>
+        <li><strong>Interactive 3D PC build visualization</strong></li>
+        <li><strong>30+ premium components from trusted brands</strong></li>
+        <li><strong>Direct links to Shopee, Lazada, PC Express and More</strong></li>
+      </ul>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <span></span><span></span><span></span>
+  </div>
+</section>
+
+<!-- ── How It Works ──────────────────────────────────── -->
+<section class="how-section" id="how">
+  <div class="how-inner">
+    <p class="section-eyebrow">Get Started in 3 Steps</p>
+    <h2 class="section-title">How <span class="accent">BuildLab</span> Works</h2>
+    <div class="how-grid">
+
+      <div class="how-card" data-aos="0">
+        <div class="how-connector"></div>
+        <div class="how-number">01</div>
+        <h3>Browse Parts</h3>
+        <p>Filter by category, price, and brand. View specs and store links for every component.</p>
+        <a href="{{ url_for('components.parts') }}" class="how-cta">Browse &rarr;</a>
+      </div>
+
+      <div class="how-card" data-aos="100">
+        <div class="how-connector"></div>
+        <div class="how-number">02</div>
+        <h3>Build Your PC</h3>
+        <p>Drag or click to fill each slot. Real-time compatibility checks as you go.</p>
+        <a href="{{ url_for('build.builder') }}" class="how-cta">Open Builder &rarr;</a>
+      </div>
+
+      <div class="how-card" data-aos="200">
+        <div class="how-number">03</div>
+        <h3>Save &amp; Share</h3>
+        <p>Save your build to your account and share a link with friends instantly.</p>
+        <a href="{{ url_for('auth.register') }}" class="how-cta">Get Started &rarr;</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Why Choose Us ─────────────────────────────────── -->
+<section class="why-section" id="why">
+  <div class="why-inner">
+    <p class="section-eyebrow">Why Choose Us</p>
+    <h2 class="section-title">Everything You Need to <span class="accent">Build Right</span></h2>
+    <div class="why-grid">
+
+      <div class="why-card" data-aos="0">
+        <div class="why-icon why-icon-purple">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Smart Compatibility</h3>
+        <p>Real-time CPU, motherboard, and RAM checks so every part works together on first boot.</p>
+        <div class="why-card-hover-line"></div>
+      </div>
+
+      <div class="why-card" data-aos="80">
+        <div class="why-icon why-icon-blue">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <h3>Local Stock Only</h3>
+        <p>All components sourced from Philippine retailers — Shopee, Lazada, and PC Express.</p>
+        <div class="why-card-hover-line"></div>
+      </div>
+
+      <div class="why-card" data-aos="160">
+        <div class="why-icon why-icon-green">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </div>
+        <h3>Compare Parts</h3>
+        <p>Select any two components side-by-side and compare specs, price, and store availability.</p>
+        <div class="why-card-hover-line"></div>
+      </div>
+
+      <div class="why-card" data-aos="240">
+        <div class="why-icon why-icon-orange">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>Build &amp; Save</h3>
+        <p>Create an account, save multiple builds, compare them, and export your list anytime.</p>
+        <div class="why-card-hover-line"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────── -->
+<section class="cta-section" id="cta">
+  <div class="cta-particles" aria-hidden="true" id="cta-particles"></div>
+  <div class="cta-inner">
+    <h2>Ready to Build Your<br><span class="accent">Dream PC?</span></h2>
+    <p>Join Filipino builders who configured their perfect rig on BuildLab.</p>
+    <div class="cta-btns">
+      <a href="{{ url_for('build.builder') }}" class="btn btn-primary btn-lg btn-glow">Start Building Now &rarr;</a>
+      <a href="{{ url_for('components.parts') }}" class="btn btn-outline btn-lg">Browse the Catalog</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ── Hero headline stagger ─────────────────────────── */
+document.querySelectorAll('.hero-line').forEach(el => {
+  const delay = +(el.dataset.delay || 0);
+  setTimeout(() => el.classList.add('visible'), 80 + delay);
+});
+
+/* ── Scroll-reveal (Intersection Observer) ─────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const delay = e.target.dataset.aos || 0;
+      setTimeout(() => e.target.classList.add('aos-visible'), +delay);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('[data-aos]').forEach(el => observer.observe(el));
+
+/* ── Bubble parallax on mouse move ─────────────────── */
+const visual = document.querySelector('.hero-visual');
+if (visual) {
+  document.addEventListener('mousemove', e => {
+    const cx = window.innerWidth  / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (e.clientX - cx) / cx;
+    const dy = (e.clientY - cy) / cy;
+    document.querySelectorAll('.bubble').forEach((b, i) => {
+      const depth = 6 + i * 4;
+      b.style.transform = `translate(${dx * depth}px, ${dy * depth}px)`;
+    });
+  });
+}
+
+/* ── Bubble tooltip on hover ───────────────────────── */
+document.querySelectorAll('.bubble[data-tip]').forEach(b => {
+  b.addEventListener('mouseenter', () => {
+    const tip = document.createElement('div');
+    tip.className = 'bubble-tip';
+    tip.textContent = b.dataset.tip;
+    b.appendChild(tip);
+  });
+  b.addEventListener('mouseleave', () => {
+    b.querySelector('.bubble-tip')?.remove();
+  });
+});
+
+/* ── How-card hover line ───────────────────────────── */
+document.querySelectorAll('.how-card').forEach(card => {
+  card.addEventListener('mouseenter', function(e) {
+    const rect = this.getBoundingClientRect();
+    this.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+    this.style.setProperty('--my', (e.clientY - rect.top)  + 'px');
+  });
+  card.addEventListener('mousemove', function(e) {
+    const rect = this.getBoundingClientRect();
+    this.style.setProperty('--mx', (e.clientX - rect.left) + 'px');
+    this.style.setProperty('--my', (e.clientY - rect.top)  + 'px');
+  });
+});
+
+/* ── CTA floating particles ────────────────────────── */
+const canvas = document.getElementById('cta-particles');
+if (canvas) {
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('span');
+    p.className = 'cta-particle';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      width:${2+Math.random()*3}px;
+      height:${2+Math.random()*3}px;
+      animation-delay:${Math.random()*6}s;
+      animation-duration:${4+Math.random()*6}s;
+      opacity:${0.2+Math.random()*0.5};
+    `;
+    canvas.appendChild(p);
+  }
+}
+
+/* ── Scroll hint fade out ──────────────────────────── */
+window.addEventListener('scroll', () => {
+  const hint = document.querySelector('.hero-scroll-hint');
+  if (hint) hint.style.opacity = Math.max(0, 1 - window.scrollY / 120);
+}, { passive: true });
+</script>
+{% endblock %}

@@ -1,0 +1,406 @@
+{% extends "base.html" %}
+{% block title %}Parts Library{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Parts Library</h1>
+  <form method="GET" class="search-form">
+    <input type="text" name="search" value="{{ search }}" placeholder="Search components..." class="search-input">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+</div>
+
+<div class="filter-bar">
+  <a href="{{ url_for('components.parts') }}" class="filter-pill {{ 'active' if not active_category }}">All</a>
+  {% for cat in categories %}
+    <a href="{{ url_for('components.parts', category=cat) }}" class="filter-pill {{ 'active' if active_category == cat }}">{{ cat }}</a>
+  {% endfor %}
+</div>
+
+<form method="GET" class="price-filter">
+  <input type="hidden" name="category" value="{{ active_category }}">
+  <input type="hidden" name="search" value="{{ search }}">
+  <span class="filter-label">Price Range</span>
+  <div class="price-inputs">
+    <span class="peso-sign">&#8369;</span>
+    <input type="number" name="min_price" placeholder="Min" class="price-input"
+           value="{{ request.args.get('min_price', '') }}">
+    <span class="dash">&mdash;</span>
+    <span class="peso-sign">&#8369;</span>
+    <input type="number" name="max_price" placeholder="Max" class="price-input"
+           value="{{ request.args.get('max_price', '') }}">
+    <button type="submit" class="btn btn-ghost">Filter</button>
+    {% if request.args.get('min_price') or request.args.get('max_price') %}
+      <a href="{{ url_for('components.parts', category=active_category, search=search) }}" class="btn btn-ghost">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- Compare bar (hidden until 1 item selected) -->
+<div id="compare-bar" style="display:none;">
+  <div class="compare-bar-inner">
+    <div class="compare-slots">
+      <div class="compare-slot" id="cslot-0">
+        <span class="compare-slot-empty">Select a component to compare</span>
+      </div>
+      <div class="compare-slot" id="cslot-1">
+        <span class="compare-slot-empty">Select a second component</span>
+      </div>
+      <div class="compare-slot" id="cslot-2">
+        <span class="compare-slot-empty">Select a third component</span>
+      </div>
+    </div>
+    <div class="compare-actions">
+      <button onclick="runCompare()" id="compare-btn" class="btn btn-primary" disabled>Compare</button>
+      <button onclick="clearCompare()" class="btn btn-ghost">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="parts-grid" id="parts-grid">
+  {% for component in components %}
+  <div class="part-card" id="pcard-{{ component.id }}"
+       data-id="{{ component.id }}"
+       data-name="{{ component.name }}"
+       data-brand="{{ component.brand }}"
+       data-cat="{{ component.category }}"
+       data-price="{{ component.price }}"
+      data-specs="{{ component.specs or '' }}"
+      onclick="openModal({{ component.id }}, '{{ component.name }}', '{{ component.brand }}', '{{ component.category }}', {{ component.price }})"
+       style="cursor:pointer;">
+    <div class="part-header cat-{{ component.category | lower | replace(' ', '-') }}">
+      {% if component.image_url %}
+        <img class="part-header-img" src="{{ component.image_url }}" alt="{{ component.name }}" />
+      {% else %}
+        <span>{{ component.category }}</span>
+      {% endif %}
+    </div>
+    <div class="part-body">
+      <div class="part-cat-label">{{ component.category }}</div>
+      <div class="part-name">{{ component.name }}</div>
+      <div class="part-brand">{{ component.brand }}</div>
+      <div class="part-price">&#8369;{{ '{:,.0f}'.format(component.price) }}</div>
+      {% if component.specs %}
+        <div class="part-specs">{{ component.specs }}</div>
+      {% endif %}
+      <div class="part-card-actions">
+        <button class="btn btn-ghost btn-sm pc-compare-btn" id="cbtn-{{ component.id }}"
+          onclick="event.stopPropagation(); toggleCompare({{ component.id }})">+ Compare</button>
+        <!-- Part Availability Status -->
+        <span class="availability-badge" id="avail-{{ component.id }}" style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(34,197,94,.15);color:#22c55e;">● In Stock</span>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>No components match your filters.</p>
+    <a href="{{ url_for('components.parts') }}" class="btn btn-ghost">Clear filters</a>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal()">
+  <div class="modal-content">
+    <div class="modal-box" id="detail-modal-box" onclick="event.stopPropagation()">
+      <div id="modal-inner"></div>
+    </div>
+    <div class="sidebar-column">
+      <div class="links-popup-box" id="links-popup" onclick="event.stopPropagation()">
+        <div class="popup-titlebar">
+          <span>Store Links</span>
+        </div>
+        <div class="popup-body" id="links-popup-inner">
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;">
+            <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .7s linear infinite;"></div>
+            Loading links...
+          </div>
+        </div>
+      </div>
+      <div class="specs-popup-box" id="specs-popup" onclick="event.stopPropagation()">
+        <div class="popup-titlebar">
+          <span>Specs</span>
+        </div>
+        <div class="popup-body" id="specs-popup-inner">
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;">
+            <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .7s linear infinite;"></div>
+            Loading specs...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Compare Modal -->
+<div class="modal-overlay" id="compare-modal" onclick="closeCompareModal()">
+  <div class="modal-box" style="max-width:800px;width:100%;padding:0;overflow:hidden;display:flex;flex-direction:column;max-height:calc(90vh - 48px);" onclick="event.stopPropagation()">
+    <div id="compare-modal-inner" style="display:flex;flex-direction:column;min-height:0;"></div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+/* ── Compare state ───────────────────────────────────── */
+var compareItems = [null, null, null];
+var compareExportText = '';
+
+function toggleCompare(id) {
+  const card = document.getElementById('pcard-' + id);
+  const d = card.dataset;
+  const item = { id: +d.id, name: d.name, brand: d.brand, cat: d.cat, price: +d.price, specs: d.specs };
+
+  const idx = compareItems.findIndex(i => i && i.id === id);
+  if (idx !== -1) {
+    compareItems[idx] = null;
+    card.classList.remove('compare-selected');
+    document.getElementById('cbtn-' + id).textContent = '+ Compare';
+    renderCompareBar();
+    return;
+  }
+  const slot = compareItems.indexOf(null);
+  if (slot === -1) { alert('You can compare up to 3 components at a time. Remove one first.'); return; }
+  compareItems[slot] = item;
+  card.classList.add('compare-selected');
+  document.getElementById('cbtn-' + id).textContent = '✓ Selected';
+  renderCompareBar();
+}
+
+function renderCompareBar() {
+  const bar = document.getElementById('compare-bar');
+  const hasAny = compareItems.some(Boolean);
+  bar.style.display = hasAny ? 'block' : 'none';
+  const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
+  [0,1,2].forEach(i => {
+    const slot = document.getElementById('cslot-' + i);
+    const item = compareItems[i];
+    if (item) {
+      slot.innerHTML = `
+        <div class="cslot-filled">
+          <span class="cslot-cat" style="color:${catFg[item.cat]||'#a78bfa'}">${item.cat}</span>
+          <span class="cslot-name">${item.name}</span>
+          <span class="cslot-price">&#8369;${Number(item.price).toLocaleString()}</span>
+          <button onclick="toggleCompare(${item.id})" class="cslot-remove">&times;</button>
+        </div>`;
+    } else {
+      const placeholder = i === 0 ? 'Select a component to compare' : i === 1 ? 'Select a second component' : 'Select a third component';
+      slot.innerHTML = `<span class="compare-slot-empty">${placeholder}</span>`;
+    }
+  });
+  document.getElementById('compare-btn').disabled = compareItems.filter(Boolean).length < 2;
+}
+
+function clearCompare() {
+  compareItems.forEach(item => {
+    if (item) {
+      document.getElementById('pcard-' + item.id)?.classList.remove('compare-selected');
+      const btn = document.getElementById('cbtn-' + item.id);
+      if (btn) btn.textContent = '+ Compare';
+    }
+  });
+  compareItems = [null, null, null];
+  renderCompareBar();
+}
+
+async function runCompare() {
+  const selectedItems = compareItems.filter(Boolean);
+  if (selectedItems.length < 2) return;
+
+  const ids = selectedItems.map(item => item.id).join(',');
+  const response = await fetch(`/api/components/compare?ids=${encodeURIComponent(ids)}`);
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    alert(error?.error || 'Unable to load comparison details.');
+    return;
+  }
+
+  const payload = await response.json();
+  const items = payload.items || [];
+  if (!items.length) {
+    alert('No comparison data available.');
+    return;
+  }
+
+  compareExportText = payload.export_text || '';
+  const allKeys = payload.all_keys || [];
+  const sameType = payload.same_type;
+  const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
+  const storeColors = {Shopee:'#ee4d2d',Lazada:'#0f146b','PC Express':'#0a6640'};
+
+  const cardsHtml = items.map(item => {
+    return `
+      <div style="background:#1e0a3c;border-radius:14px;padding:18px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;min-height:140px;">
+        <div>
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:${catFg[item.cat]||'#a78bfa'};margin-bottom:8px;">${item.cat}</div>
+          <div style="font-size:15px;font-weight:900;line-height:1.3;margin-bottom:6px;">${item.name}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.55);margin-bottom:12px;">${item.brand}</div>
+          <div style="font-size:20px;font-weight:900;color:${catFg[item.cat]||'#a78bfa'};margin-bottom:8px;">₱${item.price.toLocaleString()}</div>
+          <div style="display:inline-block;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(34,197,94,.15);color:#22c55e;">● In Stock</div>
+        </div>
+        ${item.image_url ? `<div style="width:120px;height:120px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;"><img src="${item.image_url}" alt="${item.name}" style="max-width:100%;max-height:100%;object-fit:contain;" /></div>` : ''}
+      </div>`;
+  }).join('');
+
+  const specsHtml = sameType
+    ? `<div style="display:grid;grid-template-columns:repeat(${items.length},1fr);gap:12px;">
+        ${items.map((item, index) => `
+          <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.06);">
+            <div style="background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);padding:10px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:${catFg[item.cat]||'#a78bfa'};">${item.name}</div>
+            <div style="padding:10px 12px;">
+              ${allKeys.length > 0 ? allKeys.map(k => `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;"><div style="color:rgba(255,255,255,.4);font-weight:700;margin-bottom:2px;">${k}</div><div style="color:#fff;font-size:12px;">${(item.specs && item.specs[k]) || '—'}</div></div>`).join('') : '<div style="padding:12px 0;text-align:center;font-size:11px;color:rgba(255,255,255,.3);font-style:italic;">No specs available</div>'}
+            </div>
+          </div>`).join('')}
+      </div>`
+    : `<div style="display:grid;grid-template-columns:repeat(${items.length},1fr);gap:12px;">
+        ${items.map(item => {
+          const specs = item.specs || {};
+          const filtered = Object.entries(specs).filter(([k, v]) => v && v !== '—');
+          return `
+            <div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.06);">
+              <div style="background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);padding:10px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:${catFg[item.cat]||'#a78bfa'};">${item.name}</div>
+              <div style="padding:10px 12px;">
+                ${filtered.length > 0 ? filtered.map(([k, v]) => `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px;"><div style="color:rgba(255,255,255,.4);font-weight:700;margin-bottom:2px;">${k}</div><div style="color:#fff;font-size:12px;">${Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v)}</div></div>`).join('') : '<div style="padding:12px 0;text-align:center;font-size:11px;color:rgba(255,255,255,.3);font-style:italic;">No specs available</div>'}
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+
+  const buyHtml = `<div style="display:grid;grid-template-columns:repeat(${items.length},1fr);gap:18px;">
+      ${items.map(item => `
+        <div>
+          <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:${catFg[item.cat]||'#a78bfa'};margin-bottom:10px;letter-spacing:.08em;opacity:.8;">${item.cat}</div>
+          <div style="display:flex;flex-direction:column;gap:7px;">
+            ${item.links && item.links.length ? item.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;background:${storeColors[l.store_name]||'rgba(255,255,255,.06)'};color:#fff;font-weight:600;font-size:12px;text-decoration:none;transition:all .15s;border:1px solid rgba(255,255,255,.05);" onmouseover="this.style.background='${storeColors[l.store_name]||'rgba(255,255,255,.1)'};this.style.borderColor='rgba(255,255,255,.15)';" onmouseout="this.style.background='${storeColors[l.store_name]||'rgba(255,255,255,.06)'};this.style.borderColor='rgba(255,255,255,.05)'"><span>${l.store_name}</span><span style="color:${catFg[item.cat]||'#a78bfa'};font-weight:700;">₱${Number(l.price).toLocaleString()}</span></a>`).join('') : '<div style="font-size:11px;color:rgba(255,255,255,.3);font-style:italic;padding:10px 0;">Not available</div>'}
+          </div>
+        </div>`).join('')}
+    </div>`;
+
+  const savings = items.length === 2 ? Math.abs(items[0].price - items[1].price) : 0;
+  const priceWinner = items.length === 2 ? (items[0].price < items[1].price ? 'first' : items[1].price < items[0].price ? 'second' : 'tie') : 'tie';
+
+  document.getElementById('compare-modal-inner').innerHTML = `
+    <div style="padding:20px 24px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);">
+      <div>
+        <h2 style="font-size:18px;font-weight:900;margin-bottom:2px;">Component Comparison</h2>
+        <div style="font-size:11px;color:rgba(255,255,255,.35);">${items.map(item => item.cat).join(' vs ')} · ${allKeys.length} spec${allKeys.length !== 1 ? 's' : ''} compared</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button onclick="downloadComparison()" class="btn btn-ghost btn-sm" style="font-size:11px;padding:6px 10px;">Download</button>
+        <button onclick="closeCompareModal()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px;">&times;</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(${items.length},1fr);gap:12px;padding:20px 24px;border-bottom:1px solid rgba(255,255,255,.08);">
+      ${cardsHtml}
+    </div>
+    <div style="padding:0 24px 16px;overflow-y:auto;max-height:60vh;min-height:0;">
+      <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;letter-spacing:.05em;">Price</h3>
+      <div style="display:grid;grid-template-columns:repeat(${items.length},1fr);gap:12px;margin-bottom:20px;">
+        ${items.map(item => `<div style="border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.06);padding:12px;background:rgba(255,255,255,.02);text-align:center;"><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:6px;">${item.name}</div><div style="font-size:18px;font-weight:900;color:${catFg[item.cat]||'#a78bfa'};">₱${item.price.toLocaleString()}</div></div>`).join('')}
+      </div>
+
+      <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;letter-spacing:.05em;">Specifications</h3>
+      ${specsHtml}
+
+      <h3 style="font-size:12px;font-weight:800;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:12px;letter-spacing:.05em;">Where to Buy</h3>
+      ${buyHtml}
+    </div>
+  `;
+  document.getElementById('compare-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function downloadComparison() {
+  if (!compareExportText) {
+    alert('No comparison available to download. Select two components and compare them first.');
+    return;
+  }
+  const blob = new Blob([compareExportText], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'part-comparison.txt';
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+function closeCompareModal() { 
+  document.getElementById('compare-modal').style.display = 'none'; 
+  document.body.style.overflow = '';
+}
+
+/* ── Detail modal ────────────────────────────────────── */
+function openModal(id, name, brand, cat, price) {
+  const catBg = {CPU:'#1e0a3c',Motherboard:'#0a1e3c',GPU:'#0a1040',RAM:'#0a2e1a',Storage:'#2e1a0a',PSU:'#2e0a1a',Cooling:'#0a2030',Case:'#1a1a2e'};
+  const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
+  const storeColors = {Shopee:'#ee4d2d',Lazada:'#0f146b','PC Express':'#0a6640'};
+
+  // Fetch full component data (specs object + description)
+  fetch(`/api/components/${id}`).then(r => r.json()).then(comp => {
+    // Build specs HTML from object
+    let specsHtml = '';
+    try {
+      if (comp.specs && typeof comp.specs === 'object') {
+        specsHtml = '<ul style="font-size:13px;color:rgba(255,255,255,.7);margin:0 0 16px;padding-left:16px;">' +
+          Object.entries(comp.specs).map(([k,v]) => {
+            const val = (Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v));
+            return `<li style="margin-bottom:6px;"><strong style="font-weight:800;color:rgba(255,255,255,.8);margin-right:6px;">${k}</strong>${val}</li>`;
+          }).join('') + '</ul>';
+      } else {
+        specsHtml = `<p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:16px;">${comp.specs || '—'}</p>`;
+      }
+    } catch (e) {
+      specsHtml = `<p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:16px;">${JSON.stringify(comp.specs)}</p>`;
+    }
+
+    document.getElementById('modal-inner').innerHTML = `
+      <div style="height:140px;background:${catBg[cat]||'#1a1a2e'};display:flex;align-items:center;justify-content:center;position:relative;">
+        <span style="font-size:52px;font-weight:900;color:${catFg[cat]||'#a78bfa'};opacity:.75;">${cat}</span>
+        <button onclick="closeModal()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.3);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;">&times;</button>
+      </div>
+      <div style="padding:20px; display:grid; gap:18px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:${catFg[cat]||'#a78bfa'};margin-bottom:4px;">${cat}</div>
+          <div style="font-size:19px;font-weight:900;margin-bottom:2px;">${name}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:6px;">${brand} &nbsp;·&nbsp; <span style="color:${catFg[cat]||'#a78bfa'};font-weight:900;">&#8369;${price.toLocaleString()}</span></div>
+          <div style="margin-bottom:14px;">
+            <span style="display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(34,197,94,.15);color:#22c55e;">● In Stock</span>
+          </div>
+        </div>
+        ${comp.image_url ? `<div class="modal-image-wrap"><img class="modal-image" src="${comp.image_url}" alt="${name} image"></div>` : ''}
+        ${comp.description ? `<div><p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px;">Description</p><p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:12px;">${comp.description}</p></div>` : ''}
+        ${comp.compatibility && Object.keys(comp.compatibility).length > 0 ? `<div><p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;">Compatibility</p><ul style="font-size:13px;color:rgba(255,255,255,.7);margin:0 0 16px;padding-left:16px;">${Object.entries(comp.compatibility).map(([k,v]) => {const val = (Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v)); return `<li style="margin-bottom:6px;"><strong style="font-weight:800;color:rgba(255,255,255,.8);margin-right:6px;">${k}</strong>${val}</li>`;}).join('')}</ul></div>` : ''}
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+
+    document.body.classList.add('modal-open');
+    document.getElementById('modal').style.display = 'flex';
+
+    const specsPopupHtml = comp.specs && typeof comp.specs === 'object'
+      ? '<div>' + Object.entries(comp.specs).map(([key, value]) => `
+          <div class="spec-row" style="padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.03);margin-bottom:10px;">
+            <div style="font-size:12px;font-weight:800;color:#fff;">${key}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.7);margin-top:4px;">${Array.isArray(value) ? value.join(', ') : (typeof value === 'object' ? JSON.stringify(value) : value)}</div>
+          </div>`).join('') + '</div>'
+      : `<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">${comp.specs ? comp.specs : 'No specs available.'}</p>`;
+    document.getElementById('specs-popup-inner').innerHTML = specsPopupHtml;
+
+    // Load links separately into the side popup
+    fetch(`/api/components/${id}/links`)
+      .then(r => r.json())
+      .then(links => {
+        document.getElementById('links-popup-inner').innerHTML = links.length
+          ? links.map(l => `<a href="${l.url}" target="_blank" style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:10px;margin-bottom:8px;background:${storeColors[l.store_name]||'rgba(255,255,255,.08)'};color:#fff;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><span>${l.store_name}</span><span>&#8369;${l.price.toLocaleString()}</span></a>`).join('')
+          : '<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">No store links available.</p>';
+      });
+  }).catch(()=>{
+    // fallback: open modal with minimal info
+    document.body.classList.add('modal-open');
+    document.getElementById('modal-inner').innerHTML = `<div style="padding:20px;"><div style="font-size:19px;font-weight:900;margin-bottom:8px;">${name}</div><p style="color:rgba(255,255,255,.6);">No additional data available.</p></div>`;
+    document.getElementById('modal').style.display = 'flex';
+  });
+}
+function closeModal() { document.getElementById('modal').style.display = 'none'; document.body.classList.remove('modal-open'); }
+</script>
+{% endblock %}

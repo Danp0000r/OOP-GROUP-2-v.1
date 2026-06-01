@@ -1,0 +1,614 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<div class="admin-panel-wrap">
+
+  <div class="admin-page-header">
+    <div class="admin-breadcrumb">ADMINISTRATION</div>
+    <h1 class="admin-page-title">ADMIN PANEL</h1>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="admin-tabs">
+    <button class="admin-tab active" id="tab-overview" onclick="showTab('overview')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Overview
+    </button>
+    <button class="admin-tab" id="tab-components" onclick="showTab('components')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Components
+    </button>
+    <button class="admin-tab" id="tab-users" onclick="showTab('users')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </button>
+  </div>
+
+  <!-- Overview Tab -->
+  <div id="pane-overview" class="admin-pane">
+
+    <!-- Top 3 stat cards -->
+    <div class="admin-overview-cards">
+      <div class="admin-ov-card">
+        <div class="aoc-icon aoc-purple">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="aoc-label">COMPONENTS</div>
+        <div class="aoc-value">{{ stats.components }}</div>
+      </div>
+      <div class="admin-ov-card">
+        <div class="aoc-icon aoc-green">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        </div>
+        <div class="aoc-label">BUILDS CREATED</div>
+        <div class="aoc-value">{{ stats.builds }}</div>
+      </div>
+      <div class="admin-ov-card">
+        <div class="aoc-icon aoc-blue">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="aoc-label">BUILDERS</div>
+        <div class="aoc-value">{{ stats.users }}</div>
+      </div>
+    </div>
+
+    <!-- Components by category — fixed with real counts -->
+    <div class="admin-section-label">COMPONENTS BY CATEGORY</div>
+    <div class="admin-cat-grid">
+      {% set cat_data = [
+        ("CPU",         "cpu",         "#a78bfa"),
+        ("Motherboard", "motherboard", "#78bffa"),
+        ("GPU",         "gpu",         "#60a5fa"),
+        ("RAM",         "ram",         "#6ee7b7"),
+        ("Storage",     "storage",     "#fbbf24"),
+        ("PSU",         "psu",         "#f472b6"),
+        ("Cooling",     "cooling",     "#67e8f9"),
+        ("Case",        "case",        "#c4b5fd")
+      ] %}
+      {% set max_count = stats.components if stats.components > 0 else 1 %}
+      {% for label, cls, color in cat_data %}
+        {% set count = stats.get('by_category', {}).get(label, 0) %}
+        {% set pct = [(count / max_count * 100), 8] | max %}
+      <div class="admin-cat-card">
+        <div class="acc-label" style="color:{{ color }};">{{ label | upper }}</div>
+        <div class="acc-value" style="color:#ffffff;">{{ count }}</div>
+        <div class="acc-bar"><div class="acc-bar-fill cat-{{ cls }}" style="width:{{ pct }}%"></div></div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="admin-section-label">QUICK ACTIONS</div>
+    <div class="admin-quick-actions">
+      <button onclick="showTab('components'); openAddModal()" class="btn btn-primary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Component
+      </button>
+      <button onclick="showTab('components')" class="btn btn-ghost">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Manage Components
+      </button>
+      <button onclick="showTab('users')" class="btn btn-ghost">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        Manage Users
+      </button>
+    </div>
+
+  </div><!-- /pane-overview -->
+
+  <!-- Components Tab -->
+  <div id="pane-components" class="admin-pane" style="display:none;">
+
+    <div class="admin-comp-toolbar">
+      <button onclick="openAddModal()" class="btn btn-primary">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Component
+      </button>
+      <div class="admin-comp-cats">
+        <button class="filter-pill active" onclick="filterAdminCat('ALL',this)">ALL</button>
+        {% for cat in ["CPU","MOTHERBOARD","GPU","RAM","STORAGE","PSU","COOLING","CASE"] %}
+        <button class="filter-pill" onclick="filterAdminCat('{{ cat }}',this)">{{ cat }}</button>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-comp-table">
+        <thead>
+          <tr>
+            <th>IMAGE</th>
+            <th onclick="sortAdminTable('name', this)" class="sortable">NAME</th>
+            <th onclick="sortAdminTable('brand', this)" class="sortable">BRAND</th>
+            <th onclick="sortAdminTable('category', this)" class="sortable">CATEGORY</th>
+            <th onclick="sortAdminTable('perf', this)" class="sortable">PERF</th>
+            <th onclick="sortAdminTable('price', this)" class="sortable">PRICE</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in components %}
+          <tr data-cat="{{ c.category | upper }}" data-price="{{ c.price or 0 }}" data-perf="{{ c.performance_score or 0 }}" data-name="{{ c.name | lower }}" data-brand="{{ c.brand | lower }}" id="comp-row-{{ c.id }}">
+            <td>
+              {% if c.image_url %}
+                <img src="{{ c.image_url }}" alt="{{ c.name }}" class="act-img-thumb" />
+              {% else %}
+                <div class="act-img cat-{{ c.category | lower }}">{{ c.category | upper }}</div>
+              {% endif %}
+            </td>
+            <td class="act-name">{{ c.name }}</td>
+            <td class="act-brand">{{ c.brand }}</td>
+            <td><span class="act-cat-badge cat-{{ c.category | lower }}">{{ c.category | upper }}</span></td>
+            <td class="act-perf">{{ c.performance_score or '–' }}</td>
+            <td class="act-price">&#8369;{{ '{:,.0f}'.format(c.price) }}</td>
+            <td class="act-actions">
+              <form method="POST" action="{{ url_for('admin.delete_component', cid=c.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ c.name }}?')">
+                <button class="act-btn act-delete" title="Delete">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </button>
+              </form>
+              <button type="button" onclick="openLoadModal({{ c.id }})" class="act-btn act-load" title="Load Component">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12l7 7 7-7"/></svg>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+  </div><!-- /pane-components -->
+
+  <!-- Users Tab -->
+  <div id="pane-users" class="admin-pane" style="display:none;">
+    <div class="admin-section-label">ALL USERS ({{ users | length }})</div>
+    <div class="admin-table-wrap">
+      <table class="admin-comp-table">
+        <thead>
+          <tr><th>ID</th><th>USERNAME</th><th>EMAIL</th><th>ROLE</th><th>JOINED</th><th>ACTIONS</th></tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr id="user-row-{{ u.id }}">
+            <td class="act-brand">#{{ u.id }}</td>
+            <td class="act-name">{{ u.username }}</td>
+            <td class="act-brand">{{ u.email }}</td>
+            <td><span class="act-cat-badge {{ 'cat-cpu' if u.is_admin else '' }}" id="role-badge-{{ u.id }}">{{ 'ADMIN' if u.is_admin else 'USER' }}</span></td>
+            <td class="act-brand">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+            <td class="act-actions">
+              {% if not u.is_admin or session.get('user_id') != u.id %}
+              <button onclick="toggleAdmin({{ u.id }})" class="act-btn act-edit" title="Toggle Admin">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </button>
+              {% endif %}
+              {% if session.get('user_id') != u.id %}
+              <button onclick="deleteUser({{ u.id }}, '{{ u.username }}')" class="act-btn act-delete" title="Delete User">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /admin-panel-wrap -->
+
+<!-- Add Modal -->
+<div id="add-modal" class="admin-modal-bg hidden">
+  <div class="admin-modal max-w-2xl overflow-y-auto max-h-[90vh]">
+    <h2 class="admin-modal-title">Add Component</h2>
+    <form id="dashboard-add-form" method="POST" action="{{ url_for('admin.add_component') }}" class="aep-form">
+      <div class="aep-row">
+        <div class="aep-field"><label>NAME *</label><input name="name" required class="aep-input"/></div>
+        <div class="aep-field"><label>EXTERNAL ID *</label><input name="external_id" required class="aep-input"/></div>
+      </div>
+      <div class="aep-row">
+        <div class="aep-field"><label>BRAND *</label><input name="brand" required class="aep-input"/></div>
+        <div class="aep-field">
+          <label>CATEGORY *</label>
+          <select name="category" required class="aep-input admin-select">
+            {% for cat in ["CPU","GPU","RAM","Storage","Motherboard","PSU","Cooling","Case"] %}<option>{{ cat }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="aep-row">
+        <div class="aep-field"><label>PERFORMANCE SCORE</label><input name="performance_score" type="number" min="0" class="aep-input"/></div>
+      </div>
+      <div class="aep-field"><label>IMAGE URL</label><input name="image_url" type="url" class="aep-input"/></div>
+      <div class="aep-field"><label>DESCRIPTION</label><textarea name="description" rows="3" class="aep-input aep-textarea"></textarea></div>
+      <div class="aep-field">
+        <div class="flex items-center justify-between mb-2"><label>SPECIFICATIONS</label><button type="button" class="btn btn-ghost btn-xs" onclick="addKeyValueRow('dashboard-add-specs')">+ Add spec</button></div>
+        <div id="dashboard-add-specs" class="space-y-2"></div>
+        <input type="hidden" name="specs" id="dashboard-add-specs-input" />
+      </div>
+      <div class="aep-field">
+        <div class="flex items-center justify-between mb-2"><label>COMPATIBILITY</label><button type="button" class="btn btn-ghost btn-xs" onclick="addKeyValueRow('dashboard-add-compatibility')">+ Add compatibility</button></div>
+        <div id="dashboard-add-compatibility" class="space-y-2"></div>
+        <input type="hidden" name="compatibility" id="dashboard-add-compatibility-input" />
+      </div>
+      <div class="aep-field">
+        <div class="flex items-center justify-between mb-2"><label>ADDITIONAL PROPERTIES</label><button type="button" class="btn btn-ghost btn-xs" onclick="addKeyValueRow('dashboard-add-extra')">+ Add property</button></div>
+        <div id="dashboard-add-extra" class="space-y-2"></div>
+        <input type="hidden" name="extra" id="dashboard-add-extra-input" />
+      </div>
+      <div class="aep-field">
+        <div class="mb-2"><label>SHOP LINKS</label></div>
+        <div class="space-y-2">
+          <div style="display:flex;gap:8px; align-items:center;">
+            <input id="add-new-store-name" placeholder="Store name" class="aep-input" />
+            <input id="add-new-link-url" placeholder="URL" class="aep-input" />
+            <input id="add-new-link-price" placeholder="Price" type="number" step="0.01" class="aep-input" style="max-width:120px;" />
+            <button type="button" class="btn btn-ghost btn-xs" onclick="addLink()">Add link</button>
+          </div>
+          <div id="add-links-list" class="space-y-2 text-sm text-gray-500"></div>
+          <input type="hidden" name="pending_links" id="add-pending-links" />
+        </div>
+      </div>
+      <div class="aep-btns">
+        <button type="submit" onclick="syncPendingLinksHiddenField()" class="btn btn-primary">Add Component</button>
+        <button type="button" onclick="closeAddModal()" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="load-modal" class="admin-modal-bg hidden">
+  <div class="admin-modal max-w-2xl overflow-y-auto max-h-[90vh]">
+    <h2 class="admin-modal-title">Load Component</h2>
+    <form id="dashboard-load-form" method="POST" class="aep-form">
+      <div class="aep-row">
+        <div class="aep-field"><label>NAME *</label><input id="load-name" name="name" required class="aep-input"/></div>
+        <div class="aep-field"><label>EXTERNAL ID *</label><input id="load-external-id" name="external_id" required class="aep-input"/></div>
+      </div>
+      <div class="aep-row">
+        <div class="aep-field"><label>BRAND *</label><input id="load-brand" name="brand" required class="aep-input"/></div>
+        <div class="aep-field">
+          <label>CATEGORY *</label>
+          <select id="load-category" name="category" required class="aep-input admin-select">
+            {% for cat in ["CPU","GPU","RAM","Storage","Motherboard","PSU","Cooling","Case"] %}<option>{{ cat }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="aep-row">
+        <div class="aep-field"><label>PERFORMANCE SCORE</label><input id="load-performance-score" name="performance_score" type="number" min="0" class="aep-input"/></div>
+      </div>
+      <div class="aep-field"><label>IMAGE URL</label><input id="load-image-url" name="image_url" type="url" class="aep-input"/></div>
+      <div class="aep-field"><label>DESCRIPTION</label><textarea id="load-description" name="description" rows="3" class="aep-input aep-textarea"></textarea></div>
+      <div class="aep-field">
+        <div class="flex items-center justify-between mb-2"><label>SPECIFICATIONS</label><button type="button" class="btn btn-ghost btn-xs" onclick="addKeyValueRow('dashboard-load-specs')">+ Add spec</button></div>
+        <div id="dashboard-load-specs" class="space-y-2"></div>
+        <input type="hidden" name="specs" id="dashboard-load-specs-input" />
+      </div>
+      <div class="aep-field">
+        <div class="flex items-center justify-between mb-2"><label>COMPATIBILITY</label><button type="button" class="btn btn-ghost btn-xs" onclick="addKeyValueRow('dashboard-load-compatibility')">+ Add compatibility</button></div>
+        <div id="dashboard-load-compatibility" class="space-y-2"></div>
+        <input type="hidden" name="compatibility" id="dashboard-load-compatibility-input" />
+      </div>
+      <div class="aep-field">
+        <div class="flex items-center justify-between mb-2"><label>ADDITIONAL PROPERTIES</label><button type="button" class="btn btn-ghost btn-xs" onclick="addKeyValueRow('dashboard-load-extra')">+ Add property</button></div>
+        <div id="dashboard-load-extra" class="space-y-2"></div>
+        <input type="hidden" name="extra" id="dashboard-load-extra-input" />
+      </div>
+      <div class="aep-field">
+        <div class="mb-2"><label>SHOP LINKS</label></div>
+        <div id="load-links-list" class="space-y-2 text-sm text-gray-500"></div>
+        <div class="space-y-2" style="display:flex;flex-wrap:wrap; gap:8px; align-items:center;">
+          <input id="load-new-store-name" placeholder="Store name" class="aep-input" />
+          <input id="load-new-link-url" placeholder="URL" class="aep-input" />
+          <input id="load-new-link-price" placeholder="Price" type="number" step="0.01" class="aep-input" style="max-width:120px;" />
+          <button type="button" class="btn btn-ghost btn-xs" onclick="addLink('load')">Add link</button>
+        </div>
+        <input type="hidden" name="pending_links" id="dashboard-load-pending-links" />
+      </div>
+      <div class="aep-btns">
+        <button type="submit" onclick="serializeDashboardLoadForm()" class="btn btn-primary">Save Changes</button>
+        <button type="button" onclick="closeLoadModal()" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"]/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch];
+  });
+}
+
+function syncPendingLinksHiddenField(prefix = 'add') {
+  const hiddenId = prefix === 'load' ? 'dashboard-load-pending-links' : 'add-pending-links';
+  const hidden = document.getElementById(hiddenId);
+  if (!hidden) return;
+  const links = prefix === 'load' ? _loadPendingLinks : _pendingLinks;
+  hidden.value = JSON.stringify(links || []);
+}
+
+var _pendingLinks = [];
+var _loadPendingLinks = [];
+
+function renderLinksList(prefix) {
+  const list = document.getElementById(prefix + '-links-list');
+  if (!list) return;
+  const links = prefix === 'load' ? _loadPendingLinks : _pendingLinks;
+  if (!links || links.length === 0) {
+    list.innerHTML = '<p class="text-gray-500 text-sm">No links yet.</p>';
+    syncPendingLinksHiddenField(prefix);
+    return;
+  }
+  list.innerHTML = links.map((l, i) => `
+    <div class="flex items-center justify-between p-2 rounded bg-white/4 border border-white/8" id="${prefix}-pending-link-${i}">
+      <div class="truncate">
+        <div class="font-bold text-sm">${escapeHtml(l.store_name || l.store)}</div>
+        <a href="${escapeHtml(l.url)}" target="_blank" class="text-xs text-blue-400 truncate">${escapeHtml(l.url)}</a>
+        <div class="text-xs text-green-400">₱${Number(l.price).toLocaleString()}</div>
+      </div>
+      <button type="button" onclick="removePendingLink('${prefix}', ${i})" class="btn btn-ghost btn-xs">Remove</button>
+    </div>
+  `).join('');
+  syncPendingLinksHiddenField(prefix);
+}
+
+function removePendingLink(prefix, idx) {
+  const links = prefix === 'load' ? _loadPendingLinks : _pendingLinks;
+  if (!links) return;
+  links.splice(idx,1);
+  renderLinksList(prefix);
+}
+
+function addLink(prefix = 'add') {
+  const storeEl = document.getElementById(prefix + '-new-store-name');
+  const urlEl = document.getElementById(prefix + '-new-link-url');
+  const priceEl = document.getElementById(prefix + '-new-link-price');
+  const store = storeEl?.value.trim() || '';
+  const url = urlEl?.value.trim() || '';
+  const price = priceEl?.value;
+  if (!store || !url || !price) { alert('Please fill in all link fields.'); return; }
+  const target = prefix === 'load' ? _loadPendingLinks : _pendingLinks;
+  const normalizedUrl = url.match(/^[a-zA-Z][a-zA-Z0-9+.-]*:/) ? url : `https://${url}`;
+  const normalizedPrice = parseFloat(price);
+  const duplicate = target.some(link => link.store_name === store && link.url === normalizedUrl && Number(link.price) === normalizedPrice);
+  if (duplicate) { alert('This link is already added.'); return; }
+  target.push({ store_name: store, url: normalizedUrl, price: normalizedPrice });
+  storeEl.value = '';
+  urlEl.value = '';
+  priceEl.value = '';
+  renderLinksList(prefix);
+  syncPendingLinksHiddenField(prefix);
+}
+
+// serialize pending links before submit
+const dashboardAddForm = document.getElementById('dashboard-add-form');
+if (dashboardAddForm) {
+  dashboardAddForm.addEventListener('submit', function () {
+    syncPendingLinksHiddenField('add');
+  });
+}
+const dashboardLoadForm = document.getElementById('dashboard-load-form');
+if (dashboardLoadForm) {
+  dashboardLoadForm.addEventListener('submit', function () {
+    serializeDashboardLoadForm();
+    syncPendingLinksHiddenField('load');
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  syncPendingLinksHiddenField('add');
+  renderLinksList('add');
+  renderLinksList('load');
+});
+
+function newKeyValueRow(key = '', value = '') {
+  const row = document.createElement('div');
+  row.className = 'admin-kv-row';
+  row.style.display = 'grid';
+  row.style.gridTemplateColumns = '1fr 1fr auto';
+  row.style.gap = '10px';
+  row.innerHTML = `
+    <input type="text" class="aep-input" placeholder="Key" value="${escapeHtml(key)}" />
+    <input type="text" class="aep-input" placeholder="Value" value="${escapeHtml(value)}" />
+    <button type="button" class="btn btn-ghost btn-xs" onclick="removeKeyValueRow(this)">×</button>
+  `;
+  return row;
+}
+
+function addKeyValueRow(containerId, key = '', value = '') {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.appendChild(newKeyValueRow(key, value));
+}
+
+function removeKeyValueRow(button) {
+  const row = button.closest('.admin-kv-row');
+  if (row) row.remove();
+}
+
+function clearContainer(containerId) {
+  const container = document.getElementById(containerId);
+  if (container) container.innerHTML = '';
+}
+
+function gatherKeyValueRows(containerId) {
+  const data = {};
+  const container = document.getElementById(containerId);
+  if (!container) return data;
+  container.querySelectorAll('.admin-kv-row').forEach(row => {
+    const keyInput = row.querySelector('input:nth-child(1)');
+    const valueInput = row.querySelector('input:nth-child(2)');
+    if (!keyInput || !valueInput) return;
+    const key = keyInput.value.trim();
+    const value = valueInput.value.trim();
+    if (!key) return;
+    data[key] = parseValue(value);
+  });
+  return data;
+}
+
+function parseValue(value) {
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  if (/^-?\d+$/.test(value)) return parseInt(value, 10);
+  if (/^-?\d+\.\d+$/.test(value)) return parseFloat(value);
+  try { return JSON.parse(value); } catch (e) { return value; }
+}
+
+function serializeDashboardForm() {
+  const specs = gatherKeyValueRows('dashboard-add-specs');
+  const compatibility = gatherKeyValueRows('dashboard-add-compatibility');
+  const extra = gatherKeyValueRows('dashboard-add-extra');
+  document.getElementById('dashboard-add-specs-input').value = JSON.stringify(specs);
+  document.getElementById('dashboard-add-compatibility-input').value = JSON.stringify(compatibility);
+  document.getElementById('dashboard-add-extra-input').value = JSON.stringify(extra);
+}
+
+function serializeDashboardLoadForm() {
+  const specs = gatherKeyValueRows('dashboard-load-specs');
+  const compatibility = gatherKeyValueRows('dashboard-load-compatibility');
+  const extra = gatherKeyValueRows('dashboard-load-extra');
+  document.getElementById('dashboard-load-specs-input').value = JSON.stringify(specs);
+  document.getElementById('dashboard-load-compatibility-input').value = JSON.stringify(compatibility);
+  document.getElementById('dashboard-load-extra-input').value = JSON.stringify(extra);
+}
+
+function populateContainer(containerId, values) {
+  clearContainer(containerId);
+  if (!values || typeof values !== 'object') return;
+  Object.entries(values).forEach(([key, value]) => {
+    const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+    addKeyValueRow(containerId, key, stringValue);
+  });
+}
+
+function lockBodyScroll(enable) {
+  document.body.classList.toggle('modal-open', enable);
+}
+
+function openLoadModal(id) {
+  fetch(`/admin/components/${id}/details`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert('Failed to load component: ' + data.error);
+        return;
+      }
+      document.getElementById('load-name').value = data.name || '';
+      document.getElementById('load-external-id').value = data.external_id || '';
+      document.getElementById('load-brand').value = data.brand || '';
+      document.getElementById('load-category').value = data.category || '';
+      document.getElementById('load-performance-score').value = data.performance_score || '';
+      document.getElementById('load-image-url').value = data.image_url || '';
+      document.getElementById('load-description').value = data.description || '';
+      document.getElementById('dashboard-load-form').action = `/admin/components/edit/${id}`;
+      populateContainer('dashboard-load-specs', data.specs || {});
+      populateContainer('dashboard-load-compatibility', data.compatibility || {});
+      clearContainer('dashboard-load-extra');
+      document.getElementById('dashboard-load-specs-input').value = JSON.stringify(data.specs || {});
+      document.getElementById('dashboard-load-compatibility-input').value = JSON.stringify(data.compatibility || {});
+      document.getElementById('dashboard-load-extra-input').value = '{}';
+      _loadPendingLinks = (data.links || []).map(link => ({ store_name: link.store, url: link.url, price: link.price }));
+      renderLinksList('load');
+      document.getElementById('dashboard-load-pending-links').value = JSON.stringify(_loadPendingLinks);
+      document.getElementById('load-modal').classList.remove('hidden');
+      lockBodyScroll(true);
+    })
+    .catch(err => {
+      alert('Error loading component: ' + err.message);
+    });
+}
+
+function closeLoadModal() {
+  document.getElementById('load-modal').classList.add('hidden');
+  lockBodyScroll(false);
+}
+
+function openAddModal() {
+  document.getElementById('dashboard-add-form').reset();
+  clearContainer('dashboard-add-specs');
+  clearContainer('dashboard-add-compatibility');
+  clearContainer('dashboard-add-extra');
+  document.getElementById('dashboard-add-specs-input').value = '{}';
+  document.getElementById('dashboard-add-compatibility-input').value = '{}';
+  document.getElementById('dashboard-add-extra-input').value = '{}';
+  _pendingLinks = [];
+  renderLinksList('add');
+  document.getElementById('add-modal').classList.remove('hidden');
+  lockBodyScroll(true);
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.add('hidden');
+  lockBodyScroll(false);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('dashboard-add-form');
+  if (form) {
+    form.addEventListener('submit', function () {
+      serializeDashboardForm();
+    });
+  }
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab) {
+    showTab(tab);
+  }
+});
+
+function sortAdminTable(column, th) {
+  const tbody = document.querySelector('.admin-comp-table tbody');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(row => row.style.display !== 'none');
+  const currentDir = th.dataset.sortDir === 'asc' ? 'desc' : 'asc';
+  document.querySelectorAll('.admin-comp-table th.sortable').forEach(header => {
+    header.classList.remove('sorted-asc', 'sorted-desc');
+    delete header.dataset.sortDir;
+  });
+  th.dataset.sortDir = currentDir;
+  th.classList.add(currentDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+
+  rows.sort((a, b) => {
+    const aKey = a.dataset[column] || '';
+    const bKey = b.dataset[column] || '';
+    if (column === 'price' || column === 'perf') {
+      return currentDir === 'asc' ? Number(aKey) - Number(bKey) : Number(bKey) - Number(aKey);
+    }
+    return currentDir === 'asc' ? aKey.localeCompare(bKey) : bKey.localeCompare(aKey);
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+function showTab(name) {
+  ['overview','components','users'].forEach(t => {
+    document.getElementById('pane-'+t).style.display = t===name ? '' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===name);
+  });
+}
+function filterAdminCat(cat, btn) {
+  document.querySelectorAll('.admin-comp-cats .filter-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.admin-comp-table tbody tr').forEach(row => {
+    row.style.display = (cat==='ALL' || row.dataset.cat===cat) ? '' : 'none';
+  });
+}
+function deleteUser(uid, username) {
+  if (!confirm('Delete user "' + username + '"? This will also delete all their builds.')) return;
+  fetch('/admin/users/'+uid+'/delete', {method:'POST'})
+    .then(r=>r.json())
+    .then(data => { if (data.error) { alert(data.error); return; } document.getElementById('user-row-'+uid)?.remove(); });
+}
+function toggleAdmin(uid) {
+  fetch('/admin/users/'+uid+'/toggle-admin', {method:'POST'})
+    .then(r=>r.json())
+    .then(data => {
+      if (data.error) { alert(data.error); return; }
+      const badge = document.getElementById('role-badge-'+uid);
+      if (badge) { badge.textContent = data.is_admin ? 'ADMIN' : 'USER'; badge.className = 'act-cat-badge ' + (data.is_admin ? 'cat-cpu' : ''); }
+    });
+}
+</script>
+{% endblock %}

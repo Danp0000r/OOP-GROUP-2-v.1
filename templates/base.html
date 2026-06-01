@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}BuildLab{% endblock %} — Philippines Custom PC Builder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="{{ url_for('main.index') }}" class="logo">
+    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+      <rect width="32" height="32" rx="7" fill="#7c3aed"/>
+      <rect x="9" y="9" width="14" height="14" rx="2.5" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+      <line x1="4.5" y1="13" x2="9"    y2="13" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="4.5" y1="16" x2="9"    y2="16" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="4.5" y1="19" x2="9"    y2="19" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="23"  y1="13" x2="27.5" y2="13" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="23"  y1="16" x2="27.5" y2="16" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="23"  y1="19" x2="27.5" y2="19" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="13"  y1="4.5" x2="13" y2="9"   stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="16"  y1="4.5" x2="16" y2="9"   stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="19"  y1="4.5" x2="19" y2="9"   stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="13"  y1="23" x2="13" y2="27.5" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="16"  y1="23" x2="16" y2="27.5" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="19"  y1="23" x2="19" y2="27.5" stroke="rgba(255,255,255,0.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="16" cy="16" r="2.5" fill="white"/>
+    </svg>
+    <!-- BUILD = white, LAB = purple -->
+    <span class="logo-text"><span class="logo-build">BUILD</span><span class="logo-accent">LAB</span></span>
+  </a>
+  <div class="nav-links nav-links-center">
+    <a href="{{ url_for('questionnaire.questionnaire') }}" class="{{ 'active' if request.endpoint == 'questionnaire.questionnaire' }}">BUILD FINDER</a>
+    <a href="{{ url_for('build.builder') }}" class="{{ 'active' if request.endpoint == 'build.builder' }}">BUILDER</a>
+    <a href="{{ url_for('components.parts') }}" class="{{ 'active' if request.endpoint == 'components.parts' }}">PARTS</a>
+    {% if session.get('user_id') %}
+      <a href="{{ url_for('build.saved_builds') }}" class="{{ 'active' if request.endpoint == 'build.saved_builds' }}">MY BUILDS</a>
+    {% endif %}
+    {% if session.get('is_admin') %}
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">ADMIN</a>
+    {% endif %}
+  </div>
+  <div class="nav-auth">
+    {% if session.get('user_id') %}
+      <a href="{{ url_for('build.saved_builds') }}" class="btn btn-ghost">MY PROFILE</a>
+      <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost">LOGOUT</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">LOGIN</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary">GET STARTED</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-container">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<!-- Page content -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <p>&copy; 2026 BuildLab &mdash; Philippines' Custom PC Builder</p>
+</footer>
+
+<script src="{{ url_for('static', filename='js/builder.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

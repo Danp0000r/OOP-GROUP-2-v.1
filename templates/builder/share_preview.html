@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ build.name }} — BuildLab{% endblock %}
+{% block content %}
+<div style="max-width:600px;margin:40px auto;padding:0 16px;">
+  <div style="background:#13131f;border-radius:20px;border:1px solid rgba(255,255,255,.1);overflow:hidden;">
+    <div style="padding:28px 28px 20px;background:linear-gradient(135deg,#1e0a3c,#13131f);">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.15em;color:#a78bfa;margin-bottom:8px;">BUILDLAB PC BUILD</div>
+      <h1 style="font-size:26px;font-weight:900;margin-bottom:4px;">{{ build.name }}</h1>
+      <p style="font-size:13px;color:rgba(255,255,255,.4);">{{ components|length }} components · Saved {{ build.created_at.strftime('%B %d, %Y') }}</p>
+    </div>
+    <div style="padding:20px 28px;">
+      {% set catFg = {"CPU":"#a78bfa","Motherboard":"#78bffa","GPU":"#60a5fa","RAM":"#6ee7b7","Storage":"#fbbf24","PSU":"#f472b6","Cooling":"#67e8f9","Case":"#c4b5fd"} %}
+      {% for c in components %}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.07);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:9px;font-weight:700;padding:3px 9px;border-radius:10px;background:rgba(255,255,255,.07);color:{{ catFg.get(c.category, '#fff') }};">{{ c.category | upper }}</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;">{{ c.name }}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.4);">{{ c.brand }}</div>
+          </div>
+        </div>
+        <span style="font-size:15px;font-weight:900;color:{{ catFg.get(c.category, '#a78bfa') }};">&#8369;{{ '{:,.0f}'.format(c.price) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="padding:20px 28px;background:rgba(167,139,250,.08);border-top:1px solid rgba(167,139,250,.2);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:13px;color:rgba(255,255,255,.5);">Total Build Cost</span>
+      <span style="font-size:24px;font-weight:900;color:#a78bfa;">&#8369;{{ '{:,.0f}'.format(total) }}</span>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:20px;">
+    <a href="{{ url_for('build.builder') }}" class="btn btn-primary">Start My Own Build →</a>
+  </div>
+</div>
+{% endblock %}
