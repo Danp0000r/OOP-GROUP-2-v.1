@@ -334,6 +334,7 @@ function normalizeCase(caseData) {
     let gizmoDragStartScalar = 0;
     let gizmoDragStartPositions = [];
     let adminModeEnabled = false;
+    let serverSaveTimeout = null;
     // Snapshot of baseline positions used for explode/revert so offsets don't accumulate
     let explodeBaselinePositions = null;
 
@@ -1066,13 +1067,22 @@ function normalizeCase(caseData) {
         }
 
         // Load persisted position overrides from localStorage if available.
-        // This preserves user adjustments and ensures saved coordinates are applied.
+        // This preserves user adjustments, but server-provided positions remain authoritative.
         try {
             const raw = window.localStorage.getItem(POSITION_STORAGE_KEY);
-            if(raw) {
+            if (raw) {
                 const stored = JSON.parse(raw);
-                if(stored && typeof stored === 'object') {
-                    Object.assign(savedPositions, stored);
+                if (stored && typeof stored === 'object') {
+                    Object.keys(stored).forEach(caseId => {
+                        if (!stored[caseId] || typeof stored[caseId] !== 'object') return;
+                        if (!savedPositions[caseId]) savedPositions[caseId] = {};
+                        Object.keys(stored[caseId]).forEach(key => {
+                            if (!isValidSavedPosition(stored[caseId][key])) return;
+                            if (savedPositions[caseId][key] === undefined) {
+                                savedPositions[caseId][key] = stored[caseId][key];
+                            }
+                        });
+                    });
                 }
             }
         } catch (e) {
@@ -1087,11 +1097,37 @@ function normalizeCase(caseData) {
         }
     }
 
+    async function persistPositionsToServer() {
+        if (!window.builderIsAdmin) return;
+        try {
+            const response = await fetch('/nexus3d_positions.json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ savedPositions })
+            });
+            if (!response.ok) {
+                const detail = await response.text();
+                console.warn('Failed to persist positions to server', response.status, detail);
+            }
+        } catch (e) {
+            console.warn('Could not persist positions to server', e);
+        }
+    }
+
     function saveSavedPositions() {
         try {
             window.localStorage.setItem(POSITION_STORAGE_KEY, JSON.stringify(savedPositions));
         } catch (e) {
             console.warn('Could not persist positions', e);
+        }
+
+        if (window.builderIsAdmin) {
+            if (serverSaveTimeout) {
+                clearTimeout(serverSaveTimeout);
+            }
+            serverSaveTimeout = setTimeout(persistPositionsToServer, 300);
         }
     }
 

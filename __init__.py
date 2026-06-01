@@ -86,14 +86,15 @@ def create_app():
     app.register_blueprint(admin_bp)
     app.register_blueprint(questionnaire_bp)
 
-    # Serve and persist Nexus3D positions JSON at the application root.
+    # Serve and persist Nexus3D positions JSON in the instance folder.
     @app.route('/nexus3d_positions.json', methods=['GET', 'POST'])
     def nexus3d_positions():
-        path = os.path.join(app.root_path, 'nexus3d_positions.json')
+        file_name = 'nexus3d_positions.json'
+        path = os.path.join(instance_dir, file_name)
         if request.method == 'GET':
             try:
                 if os.path.exists(path):
-                    return send_from_directory(app.root_path, 'nexus3d_positions.json')
+                    return send_from_directory(instance_dir, file_name)
                 return jsonify({'savedPositions': {}})
             except Exception:
                 return jsonify({'savedPositions': {}})
@@ -103,7 +104,7 @@ def create_app():
             return jsonify({'error': 'Admin access required.'}), 403
         try:
             data = request.get_json(force=True)
-            # Write JSON payload to file
+            # Write JSON payload to instance file
             with open(path, 'w', encoding='utf-8') as f:
                 json.dump(data or {}, f, indent=2, ensure_ascii=False)
             return jsonify({'message': 'Positions saved.'})
