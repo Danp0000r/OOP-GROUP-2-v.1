@@ -36,15 +36,35 @@ class User(UserMixin, db.Model):
         db.String(255)
     )
 
+    profile_picture = db.Column(
+        db.String(500),
+        default=None
+    )
+
     is_admin = db.Column(
         db.Boolean,
         default=False
+    )
+
+    country = db.Column(
+        db.String(100),
+        default="Philippines"
     )
 
     created_at = db.Column(
         db.DateTime,
         default=datetime.datetime.utcnow,
         nullable=False
+    )
+
+    is_active = db.Column(
+        db.Boolean,
+        default=False
+    )
+
+    last_active = db.Column(
+        db.DateTime,
+        nullable=True
     )
 
     def set_password(self, raw):

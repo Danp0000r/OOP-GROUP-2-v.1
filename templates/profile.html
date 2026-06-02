@@ -7,12 +7,19 @@
 <div class="profile-header">
   <div class="profile-header-inner">
     <div class="profile-avatar-wrap">
-      <div class="profile-avatar">
-        {{ session.get('username', 'U')[:2] | upper }}
+      <div class="profile-avatar" style="position:relative; cursor:pointer;" id="profile-avatar-container" onclick="openProfilePictureModal()" style="cursor: pointer;">
+        {% if user.profile_picture %}
+          <img src="{{ user.profile_picture }}" alt="Profile Picture" style="width:100%; height:100%; object-fit:cover; object-position:center; border-radius:8px; cursor: pointer;" id="profile-picture-img">
+        {% else %}
+          <span id="profile-picture-text" style="cursor: pointer;">{{ session.get('username', 'U')[:2] | upper }}</span>
+        {% endif %}
+        <button type="button" id="edit-avatar-btn" class="profile-avatar-cam" style="position:absolute; bottom:-6px; right:-6px; width:28px; height:28px; border-radius:50%; background:var(--primary); border:2px solid var(--bg); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:.18s; padding:0;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
       </div>
     </div>
     <div class="profile-info">
-      <div class="profile-username">{{ session.get('username', '') | upper }}</div>
+      <h1 class="profile-username">{{ session.get('username', '') | upper }}</h1>
       <div class="profile-meta">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         {{ session.get('email', '') }}
@@ -20,9 +27,6 @@
       <div class="profile-meta" style="margin-top:6px;">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         Member since 2025
-        &nbsp;·&nbsp;
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Philippines
       </div>
     </div>
     <div class="profile-badges">
@@ -30,147 +34,525 @@
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         {% if session.get('is_admin') %}ADMIN{% else %}USER{% endif %}
       </span>
-      <button id="open-edit-profile-modal" type="button" class="profile-edit-badge">
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        Edit Profile
-      </button>
     </div>
   </div>
 </div>
 
-<!-- Stats Row -->
-<div class="profile-stats-row">
-  <div class="profile-stat-card">
-    <div class="psc-icon psc-purple">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-    </div>
-    <div>
-      <div class="psc-label">Total Builds</div>
-      <div class="psc-value psc-purple-text">{{ builds | length }}</div>
-    </div>
-  </div>
-  <div class="profile-stat-card">
-    <div class="psc-icon psc-green">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-    </div>
-    <div>
-      <div class="psc-label">Total Builds</div>
-      <div class="psc-value psc-green-text">{{ builds | length }}</div>
-    </div>
-  </div>
-  <div class="profile-stat-card">
-    <div class="psc-icon psc-blue">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-    </div>
-    <div>
-      <div class="psc-label">Member Since</div>
-      <div class="psc-value psc-blue-text" style="font-size:16px;">2025</div>
-    </div>
-  </div>
-  <div class="profile-stat-card">
-    <div class="psc-icon psc-orange">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-    </div>
-    <div>
-      <div class="psc-label">Components Used</div>
-      <div class="psc-value psc-orange-text">0</div>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Profile Modal -->
-<div id="edit-profile-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:200; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px);">
-  <div style="position:relative; background:#13131f; border-radius:16px; width:100%; max-width:440px; border:1px solid rgba(255,255,255,.09); padding:28px;">
-    <button id="close-edit-profile-modal" type="button" style="position:absolute; top:18px; right:18px; background:transparent; border:none; color:rgba(255,255,255,.6); font-size:18px; cursor:pointer;">&times;</button>
-    <h3 style="font-size:17px; font-weight:900; margin-bottom:20px;">Edit Profile</h3>
-    <form method="POST" action="{{ url_for('main.update_profile') }}" style="display:flex;flex-direction:column;gap:14px;">
+<!-- Profile Edit Modal -->
+<div id="profile-edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:500; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px); visibility:hidden; opacity:0; transition:visibility .2s, opacity .2s;">
+  <div style="position:relative; width:100%; max-width:480px; background:#13131f; border-radius:18px; border:1px solid rgba(255,255,255,.09); padding:28px; transform:scale(.95); transition:transform .2s;">
+    <button id="close-profile-edit-modal" type="button" style="position:absolute; top:18px; right:18px; width:34px; height:34px; border:none; border-radius:12px; background:rgba(255,255,255,.08); color:#fff; cursor:pointer; font-size:20px; line-height:1;">&times;</button>
+    <h3 style="font-size:18px; font-weight:900; margin-bottom:20px;">Edit Profile Picture</h3>
+    <form id="profile-edit-form" style="display:flex;flex-direction:column;gap:14px;">
       <div>
-        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Username</label>
-        <input type="text" name="username" value="{{ session.get('username', '') }}" required
-          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Email</label>
-        <input type="email" name="email" value="{{ session.get('email', '') }}" required
-          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
-      </div>
-      <div>
-        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">New Password <span style="color:var(--muted);font-weight:400;">(leave blank to keep current)</span></label>
-        <input type="password" name="password" placeholder="New password"
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Profile Picture URL</label>
+        <input type="url" name="profile_picture" id="profile-pic-url" value="{{ user.profile_picture or '' }}" placeholder="https://example.com/avatar.jpg"
           style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
       </div>
       <div style="display:flex;gap:10px;margin-top:6px;">
-        <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
-        <button type="button" id="cancel-edit-profile-modal" class="btn btn-ghost">Cancel</button>
+        <button type="submit" class="btn btn-primary" style="flex:1;">Save Picture</button>
+        <button type="button" id="cancel-profile-edit-modal" class="btn btn-ghost">Cancel</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Saved Builds Section -->
-<div class="profile-builds-section">
-  <div class="profile-builds-header">
-    <h2 class="profile-builds-title">My Saved Builds</h2>
-    <a href="{{ url_for('build.builder') }}" class="btn btn-primary btn-sm">+ New Build</a>
+<!-- Profile Picture View Modal -->
+<div id="profile-picture-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.88); z-index:600; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(8px); visibility:hidden; opacity:0; transition:visibility .2s, opacity .2s;">
+  <div style="position:relative; max-width:600px; width:100%;">
+    <button id="close-profile-picture-modal" type="button" style="position:absolute; top:-40px; right:0; width:40px; height:40px; border:none; border-radius:50%; background:rgba(255,255,255,.1); color:#fff; cursor:pointer; font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center;">&times;</button>
+    <div style="border-radius:12px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.8);">
+      {% if user.profile_picture %}
+        <img src="{{ user.profile_picture }}" alt="Profile Picture" style="width:100%; height:auto; object-fit:contain;" id="modal-profile-picture">
+      {% else %}
+        <div style="width:100%; padding:60px; background:#13131f; display:flex; align-items:center; justify-content:center; font-size:80px; color:var(--muted);">{{ session.get('username', 'U')[:2] | upper }}</div>
+      {% endif %}
+    </div>
   </div>
-  {% if builds %}
-    <div class="profile-builds-grid">
-      {% for build in builds %}
-      <div class="profile-build-card">
-        <div class="pbc-top">
-          <div class="pbc-name">{{ build.name }}</div>
-          <div class="pbc-date">{{ build.created_at.strftime('%b %d, %Y') if build.created_at else 'Saved' }}</div>
-        </div>
-        <div class="pbc-parts">{{ build.component_ids | from_json | length if build.component_ids else 0 }} parts</div>
-        <div class="pbc-actions">
-          <a href="{{ url_for('build.saved_builds') }}" class="btn btn-ghost btn-sm">View All</a>
+</div>
+
+<!-- Main Content Section -->
+<div class="profile-main-container">
+  
+  <!-- Account Information Section -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Account Information
+      </h2>
+      <button id="open-edit-info-modal" type="button" class="btn btn-outline btn-sm">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Info
+      </button>
+    </div>
+    
+    <div class="account-info-grid">
+      <div class="info-item">
+        <div class="info-label">Full Name</div>
+        <div class="info-value">{{ session.get('username', 'N/A') }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Email</div>
+        <div class="info-value">{{ session.get('email', 'N/A') }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Role</div>
+        <div class="info-value">
+          <span class="role-badge {% if session.get('is_admin') %}admin{% else %}user{% endif %}">
+            {% if session.get('is_admin') %}Administrator{% else %}User{% endif %}
+          </span>
         </div>
       </div>
-      {% endfor %}
+      <div class="info-item">
+        <div class="info-label">Account Status</div>
+        <div class="info-value">
+          <span class="status-badge active">Active</span>
+        </div>
+      </div>
     </div>
-  {% else %}
-    <div class="profile-empty-builds">
-      <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--muted);margin-bottom:12px;"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      <p>No builds yet. Start building your dream PC!</p>
-      <a href="{{ url_for('build.builder') }}" class="btn btn-primary" style="margin-top:12px;">Start Building</a>
+  </div>
+
+  <!-- Security Section -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Security
+      </h2>
     </div>
-  {% endif %}
+    
+    <div class="security-items">
+      <div class="security-item">
+        <div class="security-info">
+          <div class="security-label">Password</div>
+          <div class="security-description">Last changed: June 2, 2026</div>
+        </div>
+        <button id="open-password-modal" type="button" class="btn btn-outline btn-sm">Change Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity Section -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        Recent Activity
+      </h2>
+      <span class="activity-limit">Last 10 activities</span>
+    </div>
+    
+    <div id="activities-container" class="activities-list">
+      {% if activities %}
+        {% for activity in activities %}
+          <div class="activity-item">
+            <div class="activity-icon">
+              {% if activity.action_type == 'build_created' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              {% elif activity.action_type == 'build_updated' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19H4v-3L16.5 3.5z"/></svg>
+              {% elif activity.action_type == 'build_deleted' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              {% elif activity.action_type == 'build_shared' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              {% elif activity.action_type == 'comparison_made' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              {% elif activity.action_type == 'build_compared' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              {% elif activity.action_type == 'compatibility_check' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              {% elif activity.action_type == 'compatibility_fix' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              {% elif activity.action_type == 'questionnaire_completed' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+              {% elif activity.action_type == 'password_change' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              {% elif activity.action_type == 'profile_update' %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              {% else %}
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              {% endif %}
+            </div>
+            <div class="activity-content">
+              <div class="activity-description">{{ activity.description }}</div>
+              <div class="activity-time">{{ activity.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--muted);margin-bottom:12px;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          <p>No recent activity</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Edit Information Modal -->
+<div id="edit-info-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:200; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px);">
+  <div style="position:relative; background:#13131f; border-radius:16px; width:100%; max-width:500px; border:1px solid rgba(255,255,255,.09); padding:28px;">
+    <button id="close-edit-info-modal" type="button" style="position:absolute; top:18px; right:18px; background:transparent; border:none; color:rgba(255,255,255,.6); font-size:18px; cursor:pointer;">&times;</button>
+    
+    <h3 style="font-size:17px; font-weight:900; margin-bottom:20px;">Edit Information</h3>
+    
+    <form id="edit-info-form" style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Username</label>
+        <input type="text" name="username" id="edit-username" value="{{ session.get('username', '') }}" required
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
+      </div>
+      
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Email</label>
+        <input type="email" name="email" id="edit-email" value="{{ session.get('email', '') }}" required
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
+      </div>
+      
+
+      
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button type="submit" class="btn btn-primary" style="flex:1;">Save Changes</button>
+        <button type="button" id="cancel-edit-info-modal" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="password-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:200; align-items:center; justify-content:center; padding:16px; backdrop-filter:blur(6px);">
+  <div style="position:relative; background:#13131f; border-radius:16px; width:100%; max-width:440px; border:1px solid rgba(255,255,255,.09); padding:28px;">
+    <button id="close-password-modal" type="button" style="position:absolute; top:18px; right:18px; background:transparent; border:none; color:rgba(255,255,255,.6); font-size:18px; cursor:pointer;">&times;</button>
+    
+    <h3 style="font-size:17px; font-weight:900; margin-bottom:20px;">Change Password</h3>
+    
+    <form id="change-password-form" style="display:flex;flex-direction:column;gap:14px;">
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Last Password</label>
+        <input type="password" name="old_password" id="old-password" placeholder="Enter your current password" required
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
+      </div>
+      
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">New Password</label>
+        <input type="password" name="new_password" id="new-password" placeholder="Enter your new password" required
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
+      </div>
+      
+      <div>
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Confirm Password</label>
+        <input type="password" name="confirm_password" id="confirm-password" placeholder="Confirm your new password" required
+          style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none;">
+      </div>
+      
+      <div style="display:flex;gap:10px;margin-top:6px;">
+        <button type="submit" class="btn btn-primary" style="flex:1;">Change Password</button>
+        <button type="button" id="cancel-password-modal" class="btn btn-ghost">Cancel</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-function closeEditProfileModal() {
-  const modal = document.getElementById('edit-profile-modal');
+// Modal Management Functions
+function closeEditInfoModal() {
+  const modal = document.getElementById('edit-info-modal');
   if (modal) modal.style.display = 'none';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('edit-profile-modal');
-  const openBtn = document.getElementById('open-edit-profile-modal');
-  const closeBtn = document.getElementById('close-edit-profile-modal');
-  const cancelBtn = document.getElementById('cancel-edit-profile-modal');
+function closePasswordModal() {
+  const modal = document.getElementById('password-modal');
+  if (modal) modal.style.display = 'none';
+}
 
-  if (openBtn && modal) {
-    openBtn.addEventListener('click', () => {
-      modal.style.display = 'flex';
-    });
-  }
-  if (closeBtn) {
-    closeBtn.addEventListener('click', closeEditProfileModal);
-  }
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', closeEditProfileModal);
-  }
+function closeProfileEditModal() {
+  const modal = document.getElementById('profile-edit-modal');
   if (modal) {
-    modal.addEventListener('click', function(e) {
-      if (e.target === this) closeEditProfileModal();
+    modal.style.visibility = 'hidden';
+    modal.style.opacity = '0';
+    const innerDiv = modal.querySelector('div');
+    if (innerDiv) innerDiv.style.transform = 'scale(0.95)';
+    // After transition completes, hide with display:none
+    setTimeout(() => {
+      if (modal) modal.style.display = 'none';
+    }, 200);
+  }
+}
+
+// Modal Event Listeners
+function openProfilePictureModal() {
+  const modal = document.getElementById('profile-picture-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    modal.style.visibility = 'visible';
+    modal.style.opacity = '1';
+  }
+}
+
+function closeProfilePictureModal() {
+  const modal = document.getElementById('profile-picture-modal');
+  if (modal) {
+    modal.style.visibility = 'hidden';
+    modal.style.opacity = '0';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 200);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Profile Picture View Modal
+  const profilePictureModal = document.getElementById('profile-picture-modal');
+  const closeProfilePictureBtn = document.getElementById('close-profile-picture-modal');
+  
+  if (closeProfilePictureBtn) {
+    closeProfilePictureBtn.addEventListener('click', closeProfilePictureModal);
+  }
+  if (profilePictureModal) {
+    profilePictureModal.addEventListener('click', function(e) {
+      if (e.target === this) closeProfilePictureModal();
     });
   }
+  
+  // Helper function to open profile edit modal
+  function openProfileEditModal() {
+    const modal = document.getElementById('profile-edit-modal');
+    if (modal) {
+      modal.style.display = 'flex';
+      modal.style.visibility = 'visible';
+      modal.style.opacity = '1';
+      const innerDiv = modal.querySelector('div');
+      if (innerDiv) innerDiv.style.transform = 'scale(1)';
+    }
+  }
+  
+  // Profile Edit Modal
+  const profileEditModal = document.getElementById('profile-edit-modal');
+  const openProfileEditBtn = document.getElementById('open-edit-profile-modal');
+  const editAvatarBtn = document.getElementById('edit-avatar-btn');
+  const closeProfileEditBtn = document.getElementById('close-profile-edit-modal');
+  const cancelProfileEditBtn = document.getElementById('cancel-profile-edit-modal');
+    // Debug: Check if button exists
+  if (!openProfileEditBtn) {
+    console.warn('Edit profile button not found with ID: open-edit-profile-modal');
+  }
+    if (openProfileEditBtn && profileEditModal) {
+    openProfileEditBtn.addEventListener('click', openProfileEditModal);
+  }
+  if (editAvatarBtn && profileEditModal) {
+    editAvatarBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Camera button clicked');
+      openProfileEditModal();
+    });
+  } else if (!editAvatarBtn) {
+    console.warn('Camera button not found with ID: edit-avatar-btn');
+  }
+  if (closeProfileEditBtn) {
+    closeProfileEditBtn.addEventListener('click', closeProfileEditModal);
+  }
+  if (cancelProfileEditBtn) {
+    cancelProfileEditBtn.addEventListener('click', closeProfileEditModal);
+  }
+  if (profileEditModal) {
+    profileEditModal.addEventListener('click', function(e) {
+      if (e.target === this) closeProfileEditModal();
+    });
+  }
+  
+  // Edit Info Modal
+  const editInfoModal = document.getElementById('edit-info-modal');
+  const openEditInfoBtn = document.getElementById('open-edit-info-modal');
+  const closeEditInfoBtn = document.getElementById('close-edit-info-modal');
+  const cancelEditInfoBtn = document.getElementById('cancel-edit-info-modal');
+  
+  if (openEditInfoBtn && editInfoModal) {
+    openEditInfoBtn.addEventListener('click', () => {
+      editInfoModal.style.display = 'flex';
+    });
+  }
+  if (closeEditInfoBtn) {
+    closeEditInfoBtn.addEventListener('click', closeEditInfoModal);
+  }
+  if (cancelEditInfoBtn) {
+    cancelEditInfoBtn.addEventListener('click', closeEditInfoModal);
+  }
+  if (editInfoModal) {
+    editInfoModal.addEventListener('click', function(e) {
+      if (e.target === this) closeEditInfoModal();
+    });
+  }
+  
+  // Password Modal
+  const passwordModal = document.getElementById('password-modal');
+  const openPasswordBtn = document.getElementById('open-password-modal');
+  const closePasswordBtn = document.getElementById('close-password-modal');
+  const cancelPasswordBtn = document.getElementById('cancel-password-modal');
+  
+  if (openPasswordBtn && passwordModal) {
+    openPasswordBtn.addEventListener('click', () => {
+      passwordModal.style.display = 'flex';
+    });
+  }
+  if (closePasswordBtn) {
+    closePasswordBtn.addEventListener('click', closePasswordModal);
+  }
+  if (cancelPasswordBtn) {
+    cancelPasswordBtn.addEventListener('click', closePasswordModal);
+  }
+  if (passwordModal) {
+    passwordModal.addEventListener('click', function(e) {
+      if (e.target === this) closePasswordModal();
+    });
+  }
+  
+  // Close modals on Escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeEditProfileModal();
+    if (e.key === 'Escape') {
+      closeProfileEditModal();
+      closeEditInfoModal();
+      closePasswordModal();
+    }
   });
+
+  // Profile Picture Edit Form Handler
+  const profileEditForm = document.getElementById('profile-edit-form');
+  if (profileEditForm) {
+    profileEditForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const profilePictureUrl = document.getElementById('profile-pic-url').value.trim();
+      
+      if (!profilePictureUrl) {
+        alert('Please enter a valid image URL');
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('profile_picture', profilePictureUrl);
+      
+      try {
+        const response = await fetch("{{ url_for('auth.edit_profile_info') }}", {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          // Update the profile picture immediately
+          const img = document.getElementById('profile-picture-img');
+          const textSpan = document.getElementById('profile-picture-text');
+          if (img) {
+            img.src = profilePictureUrl;
+          } else if (textSpan) {
+            // If text was showing, replace with image
+            textSpan.remove();
+            const container = document.getElementById('profile-avatar-container');
+            const newImg = document.createElement('img');
+            newImg.id = 'profile-picture-img';
+            newImg.src = profilePictureUrl;
+            newImg.alt = 'Profile Picture';
+            newImg.style.cssText = 'width:100%; height:100%; object-fit:cover; object-position:center; border-radius:8px;';
+            container.insertBefore(newImg, document.getElementById('edit-avatar-btn'));
+          }
+          // Update nav-auth profile picture
+          const navAuthImg = document.querySelector('.nav-auth img');
+          if (navAuthImg) {
+            navAuthImg.src = profilePictureUrl;
+          } else {
+            // If no image exists in nav-auth, create one
+            const navAuthDiv = document.querySelector('.nav-auth > div');
+            if (navAuthDiv) {
+              const newNavImg = document.createElement('img');
+              newNavImg.src = profilePictureUrl;
+              newNavImg.alt = 'Profile';
+              newNavImg.style.cssText = 'height:36px; width:36px; object-fit:cover; object-position:center; border-radius:6px; border:1px solid rgba(255,255,255,.2);';
+              navAuthDiv.insertBefore(newNavImg, navAuthDiv.querySelector('a'));
+            }
+          }
+          closeProfileEditModal();
+          alert('Profile picture updated successfully!');
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        alert('An error occurred: ' + error.message);
+      }
+    });
+  }
+
+  // Edit Information Form Handler
+  const editInfoForm = document.getElementById('edit-info-form');
+  if (editInfoForm) {
+    editInfoForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      
+      try {
+        const response = await fetch("{{ url_for('auth.edit_profile_info') }}", {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Profile updated successfully!');
+          location.reload();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        alert('An error occurred: ' + error.message);
+      }
+    });
+  }
+
+  // Change Password Form Handler
+  const changePasswordForm = document.getElementById('change-password-form');
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const newPassword = document.getElementById('new-password').value;
+      
+      // Check if new password is provided
+      if (!newPassword || newPassword.length < 6) {
+        alert('New password must be at least 6 characters.');
+        return;
+      }
+      
+      const formData = new FormData(this);
+      
+      try {
+        const response = await fetch("{{ url_for('auth.change_password') }}", {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Password changed successfully!');
+          closePasswordModal();
+          this.reset();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        alert('An error occurred: ' + error.message);
+      }
+    });
+  }
+
 });
 </script>
 {% endblock %}

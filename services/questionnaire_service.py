@@ -10,6 +10,7 @@ from models.component import Component
 # Compatibility and performance helpers
 from services.compatibility.compatibility_service import CompatibilityService
 from services.compatibility.performance_analyzer import PerformanceAnalyzer
+from services.build_fix_service import BuildFixService
 
 
 @memoize(timeout=300)
@@ -90,8 +91,49 @@ def get_build_recommendation(answers: dict) -> dict:
             components.append(comp)
             total_price += comp.get('price') or 0
     
-    # Prepare report from selected build
-    report = selected_build.get('_report', {})
+    # ALWAYS recompute compatibility to catch socket mismatches, etc.
+    # Build parts list for compatibility check
+    parts_for_check = []
+    for comp in components:
+        parts_for_check.append({
+            'name': comp.get('name'),
+            'category': comp.get('category'),
+            'brand': comp.get('brand'),
+            'specs': comp.get('specs', {}),
+            'performance_score': comp.get('performance_score'),
+            'price': comp.get('price'),
+        })
+    
+    # Check actual compatibility (not just the stored report)
+    report = CompatibilityService.evaluate_build(parts_for_check)
+    changes_made = []
+
+    # If incompatible, attempt minimal fixes while respecting questionnaire answers
+    if report.get('status') == 'incompatible' or not report.get('compatible'):
+        fix_result = BuildFixService.fix_build(parts_for_check, answers=answers)
+        if fix_result.get('fixed'):
+            # adopt fixed components and recompute ids/price/report
+            fixed_components = fix_result.get('components', [])
+            components = fixed_components
+            
+            # Look up database IDs for all fixed components
+            recommended_ids = []
+            for comp in fixed_components:
+                # If component already has an id, use it
+                if comp.get('id'):
+                    recommended_ids.append(comp.get('id'))
+                else:
+                    # Look up by name and category
+                    db_comp = Component.query.filter_by(
+                        name=comp.get('name'),
+                        category=comp.get('category')
+                    ).first()
+                    if db_comp:
+                        recommended_ids.append(db_comp.component_id)
+            
+            total_price = int(round(sum((c.get('price') or 0) for c in fixed_components)))
+            report = fix_result.get('compatibility_report') or report
+            changes_made = fix_result.get('changes', [])
     
     return {
         'component_ids': recommended_ids,

@@ -33,6 +33,8 @@ def admin_required(f):
 @admin_required
 def dashboard():
     from sqlalchemy import func
+    import datetime
+    
     cat_counts = dict(db.session.query(Component.category, func.count(Component.component_id)).group_by(Component.category).all())
     stats = {
         "components":  Component.query.count(),
@@ -43,6 +45,17 @@ def dashboard():
     }
     components = Component.query.order_by(Component.category, Component.name).all()
     users = User.query.order_by(User.created_at.desc()).all()
+    
+    # Add online status to each user (based on last_active timestamp)
+    inactivity_timeout_seconds = 120
+    now = datetime.datetime.utcnow()
+    for user in users:
+        if user.last_active:
+            time_since_last_active = (now - user.last_active).total_seconds()
+            user.is_online = time_since_last_active < inactivity_timeout_seconds
+        else:
+            user.is_online = False
+    
     return render_template("admin/dashboard.html", stats=stats, components=components, users=users)
 
 
@@ -378,3 +391,38 @@ def toggle_admin(uid):
     user.is_admin = not user.is_admin
     db.session.commit()
     return jsonify({"message": "Updated.", "is_admin": user.is_admin})
+
+
+@admin_bp.route("/api/users/status", methods=["GET"])
+@admin_required
+def get_users_status():
+    """Get online/offline status for all users (JSON endpoint for real-time updates)"""
+    import datetime
+    
+    users = User.query.order_by(User.created_at.desc()).all()
+    inactivity_timeout_seconds = 120  # Mark offline after 2 minutes of no heartbeat
+    now = datetime.datetime.utcnow()
+    
+    users_data = []
+    for user in users:
+        # Determine if user is online
+        is_online = False
+        if user.last_active:
+            time_since_last_active = (now - user.last_active).total_seconds()
+            is_online = time_since_last_active < inactivity_timeout_seconds
+        
+        users_data.append({
+            'id': user.user_id,
+            'username': user.username,
+            'email': user.email,
+            'is_admin': user.is_admin,
+            'is_online': is_online,
+            'last_active': user.last_active.isoformat() if user.last_active else None,
+            'profile_picture': user.profile_picture
+        })
+    
+    return jsonify({
+        "success": True,
+        "users": users_data,
+        "timestamp": now.isoformat()
+    })

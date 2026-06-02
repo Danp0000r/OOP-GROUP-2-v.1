@@ -51,6 +51,7 @@ def create_app():
     # Import Models (ensure these are registered with SQLAlchemy before create_all)
     from models.user import User
     from models.build import Build
+    from models.activity import Activity
     from models.component import Component
     from models.link import Link
     from models.cpu import CPU
@@ -62,6 +63,10 @@ def create_app():
     from models.cooling import Cooling
     from models.case import Case
 
+    # Create all database tables
+    with app.app_context():
+        db.create_all()
+
     @login_manager.user_loader
     def load_user(user_id):
         if not user_id:
@@ -70,6 +75,18 @@ def create_app():
             return User.query.get(int(user_id))
         except (ValueError, TypeError):
             return None
+
+    # Context processor to inject user into all templates
+    @app.context_processor
+    def inject_user():
+        from models.user import User
+        user = None
+        if session.get('user_id'):
+            try:
+                user = User.query.get(int(session['user_id']))
+            except (ValueError, TypeError):
+                pass
+        return dict(user=user)
 
     # Register blueprints
     from routes.main_routes import main_bp
@@ -85,6 +102,10 @@ def create_app():
     app.register_blueprint(component_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(questionnaire_bp)
+
+    # Register CLI commands for database updates
+    from data.update_db import register_cli_commands
+    register_cli_commands(app)
 
     # Serve and persist Nexus3D positions JSON in the instance folder.
     @app.route('/nexus3d_positions.json', methods=['GET', 'POST'])

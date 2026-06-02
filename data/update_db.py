@@ -3,11 +3,17 @@ import json
 import os
 import sqlite3
 import sys
+import logging
+from pathlib import Path
 
 # Root project directory
 ROOT_DIR = os.path.dirname(
     os.path.dirname(__file__)
 )
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def ensure_users_created_at(users_db_path):
@@ -287,9 +293,43 @@ def update_database():
                 db.session.rollback()
                 continue
 
-        print(f"Database updated successfully! Components: {len(components)}, Links added: {added}, Unmatched links: {unmatched}, Users added: {users_added}, Builds added: {builds_added}")
+        logger.info(f"Database updated successfully! Components: {len(components)}, Links added: {added}, Unmatched links: {unmatched}, Users added: {users_added}, Builds added: {builds_added}")
+        
+        return {
+            "components": len(components),
+            "links_added": added,
+            "unmatched_links": unmatched,
+            "users_added": users_added,
+            "builds_added": builds_added
+        }
+
+
+def register_cli_commands(app):
+    """Register database update command with Flask CLI"""
+    @app.cli.command()
+    def update_db():
+        """Update database with JSON data"""
+        try:
+            result = update_database()
+            logger.info("Database update completed successfully")
+            print(f"✓ Database updated: {result['components']} components, {result['links_added']} links, {result['users_added']} users")
+        except Exception as e:
+            logger.error(f"Database update failed: {str(e)}", exc_info=True)
+            print(f"✗ Database update failed: {str(e)}")
+            return 1
+        return 0
 
 
 if __name__ == "__main__":
-
-    update_database()
+    # Direct execution as a standalone script
+    try:
+        result = update_database()
+        print(f"✓ Database updated successfully!")
+        print(f"  Components: {result['components']}")
+        print(f"  Links added: {result['links_added']}")
+        print(f"  Unmatched links: {result['unmatched_links']}")
+        print(f"  Users added: {result['users_added']}")
+        print(f"  Builds added: {result['builds_added']}")
+    except Exception as e:
+        print(f"✗ Database update failed: {str(e)}")
+        sys.exit(1)

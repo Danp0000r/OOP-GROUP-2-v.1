@@ -166,7 +166,7 @@
     <div class="admin-table-wrap">
       <table class="admin-comp-table">
         <thead>
-          <tr><th>ID</th><th>USERNAME</th><th>EMAIL</th><th>ROLE</th><th>JOINED</th><th>ACTIONS</th></tr>
+          <tr><th>ID</th><th>USERNAME</th><th>EMAIL</th><th>ROLE</th><th>STATUS</th><th>PICTURE</th><th>JOINED</th><th>ACTIONS</th></tr>
         </thead>
         <tbody>
           {% for u in users %}
@@ -175,6 +175,15 @@
             <td class="act-name">{{ u.username }}</td>
             <td class="act-brand">{{ u.email }}</td>
             <td><span class="act-cat-badge {{ 'cat-cpu' if u.is_admin else '' }}" id="role-badge-{{ u.id }}">{{ 'ADMIN' if u.is_admin else 'USER' }}</span></td>
+            <td><span class="act-cat-badge {{ 'cat-ram' if u.is_online else '' }}" id="status-badge-{{ u.id }}">{{ 'ONLINE' if u.is_online else 'OFFLINE' }}</span></td>
+            <td>
+              {% if u.profile_picture %}
+                <img src="{{ u.profile_picture }}" alt="{{ u.username }}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;object-position:center;border:1px solid rgba(255,255,255,.1);" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div style="display:none;width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff;font-size:11px;font-weight:700;align-items:center;justify-content:center;">{{ u.username[:2] | upper }}</div>
+              {% else %}
+                <div style="width:32px;height:32px;border-radius:6px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.1);">{{ u.username[:2] | upper }}</div>
+              {% endif %}
+            </td>
             <td class="act-brand">{{ u.created_at.strftime('%b %d, %Y') }}</td>
             <td class="act-actions">
               {% if not u.is_admin or session.get('user_id') != u.id %}
@@ -610,5 +619,83 @@ function toggleAdmin(uid) {
       if (badge) { badge.textContent = data.is_admin ? 'ADMIN' : 'USER'; badge.className = 'act-cat-badge ' + (data.is_admin ? 'cat-cpu' : ''); }
     });
 }
+
+// Real-time user status tracking
+let userStatusUpdateTimer = null;
+
+function updateUserStatuses() {
+  fetch('/admin/api/users/status', {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'},
+    credentials: 'same-origin'
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (!data.success || !data.users) return;
+    
+    // Update each user's status badge
+    data.users.forEach(user => {
+      const statusBadge = document.getElementById('status-badge-' + user.id);
+      if (!statusBadge) return;
+      
+      const isOnline = user.is_online;
+      const statusText = isOnline ? 'ONLINE' : 'OFFLINE';
+      const badgeClass = isOnline ? 'cat-ram' : '';
+      
+      // Only update if status changed
+      if (statusBadge.textContent !== statusText) {
+        statusBadge.textContent = statusText;
+        statusBadge.className = 'act-cat-badge ' + badgeClass;
+      }
+    });
+  })
+  .catch(error => console.error('[Admin Dashboard] Error updating user statuses:', error));
+}
+
+// Start updating user statuses when Users tab is shown
+function startUserStatusUpdates() {
+  if (!userStatusUpdateTimer) {
+    updateUserStatuses(); // Initial update
+    userStatusUpdateTimer = setInterval(updateUserStatuses, 5000); // Update every 5 seconds
+  }
+}
+
+function stopUserStatusUpdates() {
+  if (userStatusUpdateTimer) {
+    clearInterval(userStatusUpdateTimer);
+    userStatusUpdateTimer = null;
+  }
+}
+
+// Override the showTab function to manage status updates
+const originalShowTab = window.showTab || function() {};
+window.showTab = function(tabName) {
+  if (typeof originalShowTab === 'function') {
+    originalShowTab(tabName);
+  }
+  
+  // Manage status updates based on active tab
+  if (tabName === 'users') {
+    startUserStatusUpdates();
+  } else {
+    stopUserStatusUpdates();
+  }
+  
+  // Show/hide panes
+  document.querySelectorAll('.admin-pane').forEach(pane => pane.style.display = 'none');
+  const pane = document.getElementById('pane-' + tabName);
+  if (pane) pane.style.display = 'block';
+  
+  // Update tab active state
+  document.querySelectorAll('.admin-tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById('tab-' + tabName)?.classList.add('active');
+};
+
+// Auto-start status updates if Users tab is initially visible
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.getElementById('pane-users')?.style.display !== 'none') {
+    startUserStatusUpdates();
+  }
+});
 </script>
 {% endblock %}

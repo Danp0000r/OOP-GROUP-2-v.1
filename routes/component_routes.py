@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, session
 from models.component import Component
 from models.link import Link
 from services.compare_parts_service import compare_components
+from services.activity_service import ActivityService
 
 component_bp = Blueprint("components", __name__)
 
@@ -78,5 +79,9 @@ def api_compare_components():
     result = compare_components(component_ids)
     if not result["items"]:
         return jsonify({"error": "No matching components found."}), 404
+
+    # Log activity if user is logged in
+    if "user_id" in session:
+        ActivityService.log_comparison(session["user_id"], len(component_ids), "components")
 
     return jsonify(result)

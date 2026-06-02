@@ -8,6 +8,7 @@ from database.db import db
 from models.build import Build
 from models.component import Component
 from services.questionnaire_service import get_build_recommendation
+from services.activity_service import ActivityService
 
 questionnaire_bp = Blueprint("questionnaire", __name__)
 
@@ -39,6 +40,10 @@ def recommend():
         
         # Get the recommendation
         recommendation = get_build_recommendation(answers)
+        
+        # Log activity if user is logged in
+        if "user_id" in session:
+            ActivityService.log_questionnaire_completed(session["user_id"])
         
         return jsonify(recommendation), 200
     
@@ -88,6 +93,9 @@ def create_build_from_questionnaire():
         
         db.session.add(build)
         db.session.commit()
+        
+        # Log activity
+        ActivityService.log_build_created(session["user_id"], build_name)
         
         return jsonify({
             "success": True,

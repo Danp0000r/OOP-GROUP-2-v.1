@@ -51,7 +51,7 @@ def compare_builds(build_ids: list, user_id: int) -> dict:
             "compatibility_status": build.compatibility_status or "Unknown",
             "components": component_rows,
             "compatibility_report": CompatibilityService.evaluate_build([
-                {"name": c.name, "brand": c.brand, "category": c.category, "specs": c.specs or {}, "price": c.price}
+                {"name": c.name, "brand": c.brand, "category": c.category, "specs": c.specs or {}, "price": c.price, "performance_score": c.performance_score}
                 for c in components
             ]) if components else {},
         })

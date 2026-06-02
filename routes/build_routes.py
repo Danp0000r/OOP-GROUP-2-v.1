@@ -6,6 +6,8 @@ from models.component import Component
 from models.user import User
 from services.compatibility.compatibility_service import CompatibilityService
 from services.compare_builds_service import compare_builds
+from services.build_fix_service import BuildFixService
+from services.activity_service import ActivityService
 
 
 def parse_component_ids(value):
@@ -17,6 +19,13 @@ def parse_component_ids(value):
         except Exception:
             return []
     return []
+
+
+def calculate_build_total(component_ids):
+    if not component_ids:
+        return 0
+    components = Component.query.filter(Component.component_id.in_(component_ids)).all()
+    return sum(c.price for c in components)
 
 build_bp = Blueprint("build", __name__)
 
@@ -71,8 +80,9 @@ def saved_builds():
     for b in builds:
         ids = parse_component_ids(b.component_ids)
         total_parts += len(ids)
-        comps = Component.query.filter(Component.component_id.in_(ids)).all()
-        total_spend += sum(c.price for c in comps)
+        build_total = calculate_build_total(ids)
+        total_spend += build_total
+        b.computed_total = build_total
 
     avg_cost = total_spend / len(builds) if builds else 0
 
@@ -97,9 +107,14 @@ def save_build():
         name=name,
         user_id=session["user_id"],
         component_ids=json.dumps(component_ids),
+        total_price=calculate_build_total(component_ids),
     )
     db.session.add(build)
     db.session.commit()
+    
+    # Log activity
+    ActivityService.log_build_created(session["user_id"], name)
+    
     return jsonify({"message": "Build saved!", "id": build.id})
 
 
@@ -110,6 +125,11 @@ def delete_build(build_id):
     build = Build.query.filter_by(build_id=build_id, user_id=session["user_id"]).first()
     if not build:
         return jsonify({"error": "Build not found"}), 404
+    
+    # Log activity before deletion
+    build_name = build.name
+    ActivityService.log_build_deleted(session["user_id"], build_name)
+    
     db.session.delete(build)
     db.session.commit()
     return jsonify({"message": "Build deleted."})
@@ -134,6 +154,7 @@ def update_build(build_id):
     if component_ids is not None:
         if isinstance(component_ids, list):
             build.component_ids = json.dumps(component_ids)
+            build.total_price = calculate_build_total(component_ids)
         else:
             return jsonify({"error": "component_ids must be a list"}), 400
     
@@ -142,6 +163,10 @@ def update_build(build_id):
         return jsonify({"error": "No fields to update."}), 400
     
     db.session.commit()
+    
+    # Log activity
+    ActivityService.log_build_updated(session["user_id"], build.name)
+    
     return jsonify({"message": "Build updated.", "name": build.name})
 
 
@@ -183,6 +208,7 @@ def import_build():
             name=data.get('name', 'Imported Build'),
             user_id=session['user_id'],
             component_ids=json.dumps(component_ids),
+            total_price=calculate_build_total(component_ids),
         )
         db.session.add(build)
         db.session.commit()
@@ -229,6 +255,7 @@ def import_build():
             name=(lines[0] if lines else 'Imported Build'),
             user_id=session['user_id'],
             component_ids=json.dumps(resolved_ids),
+            total_price=calculate_build_total(resolved_ids),
         )
     db.session.add(build)
     db.session.commit()
@@ -275,6 +302,8 @@ def export_build(build_id):
 
 @build_bp.route("/api/compatibility", methods=["POST"])
 def compatibility():
+    from services.build_fix_service import BuildFixService
+    
     data          = request.get_json()
     component_ids = data.get("component_ids", [])
     components    = Component.query.filter(Component.component_id.in_(component_ids)).all()
@@ -286,9 +315,57 @@ def compatibility():
             "category": c.category,
             "brand": c.brand,
             "specs": c.specs or {},
+            "performance_score": c.performance_score,
             "price": c.price,
         })
     result = CompatibilityService.evaluate_build(comp_list)
+    
+    # Log activity if user is logged in
+    if "user_id" in session:
+        status = result.get("status", "unknown")
+        ActivityService.log_compatibility_check(session["user_id"], "Build", status)
+    
+    # If incompatible, also suggest fixes
+    if result.get("status") == "incompatible":
+        fix_result = BuildFixService.fix_build(comp_list)
+        if fix_result.get("fixed"):
+            # Return both the problem and the solution
+            result["incompatible"] = True
+            result["original_status"] = result.get("status")
+            result["can_be_fixed"] = True
+            result["fix_suggestion"] = {
+                "fixed": True,
+                "final_status": fix_result.get("compatibility_report", {}).get("status"),
+                "changes": fix_result.get("changes", []),
+                "fixed_components": fix_result.get("components", [])
+            }
+    
+    return jsonify(result)
+
+
+@build_bp.route("/api/compatibility/fix", methods=["POST"])
+def compatibility_fix():
+    """Check a build for compatibility and attempt minimal fixes respecting questionnaire answers."""
+    data = request.get_json() or {}
+    component_ids = data.get("component_ids", [])
+    answers = data.get("answers", {})
+    components = Component.query.filter(Component.component_id.in_(component_ids)).all()
+    comp_list = []
+    for c in components:
+        comp_list.append({
+            "name": c.name,
+            "category": c.category,
+            "brand": c.brand,
+            "specs": c.specs or {},
+            "performance_score": c.performance_score,
+            "price": c.price,
+        })
+    result = BuildFixService.fix_build(comp_list, answers=answers)
+    
+    # Log activity if user is logged in and fixes were applied
+    if "user_id" in session and result.get("fixed"):
+        ActivityService.log_compatibility_fix(session["user_id"], "Build")
+    
     return jsonify(result)
 
 
