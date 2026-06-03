@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=1024, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>{% block title %}BuildLab{% endblock %} — Philippines Custom PC Builder</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
@@ -16,7 +16,15 @@
     <!-- BUILD = white, LAB = purple -->
     <span class="logo-text"><span class="logo-build">BUILD</span><span class="logo-accent">LAB</span></span>
   </a>
-  <div class="nav-links nav-links-center">
+  
+  <!-- Mobile hamburger menu toggle -->
+  <button class="navbar-toggle" id="navbar-toggle" onclick="toggleNavMenu()">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-links nav-links-center" id="nav-menu">
     <a href="{{ url_for('questionnaire.questionnaire') }}" class="{{ 'active' if request.endpoint == 'questionnaire.questionnaire' }}">BUILD FINDER</a>
     <a href="{{ url_for('build.builder') }}" class="{{ 'active' if request.endpoint == 'build.builder' }}">BUILDER</a>
     <a href="{{ url_for('components.parts') }}" class="{{ 'active' if request.endpoint == 'components.parts' }}">PARTS</a>
@@ -27,14 +35,15 @@
       <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">ADMIN</a>
     {% endif %}
   </div>
-  <div class="nav-auth">
+  
+  <div class="nav-auth" id="nav-auth">
     {% if session.get('user_id') %}
-      <div style="display:flex; align-items:center; gap:12px;">
+      <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; white-space:nowrap;">
         {% if user and user.profile_picture %}
-          <img src="{{ user.profile_picture }}" alt="Profile" style="height:36px; width:36px; object-fit:cover; object-position:center; border-radius:6px; border:1px solid rgba(255,255,255,.2);" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div style="display:none; height:36px; width:36px; border-radius:6px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; font-size:13px; font-weight:700; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.2);">{{ session.get('username', 'U')[:2] | upper }}</div>
+          <img src="{{ user.profile_picture }}" alt="Profile" style="height:32px; width:32px; object-fit:cover; object-position:center; border-radius:6px; border:1px solid rgba(255,255,255,.2); flex-shrink:0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div style="display:none; height:32px; width:32px; border-radius:6px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; font-size:12px; font-weight:700; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.2); flex-shrink:0;">{{ session.get('username', 'U')[:2] | upper }}</div>
         {% else %}
-          <div style="height:36px; width:36px; border-radius:6px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.2);">{{ session.get('username', 'U')[:2] | upper }}</div>
+          <div style="height:32px; width:32px; border-radius:6px; background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,.2); flex-shrink:0;">{{ session.get('username', 'U')[:2] | upper }}</div>
         {% endif %}
         <a href="{{ url_for('auth.profile') }}" class="btn btn-ghost">MY PROFILE</a>
       </div>
@@ -68,6 +77,42 @@
 
 <script src="{{ url_for('static', filename='js/builder.js') }}"></script>
 <script src="{{ url_for('static', filename='js/online_status_tracker.js') }}"></script>
+<script>
+function toggleNavMenu() {
+  const menu = document.getElementById('nav-menu');
+  const toggle = document.getElementById('navbar-toggle');
+  menu.classList.toggle('active');
+  toggle.classList.toggle('active');
+}
+
+// Close menu when a link is clicked
+document.querySelectorAll('#nav-menu a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.getElementById('nav-menu').classList.remove('active');
+    document.getElementById('navbar-toggle').classList.remove('active');
+  });
+});
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('nav-menu');
+  const toggle = document.getElementById('navbar-toggle');
+  // Only react when menu is open
+  if (!menu.classList.contains('active')) return;
+  const nav = document.querySelector('.navbar');
+  // If click is outside the navbar, close menu
+  if (!nav.contains(e.target)) {
+    menu.classList.remove('active');
+    toggle.classList.remove('active');
+  }
+});
+
+// Improve touch responsiveness for mobile
+document.getElementById('navbar-toggle')?.addEventListener('touchstart', (e) => {
+  e.preventDefault(); // prevent double events
+  toggleNavMenu();
+});
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

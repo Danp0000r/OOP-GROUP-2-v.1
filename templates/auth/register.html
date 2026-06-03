@@ -6,20 +6,20 @@
   <div class="auth-card">
     <h2>Create Account</h2>
     <p class="auth-sub">Join BuildLab and start building your dream PC.</p>
-    <form method="POST" action="{{ url_for('auth.register') }}">
+    <form method="POST" action="{{ url_for('auth.register') }}" style="display:flex;flex-direction:column;gap:12px;">
       <div class="form-group">
         <label for="username">Username</label>
-        <input type="text" id="username" name="username" required placeholder="builder123" class="form-input">
+        <input type="text" id="username" name="username" required placeholder="builder123" class="form-input" style="min-height:40px;">
       </div>
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="you@email.com" class="form-input">
+        <input type="email" id="email" name="email" required placeholder="you@email.com" class="form-input" style="min-height:40px;">
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Choose a strong password" class="form-input">
+        <input type="password" id="password" name="password" required placeholder="Choose a strong password" class="form-input" style="min-height:40px;">
       </div>
-      <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      <button type="submit" class="btn btn-primary btn-block" style="min-height:44px;">Create Account</button>
     </form>
     <p class="auth-footer">Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
   </div>

@@ -7,9 +7,9 @@
 <div class="profile-builds-section">
   <div class="profile-builds-header">
     <h2 class="profile-builds-title">My Builds</h2>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <a href="{{ url_for('build.builder') }}" class="btn btn-primary">+ New Build</a>
-      <button onclick="triggerImport()" class="btn btn-ghost">Import Build</button>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <a href="{{ url_for('build.builder') }}" class="btn btn-primary" style="white-space:nowrap;">+ New Build</a>
+      <button onclick="triggerImport()" class="btn btn-ghost" style="white-space:nowrap;">Import Build</button>
     </div>
   </div>
 </div>
