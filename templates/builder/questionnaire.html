@@ -411,6 +411,7 @@
         padding: 3rem 1rem;
         position: relative;
         z-index: 1;
+        min-height: calc(100vh - 120px);
     }
 
     /* Desktop: Two-column layout */
@@ -421,6 +422,8 @@
         width: 100%;
         max-width: 1100px;
         align-items: flex-start;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
 
     /* Sidebar progress tracker (desktop) */
@@ -1075,15 +1078,19 @@
         .questionnaire-container {
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            max-width: 600px;
+            max-width: 100%;
+            padding: 0 1rem;
         }
 
         .questionnaire-content {
             padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .questionnaire-main {
             padding: 2rem 1rem;
+            justify-content: flex-start;
         }
     }
 
