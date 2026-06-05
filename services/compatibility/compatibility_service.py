@@ -6,15 +6,10 @@ from services.compatibility.utils import Utils
 
 
 class CompatibilityService:
-    """Main entry point – detects, checks, and evaluates a PC build."""
 
     @staticmethod
     @memoize(timeout=300)
     def evaluate_build(parts_input):
-        """
-        Evaluate a complete build from a user-provided parts list.
-        Returns a detailed compatibility report.
-        """
         # ── 1. Detect components ────────────────────────────────
         # Accept either: a free-form string/list of names, or a list of component dicts
         if isinstance(parts_input, list) and parts_input and isinstance(parts_input[0], dict):

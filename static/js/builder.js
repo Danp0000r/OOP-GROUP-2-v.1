@@ -497,6 +497,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Open component details from builder card body clicks (exclude buttons/links)
+  document.querySelectorAll('.cc-body').forEach(body => {
+    body.addEventListener('click', (ev) => {
+      if (ev.target.closest('button, a, .cc-store-btn')) return;
+      const card = body.closest('.component-card');
+      if (!card) return;
+      const id = parseInt(card.dataset.id, 10);
+      if (!id) return;
+      const name = card.dataset.name || card.querySelector('.cc-name')?.textContent || '';
+      const brand = card.dataset.brand || card.querySelector('.cc-brand')?.textContent || '';
+      const cat = card.dataset.cat;
+      const priceText = card.querySelector('.cc-price')?.textContent || card.dataset.defaultPrice || '0';
+      const price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
+      openComponentModal(id, name, brand, cat, price);
+    });
+  });
+
   // Compatibility Deep Info modal logic
   function gatherSelectedPartsString() {
     const parts = Object.values(selectedParts).map(p => p.name).filter(Boolean);
@@ -600,6 +617,100 @@ document.addEventListener("DOMContentLoaded", () => {
   // expose modal controls globally for inline onclick handlers
   window.openCompatDeepInfo = openCompatDeepInfo;
   window.closeCompatDeepInfo = closeCompatDeepInfo;
+
+  function openComponentModal(id, name, brand, cat, price) {
+    const catBg = {CPU:'#1e0a3c',Motherboard:'#0a1e3c',GPU:'#0a1040',RAM:'#0a2e1a',Storage:'#2e1a0a',PSU:'#2e0a1a',Cooling:'#0a2030',Case:'#1a1a2e'};
+    const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
+    const storeBg = 'rgba(255,255,255,.08)';
+    const storeHoverBg = 'rgba(255,255,255,.12)';
+    const modal = document.getElementById('details-modal');
+    const inner = document.getElementById('detail-modal-inner');
+    const linksInner = document.getElementById('links-popup-inner');
+    const specsInner = document.getElementById('specs-popup-inner');
+    if (!modal || !inner || !linksInner || !specsInner) return;
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+    inner.innerHTML = `<div style="padding:20px;"><div style="font-size:15px;font-weight:700;color:#9ca3ff;">Loading component details...</div></div>`;
+    linksInner.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;"><div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .7s linear infinite;"></div>Loading links...</div>`;
+    specsInner.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;"><div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .7s linear infinite;"></div>Loading specs...</div>`;
+
+    fetch(`/api/components/${id}`).then(r => r.json()).then(comp => {
+      const safeName = comp.name || name || '';
+      const safeBrand = comp.brand || brand || '';
+      const safeCat = comp.category || cat || '';
+      const safePrice = comp.price || price || 0;
+      const imageHtml = comp.image_url ? `<div style="border-radius:14px;overflow:hidden;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;"><img src="${comp.image_url}" alt="${safeName} image" style="width:100%;height:auto;object-fit:contain;max-height:240px;" /></div>` : '';
+      let specsHtml = '';
+      try {
+        if (comp.specs && typeof comp.specs === 'object') {
+          specsHtml = '<ul style="font-size:13px;color:rgba(255,255,255,.7);margin:0 0 16px;padding-left:16px;">' +
+            Object.entries(comp.specs).map(([k, v]) => {
+              const val = Array.isArray(v) ? v.join(', ') : (typeof v === 'object' ? JSON.stringify(v) : v);
+              return `<li style="margin-bottom:6px;"><strong style="font-weight:800;color:rgba(255,255,255,.8);margin-right:6px;">${k}</strong>${val}</li>`;
+            }).join('') + '</ul>';
+        } else {
+          specsHtml = `<p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:16px;">${comp.specs || '—'}</p>`;
+        }
+      } catch (e) {
+        specsHtml = `<p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:16px;">${JSON.stringify(comp.specs)}</p>`;
+      }
+
+      inner.innerHTML = `
+        <div style="height:140px;background:${catBg[safeCat]||'#1a1a2e'};display:flex;align-items:center;justify-content:center;position:relative;">
+          <span style="font-size:52px;font-weight:900;color:${catFg[safeCat]||'#a78bfa'};opacity:.75;">${safeCat}</span>
+          <button onclick="closeComponentModal()" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.3);border:none;color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;">&times;</button>
+        </div>
+        <div style="padding:20px; display:grid; gap:18px;">
+          <div>
+            <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:${catFg[safeCat]||'#a78bfa'};margin-bottom:4px;">${safeCat}</div>
+            <div style="font-size:19px;font-weight:900;margin-bottom:2px;">${safeName}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:6px;">${safeBrand} &nbsp;·&nbsp; <span style="color:${catFg[safeCat]||'#a78bfa'};font-weight:900;">&#8369;${Number(safePrice).toLocaleString()}</span></div>
+            <div style="margin-bottom:14px;"><span style="display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(34,197,94,.15);color:#22c55e;">● In Stock</span></div>
+          </div>
+          ${imageHtml}
+          ${comp.description ? `<div><p style="font-size:10px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px;">Description</p><p style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:12px;">${comp.description}</p></div>` : ''}
+          ${specsHtml}
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>`;
+
+      fetch(`/api/components/${id}/links`).then(r => r.json()).then(links => {
+        linksInner.innerHTML = links.length
+          ? links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:10px;margin-bottom:8px;background:${storeBg};color:#fff;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .15s;" onmouseover="this.style.background='${storeHoverBg}';" onmouseout="this.style.background='${storeBg}';"><span>${l.store_name}</span><span>&#8369;${Number(l.price).toLocaleString()}</span></a>`).join('')
+          : '<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">No store links available.</p>';
+      }).catch(() => {
+        linksInner.innerHTML = '<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">Unable to load links.</p>';
+      });
+
+      specsInner.innerHTML = specsHtml;
+    }).catch(() => {
+      inner.innerHTML = `<div style="padding:20px;"><div style="font-size:15px;font-weight:700;color:#f87171;">Unable to load component details.</div></div>`;
+      linksInner.innerHTML = '<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">No store links available.</p>';
+      specsInner.innerHTML = '<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">No specs available.</p>';
+    });
+  }
+
+  function closeComponentModal() {
+    const modal = document.getElementById('details-modal');
+    if (modal) modal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+  }
+
+  window.openComponentModal = openComponentModal;
+  window.closeComponentModal = closeComponentModal;
+
+  function handleCcBodyClick(event, id) {
+    if (event.target.closest('button, a, .cc-store-btn')) return;
+    const card = event.currentTarget.closest('.component-card');
+    if (!card) return;
+    const name = card.dataset.name || card.querySelector('.cc-name')?.textContent || '';
+    const brand = card.dataset.brand || card.querySelector('.cc-brand')?.textContent || '';
+    const cat = card.dataset.cat;
+    const priceText = card.querySelector('.cc-price')?.textContent || card.dataset.defaultPrice || '0';
+    const price = parseFloat(priceText.replace(/[^0-9.]/g, '')) || 0;
+    openComponentModal(id, name, brand, cat, price);
+  }
+
+  window.handleCcBodyClick = handleCcBodyClick;
 
   function renderCompatDeepReport(report) {
     const summary = document.getElementById('compat-deep-summary');

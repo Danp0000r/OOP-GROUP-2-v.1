@@ -35,12 +35,12 @@
     <div id="component-list" class="component-list">
       {% for cat in ["Case","Motherboard","CPU","GPU","RAM","PSU","Storage","Cooling"] %}
         {% for c in components if c.category == cat %}
-        <div class="component-card cat-{{ c.category | lower }}" data-cat="{{ c.category }}" data-name="{{ c.name }}" data-id="{{ c.id }}" data-default-price="{{ c.price }}"
+        <div class="component-card cat-{{ c.category | lower }}" data-cat="{{ c.category }}" data-name="{{ c.name }}" data-brand="{{ c.brand }}" data-id="{{ c.id }}" data-default-price="{{ c.price }}"
              draggable="true" ondragstart="onDragStart(event,{{ c.id }},'{{ c.category }}')">
           <div class="cc-check-badge" id="check-{{ c.id }}">
             <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
           </div>
-          <div class="cc-body">
+          <div class="cc-body" onclick="handleCcBodyClick(event, {{ c.id }})">
             <div class="cc-row">
               <div class="cc-name">{{ c.name }}</div>
               <div class="cc-price">&#8369;{{ '{:,.0f}'.format(c.price) }}</div>
@@ -220,6 +220,34 @@
 
 </div>
 
+
+<div class="modal-overlay" id="details-modal" onclick="closeComponentModal()">
+  <div class="modal-content">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div id="detail-modal-inner"></div>
+    </div>
+    <div class="sidebar-column">
+      <div class="links-popup-box" id="links-popup" onclick="event.stopPropagation()">
+        <div class="popup-titlebar"><span>Store Links</span></div>
+        <div class="popup-body" id="links-popup-inner">
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;">
+            <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .7s linear infinite;"></div>
+            Loading links...
+          </div>
+        </div>
+      </div>
+      <div class="specs-popup-box" id="specs-popup" onclick="event.stopPropagation()">
+        <div class="popup-titlebar"><span>Specs</span></div>
+        <div class="popup-body" id="specs-popup-inner">
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.4);font-size:13px;">
+            <div style="width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#a78bfa;border-radius:50%;animation:spin .7s linear infinite;"></div>
+            Loading specs...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <!-- Load Build Modal -->

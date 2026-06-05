@@ -291,6 +291,7 @@ function normalizeCase(caseData) {
   "exportedAt": "2026-05-31T00:00:00.000Z"
     };
     const savedPositions = {};
+    const MODEL_SHAPES = {};
     // initialize defaults immediately from the embedded hardcoded positions
     Object.assign(savedPositions, DEFAULT_POSITION_PAYLOAD.savedPositions || {});
     const partGroups = {};
@@ -316,7 +317,7 @@ function normalizeCase(caseData) {
 
     // Three.js refs
     let scene, cam, renderer, controls, chassis;
-    let mCase, mGlass, mMobo, mGpu, mCooler, mRam, mPsu;
+    let mCase, mGlass, mMobo, mGpu, mCooler, mRam, mPsu, mStorage;
     let rgbMats = [], fans3d = [], wireMeshes = [];
     // materials that switch transparency when camera is below a fan (GPU bottom-only transparency)
     let fanVisibilityMats = [];
@@ -1052,6 +1053,170 @@ function normalizeCase(caseData) {
         return sanitized;
     }
 
+    async function loadModelPositionOverrides() {
+        try {
+            const resp = await fetch('nexus3d_model_positions.json');
+            if (resp.ok) {
+                const data = await resp.json();
+                const source = data && typeof data === 'object' ? (data.savedPositions || data) : null;
+                if (source && typeof source === 'object') {
+                    const sanitized = sanitizeSavedPositions(source);
+                    Object.keys(sanitized).forEach(caseId => {
+                        savedPositions[caseId] = Object.assign({}, savedPositions[caseId] || {}, sanitized[caseId]);
+                    });
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load model position overrides from JSON', e);
+        }
+    }
+
+    async function loadModelShapes() {
+        try {
+            const resp = await fetch('/static/js/nexus3d_model_shapes.json');
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && typeof data === 'object' && data.models && typeof data.models === 'object') {
+                    Object.assign(MODEL_SHAPES, data.models);
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load model shapes from JSON', e);
+        }
+    }
+
+    function getModelShape(component) {
+        if(!component || typeof component !== 'object') return null;
+        // direct id match
+        if(component.id && MODEL_SHAPES[component.id]) return MODEL_SHAPES[component.id];
+        // external_id may be present on some payloads
+        if(component.external_id && MODEL_SHAPES[component.external_id]) return MODEL_SHAPES[component.external_id];
+        // try slugified name (e.g. "256GB SATA SSD" -> "ssd_256gb_sata" or similar)
+        if(component.name && typeof component.name === 'string') {
+            const slug = component.name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+            if(MODEL_SHAPES[slug]) return MODEL_SHAPES[slug];
+            // sometimes names start with capacity, try reversing order
+            const parts = slug.split('_');
+            if(parts.length > 1) {
+                const alt = parts.slice(1).concat([parts[0]]).join('_');
+                if(MODEL_SHAPES[alt]) return MODEL_SHAPES[alt];
+            }
+        }
+
+        // Storage-specific fallbacks: match by interface/type when exact model key is missing
+        if(component.category === 'Storage' || (component.specs && component.specs.type)) {
+            const iface = (component.interface || component.specs?.interface || component.type || component.specs?.type || '').toString().toLowerCase();
+            if(iface === 'sata' || iface === 'sata iii' || iface === 'sataii' || iface === 'sata3') {
+                if(MODEL_SHAPES['ssd_256gb_sata']) return MODEL_SHAPES['ssd_256gb_sata'];
+                if(MODEL_SHAPES['ssd_500gb_sata']) return MODEL_SHAPES['ssd_500gb_sata'];
+                if(MODEL_SHAPES['ssd_sata']) return MODEL_SHAPES['ssd_sata'];
+            }
+            if(iface === 'nvme' || iface === 'm.2' || iface === 'm2') {
+                if(MODEL_SHAPES['ssd_500gb_nvme']) return MODEL_SHAPES['ssd_500gb_nvme'];
+                if(MODEL_SHAPES['ssd_1tb_nvme']) return MODEL_SHAPES['ssd_1tb_nvme'];
+                if(MODEL_SHAPES['ssd_nvme']) return MODEL_SHAPES['ssd_nvme'];
+            }
+        }
+
+        return null;
+    }
+
+    function applyGpuModelShape(shape, g) {
+        if(!shape || !g) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.length_mm === 'number') g.length = shape.dimensions.length_mm;
+            if(typeof shape.dimensions.width_mm === 'number') g.width = shape.dimensions.width_mm;
+            if(typeof shape.dimensions.thickness_mm === 'number') g.thick = shape.dimensions.thickness_mm;
+        }
+        if(typeof shape.rgb === 'boolean') g.rgb = shape.rgb;
+        if(shape.fans && typeof shape.fans.count === 'number') g.fans = shape.fans.count;
+        if(shape.fans && typeof shape.fans.radius_factor === 'number') g.fanRadiusFactor = shape.fans.radius_factor;
+        if(shape.fans && Array.isArray(shape.fans.offsets)) g.fanOffsets = shape.fans.offsets;
+        if(shape.connector && typeof shape.connector.width_factor === 'number') g.connectorWidthFactor = shape.connector.width_factor;
+        if(shape.connector && typeof shape.connector.height_mm === 'number') g.connectorHeightMm = shape.connector.height_mm;
+        if(shape.connector && typeof shape.connector.depth_factor === 'number') g.connectorDepthFactor = shape.connector.depth_factor;
+        if(shape.connector && typeof shape.connector.offsetZ_factor === 'number') g.connectorOffsetZFactor = shape.connector.offsetZ_factor;
+        if(shape.fins && typeof shape.fins.width_factor === 'number') g.finsWidthFactor = shape.fins.width_factor;
+        if(shape.fins && typeof shape.fins.height_factor === 'number') g.finsHeightFactor = shape.fins.height_factor;
+        if(shape.fins && typeof shape.fins.length_factor === 'number') g.finsLengthFactor = shape.fins.length_factor;
+        if(shape.fins && typeof shape.fins.count === 'number') g.finsCount = shape.fins.count;
+        if(typeof shape.bodyColor === 'string') g.bodyColor = shape.bodyColor;
+        if(shape.rgbStrip && typeof shape.rgbStrip.enabled === 'boolean') g.rgbStripEnabled = shape.rgbStrip.enabled;
+        if(shape.rgbStrip && typeof shape.rgbStrip.width_factor === 'number') g.rgbStripWidthFactor = shape.rgbStrip.width_factor;
+        if(shape.rgbStrip && typeof shape.rgbStrip.height_factor === 'number') g.rgbStripHeightFactor = shape.rgbStrip.height_factor;
+        if(shape.rgbStrip && typeof shape.rgbStrip.length_factor === 'number') g.rgbStripLengthFactor = shape.rgbStrip.length_factor;
+        if(shape.rgbStrip && typeof shape.rgbStrip.offsetX_factor === 'number') g.rgbStripOffsetXFactor = shape.rgbStrip.offsetX_factor;
+        if(shape.rgbStrip && typeof shape.rgbStrip.offsetY_factor === 'number') g.rgbStripOffsetYFactor = shape.rgbStrip.offsetY_factor;
+    }
+
+    function applyCaseModelShape(shape, c) {
+        if(!shape || !c) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.width_mm === 'number') c.dims.w = shape.dimensions.width_mm * MM_TO_UNITS;
+            if(typeof shape.dimensions.height_mm === 'number') c.dims.h = shape.dimensions.height_mm * MM_TO_UNITS;
+            if(typeof shape.dimensions.depth_mm === 'number') c.dims.d = shape.dimensions.depth_mm * MM_TO_UNITS;
+        }
+        if(typeof shape.bodyColor === 'string') c.bodyColor = shape.bodyColor;
+        if(shape.fans && typeof shape.fans.top === 'number') c.fans.top = shape.fans.top;
+        if(typeof shape.glassOpacity === 'number') c.glassOpacity = shape.glassOpacity;
+    }
+
+    function applyMotherboardModelShape(shape, mb) {
+        if(!shape || !mb) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.width_mm === 'number') mb.width = shape.dimensions.width_mm;
+            if(typeof shape.dimensions.depth_mm === 'number') mb.depth = shape.dimensions.depth_mm;
+            if(typeof shape.dimensions.height_mm === 'number') mb.thickness_mm = shape.dimensions.height_mm;
+            if(typeof shape.dimensions.thickness_mm === 'number') mb.thickness_mm = shape.dimensions.thickness_mm;
+        }
+        if(typeof shape.bodyColor === 'string') mb.bodyColor = shape.bodyColor;
+    }
+
+    function applyRamModelShape(shape, r) {
+        if(!shape || !r) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.length_mm === 'number') r.length = shape.dimensions.length_mm;
+            if(typeof shape.dimensions.height_mm === 'number') r.height = shape.dimensions.height_mm;
+            if(typeof shape.dimensions.thickness_mm === 'number') r.thick = shape.dimensions.thickness_mm;
+        }
+        if(typeof shape.rgb === 'boolean') r.rgb = shape.rgb;
+        if(typeof shape.sticks === 'number') r.sticks = shape.sticks;
+        if(typeof shape.bodyColor === 'string') r.bodyColor = shape.bodyColor;
+        if(shape.rgbStrip) r.rgbStrip = Object.assign({}, r.rgbStrip || {}, shape.rgbStrip);
+    }
+
+    function applyPsuModelShape(shape, p) {
+        if(!shape || !p) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.width_mm === 'number') p.width = shape.dimensions.width_mm;
+            if(typeof shape.dimensions.height_mm === 'number') p.height = shape.dimensions.height_mm;
+            if(typeof shape.dimensions.depth_mm === 'number') p.depth = shape.dimensions.depth_mm;
+        }
+        if(typeof shape.bodyColor === 'string') p.bodyColor = shape.bodyColor;
+    }
+
+    function applyCoolerModelShape(shape, co) {
+        if(!shape || !co) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.height_mm === 'number') co.height = shape.dimensions.height_mm;
+            if(typeof shape.dimensions.radius_mm === 'number') co.radius = shape.dimensions.radius_mm;
+        }
+        if(typeof shape.rgb === 'boolean') co.rgb = shape.rgb;
+        if(typeof shape.bodyColor === 'string') co.bodyColor = shape.bodyColor;
+    }
+
+    function applyStorageModelShape(shape, s) {
+        if(!shape || !s) return;
+        if(shape.dimensions) {
+            if(typeof shape.dimensions.length_mm === 'number') s.length = shape.dimensions.length_mm;
+            if(typeof shape.dimensions.width_mm === 'number') s.width = shape.dimensions.width_mm;
+            if(typeof shape.dimensions.thickness_mm === 'number') s.thick = shape.dimensions.thickness_mm;
+        }
+        if(typeof shape.rgb === 'boolean') s.rgb = shape.rgb;
+        if(typeof shape.bodyColor === 'string') s.bodyColor = shape.bodyColor;
+        if(shape.rgbStrip) s.rgbStrip = Object.assign({}, s.rgbStrip || {}, shape.rgbStrip);
+    }
+
     async function loadSavedPositions() {
         try {
             const resp = await fetch('nexus3d_positions.json');
@@ -1142,7 +1307,21 @@ function normalizeCase(caseData) {
     }
 
     function getSaveKey(key) {
-        if(!build || !build.cooler) return key;
+        if(!build) return key;
+
+        const modelId = build[key] && build[key].id ? build[key].id : null;
+        if(modelId) {
+            return `${key}:${modelId}`;
+        }
+
+        if(build.cooler && key.startsWith('cooler')) {
+            const coolerId = build.cooler.id;
+            if(coolerId) {
+                return `${key}:${coolerId}`;
+            }
+        }
+
+        if(!build.cooler) return key;
         if(key === 'cooler' || key === 'cooler-block' || key === 'cooler-rad') {
             const liquidGroup = new Set(['cool-ml240l', 'cool-le520', 'cool-arctic360']);
             if(liquidGroup.has(build.cooler.id)) {
@@ -2249,7 +2428,7 @@ function normalizeCase(caseData) {
             airflowGroup.parent.remove(airflowGroup);
         }
         airflowGroup = null;
-        buildCase(); buildMobo(); buildPsu(); buildGpu(); buildCooler(); buildRam();
+        buildCase(); buildMobo(); buildStorage(); buildPsu(); buildGpu(); buildCooler(); buildRam();
         refreshCoolerTubes();
         if(airflowVisible) createAirflowVisualization();
     }
@@ -2290,6 +2469,8 @@ function normalizeCase(caseData) {
             mCase = null;
             return;
         }
+        const shape = getModelShape(c);
+        if(shape) applyCaseModelShape(shape, c);
         const d = c.dims;
         mCase = new THREE.Group();
         Object.keys(partGroups).forEach(key => {
@@ -2297,8 +2478,8 @@ function normalizeCase(caseData) {
         });
         partGroups['case'] = mCase;
 
-        const steel = new THREE.MeshStandardMaterial({color:0x0e1420,metalness:0.85,roughness:0.35});
-        const darkSteel = new THREE.MeshStandardMaterial({color:0x080c13,metalness:0.8,roughness:0.4});
+        const steel = new THREE.MeshStandardMaterial({color: shape?.bodyColor ? new THREE.Color(shape.bodyColor) : 0x0e1420,metalness:0.85,roughness:0.35});
+        const darkSteel = new THREE.MeshStandardMaterial({color: shape?.secondaryColor ? new THREE.Color(shape.secondaryColor) : 0x080c13,metalness:0.8,roughness:0.4});
 
         // === COMMON STRUCTURAL PANELS ===
         // Bottom plate
@@ -2402,13 +2583,13 @@ function normalizeCase(caseData) {
             });
 
         } else if(c.id === 'case-nexair') {
-            // TECWARE NEXUS AIR — ATX Mid-Tower
+            // TECWARE FORGE M — ATX Mid-Tower
             // Full flat-mesh front with 3 fan positions, magnetic top filter, slide-in TG
             const meshMat = new THREE.MeshStandardMaterial({color:0x0c1020,wireframe:true,opacity:0.75,transparent:true});
             const frontMesh = new THREE.Mesh(new THREE.BoxGeometry(d.w-0.04,d.h-0.1,0.015),meshMat);
             frontMesh.position.z=d.d/2-0.01; mCase.add(frontMesh);
 
-            // Slim top edge trim (ATX Nexus Air has a subtle raised edge)
+            // Slim top edge trim (ATX Forge M has a subtle raised edge)
             const trimMat=new THREE.MeshStandardMaterial({color:0x1a2535,metalness:0.6,roughness:0.4});
             const topTrim=new THREE.Mesh(new THREE.BoxGeometry(d.w,0.04,d.d*0.12),trimMat);
             topTrim.position.set(0,d.h/2+0.02,-d.d/2+d.d*0.06); mCase.add(topTrim);
@@ -2598,34 +2779,42 @@ function normalizeCase(caseData) {
         if(mMobo) chassis.remove(mMobo);
         mMobo = new THREE.Group();
         partGroups['motherboard'] = mMobo;
-        if(!build.case || !build.motherboard) {
+        if(!build.motherboard) {
             delete partGroups['motherboard'];
             return;
         }
         const c = build.case;
-        const d = c.dims;
+        const d = c ? c.dims : { w: 0.72, h: 0.45, d: 0.72 };
         const mb = build.motherboard;
+        const shape = getModelShape(mb);
+        if(shape) applyMotherboardModelShape(shape, mb);
         const isATX = mb.factor === 'ATX';
 
-        // Set dimensions to dynamically fit the upper chamber room perfectly
-        moboWidth = isATX ? d.d * 0.58 : d.d * 0.48;
-        moboHeight = isATX ? d.h * 0.65 : d.h * 0.52;
-        const moboThick = 0.02;
+        // Use exact motherboard shape when available, with fallback fitting into the case chamber.
+        moboWidth = mb.width ? mb.width * MM_TO_UNITS : (isATX ? d.d * 0.58 : d.d * 0.48);
+        moboHeight = mb.depth ? mb.depth * MM_TO_UNITS : (isATX ? d.h * 0.65 : d.h * 0.52);
+        const moboThick = mb.thickness_mm ? mb.thickness_mm * MM_TO_UNITS : 0.02;
 
-        const pcbMat = new THREE.MeshStandardMaterial({color: 0x090c12, roughness: 0.8});
+        const pcbMat = new THREE.MeshStandardMaterial({
+            color: mb.bodyColor ? new THREE.Color(mb.bodyColor) : 0x6b7280,
+            roughness: 0.8,
+            side: THREE.DoubleSide,
+            transparent: false,
+            opacity: 1
+        });
         const pcb = new THREE.Mesh(new THREE.BoxGeometry(moboThick, moboHeight, moboWidth), pcbMat);
         pcb.receiveShadow = true; 
         mMobo.add(pcb);
         
         // Propagate dynamic motherboard coordinates back to world scale
         const shroudH = 0.22;
-        const baselineY = -d.h/2 + shroudH + 0.02; // Top level of PSU shroud
-        const roomH = d.h - shroudH - 0.04;
+        const baselineY = c ? -d.h/2 + shroudH + 0.02 : 0;
+        const roomH = c ? d.h - shroudH - 0.04 : moboHeight + 0.04;
         
         moboWPos.set(
-            -d.w/2 + 0.05, // Flush slightly off back tray (X-axis)
+            c ? -d.w/2 + 0.05 : 0, // Flush slightly off back tray (X-axis)
             baselineY + (roomH - moboHeight)/2 + 0.05, // Dynamic vertical center
-            -d.d/2 + moboWidth/2 + 0.16 // Dynamic rear offset
+            c ? -d.d/2 + moboWidth/2 + 0.16 : 0 // Dynamic rear offset
         );
         mMobo.position.copy(moboWPos);
 
@@ -2702,18 +2891,21 @@ function normalizeCase(caseData) {
         const conn24=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.38,0.06),dimmMat);
         conn24.position.set(0.03,0.06,-0.5); mMobo.add(conn24);
 
-        // NVMe M.2 slot
-        if(build.storage?.type==='nvme'){
-            const m2Mat=new THREE.MeshStandardMaterial({color:0x065f46,roughness:0.5});
-            const m2=new THREE.Mesh(new THREE.BoxGeometry(0.03,0.08,0.32),m2Mat);
+        // NVMe M.2 slot indicator or SATA cable detail when storage is selected
+        const storageIsNvme = build.storage && (build.storage.type === 'nvme' || build.storage.interface?.toLowerCase() === 'nvme');
+        const storageInterface = build.storage?.interface?.toLowerCase();
+        if(storageIsNvme) {
+            const m2Mat = new THREE.MeshStandardMaterial({color:0x065f46,roughness:0.5});
+            const m2 = new THREE.Mesh(new THREE.BoxGeometry(0.03,0.08,0.32), m2Mat);
             m2.position.set(0.04,-0.32,0.06); mMobo.add(m2);
-            const ctrl=new THREE.Mesh(new THREE.BoxGeometry(0.032,0.05,0.05),armorMat);
+            const ctrl = new THREE.Mesh(new THREE.BoxGeometry(0.032,0.05,0.05), armorMat);
             ctrl.position.set(0.042,-0.32,-0.04); mMobo.add(ctrl);
-        } else {
-            // SATA drive cable indicator
-            const sataMat=new THREE.MeshStandardMaterial({color:0x1e3a5f,roughness:0.5});
-            const sata=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.06,0.08),sataMat);
-            sata.position.set(0.03,-0.48,-0.5); mMobo.add(sata);
+        } else if(build.storage && storageInterface === 'sata') {
+            // SATA drive cable indicator: thin, subtle connector detail
+            const sataMat = new THREE.MeshStandardMaterial({color:0x1e3a5f,roughness:0.5});
+            const sata = new THREE.Mesh(new THREE.BoxGeometry(0.03,0.01,0.10), sataMat);
+            sata.position.set(0.03,-0.49,-0.45);
+            mMobo.add(sata);
         }
 
         mMobo.userData.partKey = 'motherboard';
@@ -2730,14 +2922,17 @@ function normalizeCase(caseData) {
         }
         const c = build.case;
         const d = c.dims;
+        const psu = build.psu;
+        const shape = getModelShape(psu);
+        if(shape) applyPsuModelShape(shape, psu);
         mPsu = new THREE.Group();
         partGroups['psu'] = mPsu;
 
-        const psuMat = new THREE.MeshStandardMaterial({color:0x090d14, metalness:0.8, roughness:0.5});
+        const psuMat = new THREE.MeshStandardMaterial({color: shape?.bodyColor ? new THREE.Color(shape.bodyColor) : 0x090d14, metalness:0.8, roughness:0.5});
         // Scale PSU to look robust inside bottom shroud
-        const psuW = Math.min(0.5, d.w * 0.58);
-        const psuH = 0.18;
-        const psuD = d.d * 0.38;
+        const psuW = Math.min(0.5, d.w * 0.58, (shape?.dimensions?.width_mm || 160) * MM_TO_UNITS);
+        const psuH = shape?.dimensions?.height_mm ? shape.dimensions.height_mm * MM_TO_UNITS : 0.18;
+        const psuD = shape?.dimensions?.depth_mm ? shape.dimensions.depth_mm * MM_TO_UNITS : d.d * 0.38;
         const core = new THREE.Mesh(new THREE.BoxGeometry(psuW, psuH, psuD), psuMat);
         core.castShadow = true; 
         mPsu.add(core);
@@ -2770,29 +2965,36 @@ function normalizeCase(caseData) {
             return;
         }
         const g = build.gpu;
+        const shape = getModelShape(g);
+        if(shape) applyGpuModelShape(shape, g);
 
         // Dynamic dimensional scaling tied to dynamic conversion metrics
         const cardL = g.length * MM_TO_UNITS;
         const cardH = g.thick * MM_TO_UNITS;
         const cardW = g.width * MM_TO_UNITS;
 
-        const bodyMat = new THREE.MeshStandardMaterial({color:0x0f1420, metalness:0.95, roughness:0.2});
+        const bodyColor = shape?.bodyColor ? new THREE.Color(shape.bodyColor) : 0x0f1420;
+        const bodyMat = new THREE.MeshStandardMaterial({color: bodyColor, metalness:0.95, roughness:0.2});
         const block = new THREE.Mesh(new THREE.BoxGeometry(cardW, cardH, cardL), bodyMat);
         block.castShadow = true; 
         mGpu.add(block);
 
         // Gold connector edge (PCIe fingers)
-        const goldMat = new THREE.MeshStandardMaterial({color:0xeab308, metalness:1, roughness:0.05});
-        const fingers = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.03, cardL * 0.65), goldMat);
+        const goldMat = new THREE.MeshStandardMaterial({color: shape?.connector?.color ? new THREE.Color(shape.connector.color) : 0xeab308, metalness:1, roughness:0.05});
+        const connectorWidth = (shape?.connector?.width_factor ?? 0.01) * cardW;
+        const connectorHeight = (shape?.connector?.height_mm ? shape.connector.height_mm * MM_TO_UNITS : 0.03);
+        const connectorLength = (shape?.connector?.depth_factor ?? 0.65) * cardL;
+        const connectorOffsetZ = (shape?.connector?.offsetZ_factor ?? -0.08) * cardL;
+        const fingers = new THREE.Mesh(new THREE.BoxGeometry(connectorWidth, connectorHeight, connectorLength), goldMat);
         // Connects underneath, off center
-        fingers.position.set(-cardW/2 + 0.01, -cardH/2 - 0.015, -cardL * 0.08);
+        fingers.position.set(-cardW/2 + connectorWidth, -cardH/2 - connectorHeight/2, connectorOffsetZ);
         mGpu.add(fingers);
 
         // Heatsink grid fins visible behind fan blades
-        const finBlocks = g.fans === 3 ? 3 : 2;
-        const finW = cardW * 0.85;
-        const finH = cardH * 0.6;
-        const finL = (cardL / finBlocks) * 0.85;
+        const finBlocks = Number.isFinite(shape?.fins?.count) ? shape.fins.count : (g.fans === 3 ? 3 : 2);
+        const finW = cardW * (shape?.fins?.width_factor ?? 0.85);
+        const finH = cardH * (shape?.fins?.height_factor ?? 0.6);
+        const finL = (cardL / finBlocks) * (shape?.fins?.length_factor ?? 0.85);
         for(let i=0; i<finBlocks; i++) {
             const zPos = -cardL/2 + (cardL/finBlocks) * (i + 0.5);
             const fins = makeStackedFins(finW, finH, finL, 16, 0x8a99ad);
@@ -2801,17 +3003,31 @@ function normalizeCase(caseData) {
         }
 
         // Beautiful ARGB lighting features
-        if(g.rgb) {
-            const neonMat = new THREE.MeshBasicMaterial({color:0x22d3ee});
-            const strip = new THREE.Mesh(new THREE.BoxGeometry(0.01, cardH * 0.35, cardL * 0.58), neonMat);
-            strip.position.set(cardW/2 + 0.005, cardH * 0.12, 0);
+        const rgbEnabled = shape?.rgbStrip?.enabled !== undefined ? shape.rgbStrip.enabled : g.rgb;
+        if(rgbEnabled) {
+            const neonMat = new THREE.MeshBasicMaterial({color: shape?.rgbStrip?.color ? new THREE.Color(shape.rgbStrip.color) : 0x22d3ee});
+            const stripWidth = cardW * (shape?.rgbStrip?.width_factor ?? 0.01);
+            const stripHeight = cardH * (shape?.rgbStrip?.height_factor ?? 0.35);
+            const stripLength = cardL * (shape?.rgbStrip?.length_factor ?? 0.58);
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(stripWidth, stripHeight, stripLength), neonMat);
+            const defaultOffsetX = 0.005;
+            const stripOffsetX = shape?.rgbStrip?.offsetX_mm
+                ? shape.rgbStrip.offsetX_mm * MM_TO_UNITS
+                : (shape?.rgbStrip?.offsetX_factor !== undefined
+                    ? shape.rgbStrip.offsetX_factor * stripWidth
+                    : defaultOffsetX);
+            const stripOffsetY = cardH * (shape?.rgbStrip?.offsetY_factor ?? 0.12);
+            strip.position.set(cardW/2 + stripWidth/2 + stripOffsetX, stripOffsetY, 0);
             mGpu.add(strip);
             rgbMats.push(neonMat);
         }
 
         // Fans mounted on the downward surface (Facing side panel in real orientation)
-        const fanR = cardW * 0.42;
-        const fanOffsets = g.fans === 3 ? [-cardL/3, 0, cardL/3] : [-cardL/4, cardL/4];
+        const fanCount = Number.isFinite(shape?.fans?.count) ? shape.fans.count : (g.fans === 3 ? 3 : 2);
+        const fanR = cardW * (shape?.fans?.radius_factor ?? 0.42);
+        const fanOffsets = Array.isArray(shape?.fans?.offsets)
+            ? shape.fans.offsets.map(offset => offset * cardL)
+            : (fanCount === 3 ? [-cardL/3, 0, cardL/3] : [-cardL/4, cardL/4]);
         fanOffsets.forEach(z => {
             const fan = makeFan(fanR, g.rgb, false, false, true, 'bottom');
             fan.rotation.x = Math.PI/2; 
@@ -2859,6 +3075,8 @@ function normalizeCase(caseData) {
             return;
         }
         const co = build.cooler;
+        const shape = getModelShape(co);
+        if(shape) applyCoolerModelShape(shape, co);
         const c = build.case;
         const d = c.dims;
 
@@ -3063,10 +3281,12 @@ function normalizeCase(caseData) {
             return;
         }
         const r = build.ram;
+        const shape = getModelShape(r);
+        if(shape) applyRamModelShape(shape, r);
         const nSticks = r.sticks;
         const ramH = r.height * MM_TO_UNITS;
-        const ramW = moboWidth * 0.28;
-        const ramThick = 0.012;
+        const ramW = shape?.dimensions?.length_mm ? shape.dimensions.length_mm * MM_TO_UNITS : moboWidth * 0.28;
+        const ramThick = shape?.dimensions?.thickness_mm ? shape.dimensions.thickness_mm * MM_TO_UNITS : 0.012;
 
         const cpuWorld = new THREE.Vector3(
             moboWPos.x + socketRelPos.x + 0.02,
@@ -3088,9 +3308,13 @@ function normalizeCase(caseData) {
             mRam.add(stick);
 
             if(r.rgb) {
-                const barMat = new THREE.MeshBasicMaterial({color:0x22d3ee});
-                const bar = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.025, ramW * 0.94), barMat);
-                bar.position.set(0.014, ramH/2, zRel);
+                const barMat = new THREE.MeshBasicMaterial({color: shape?.rgbStrip?.color ? new THREE.Color(shape.rgbStrip.color) : 0x22d3ee});
+                const barWidth = (shape?.rgbStrip?.width_factor ?? 0.014);
+                const barHeight = (shape?.rgbStrip?.height_factor ?? 0.025);
+                const barLength = ramW * ((shape?.rgbStrip?.length_factor ?? 0.94));
+                const bar = new THREE.Mesh(new THREE.BoxGeometry(barWidth, barHeight, barLength), barMat);
+                const barOffsetX = ramThick/2 + (shape?.rgbStrip?.offsetX_mm ? shape.rgbStrip.offsetX_mm * MM_TO_UNITS : 0.014);
+                bar.position.set(barOffsetX, ramH/2, zRel);
                 mRam.add(bar);
                 rgbMats.push(barMat);
             }
@@ -3101,9 +3325,87 @@ function normalizeCase(caseData) {
         chassis.add(mRam);
     }
 
+    function buildStorage() {
+        if(mStorage) chassis.remove(mStorage);
+        mStorage = new THREE.Group();
+        partGroups['storage'] = mStorage;
+        if(!build.case || !build.motherboard || !build.storage) {
+            delete partGroups['storage'];
+            return;
+        }
+        const s = build.storage;
+        const shape = getModelShape(s);
+        if(shape) applyStorageModelShape(shape, s);
+
+        const storageW = (shape?.dimensions?.width_mm ? shape.dimensions.width_mm * MM_TO_UNITS : 0.07);
+        const storageH = (
+            shape?.dimensions?.height_mm
+                ? shape.dimensions.height_mm * MM_TO_UNITS
+                : (shape?.dimensions?.thickness_mm ? shape.dimensions.thickness_mm * MM_TO_UNITS : 0.01)
+        );
+        const storageD = (shape?.dimensions?.length_mm ? shape.dimensions.length_mm * MM_TO_UNITS : 0.15);
+        const storageColor = shape?.bodyColor ? new THREE.Color(shape.bodyColor) : 0x202830;
+        const storageMat = new THREE.MeshStandardMaterial({color: storageColor, roughness: 0.5, metalness: 0.2});
+        const storageMesh = new THREE.Mesh(new THREE.BoxGeometry(storageW, storageH, storageD), storageMat);
+        storageMesh.castShadow = true;
+        storageMesh.receiveShadow = true;
+        mStorage.add(storageMesh);
+
+        const storageIsNvme = s.type === 'nvme' || s.interface?.toLowerCase() === 'nvme';
+        const storageIsSata = !storageIsNvme && (
+            s.type === 'sata' ||
+            (s.interface && String(s.interface).toLowerCase().includes('sata')) ||
+            (s.specs && (String(s.specs.interface || s.specs.type || '').toLowerCase().includes('sata')))
+        );
+
+        if(storageIsNvme) {
+            mStorage.position.set(
+                moboWPos.x + 0.04,
+                moboWPos.y + socketRelPos.y - 0.35,
+                moboWPos.z + 0.06
+            );
+        } else {
+            const c = build.case;
+            const d = c.dims;
+            // For SATA drives we rotate the storage group so the drive face looks along X axis
+            if(storageIsSata) {
+                // rotate the storage group 90 degrees around the Z axis
+                mStorage.rotation.set(0, 0, Math.PI/2);
+                mStorage.position.set(
+                    -d.w/2 + storageH/2 + 0.07,
+                    -d.h/2 + storageW/2 + 0.12,
+                    -d.d/2 + storageD/2 + 0.12
+                );
+            } else {
+                // ensure rotation is reset for non-SATA storage
+                mStorage.rotation.set(0,0,0);
+                mStorage.position.set(
+                    -d.w/2 + storageW/2 + 0.07,
+                    -d.h/2 + storageH/2 + 0.12,
+                    -d.d/2 + storageD/2 + 0.12
+                );
+            }
+        }
+
+        if(s.rgb && shape?.rgbStrip) {
+            const rgbMat = new THREE.MeshBasicMaterial({color: new THREE.Color(shape.rgbStrip.color || 0x22d3ee)});
+            const stripWidth = storageW * (shape.rgbStrip.width_factor ?? 0.2);
+            const stripHeight = storageH * (shape.rgbStrip.height_factor ?? 0.9);
+            const stripLength = storageD * (shape.rgbStrip.length_factor ?? 0.9);
+            const strip = new THREE.Mesh(new THREE.BoxGeometry(stripWidth, stripHeight, stripLength), rgbMat);
+            strip.position.set(storageW/2 + stripWidth/2, storageH/2 - stripHeight/2, 0);
+            mStorage.add(strip);
+            rgbMats.push(rgbMat);
+        }
+
+        mStorage.userData.partKey = 'storage';
+        applySavedPosition('storage');
+        chassis.add(mStorage);
+    }
+
     // Camera helpers
     function focusMesh(cat) {
-        const targets = {case:mCase,gpu:mGpu,cooler:mCooler,ram:mRam,psu:mPsu,motherboard:mMobo};
+        const targets = {case:mCase,gpu:mGpu,cooler:mCooler,ram:mRam,psu:mPsu,storage:mStorage,motherboard:mMobo};
         const tg = targets[cat]; if(!tg) return;
         document.getElementById('focus-label').innerHTML=`<i class="fa-solid fa-crosshairs text-pink-500 mr-1"></i><span class="mono text-[9px] text-pink-400">Inspecting: ${cat.toUpperCase()}</span>`;
         gsap.to(tg.scale,{x:1.12,y:1.12,z:1.12,duration:0.2,yoyo:true,repeat:1});
@@ -3270,8 +3572,8 @@ function normalizeCase(caseData) {
                         mat.opacity = 0.35;
                         mat.depthTest = false;
                     } else {
-                        mat.transparent = false;
-                        mat.opacity = 1.0;
+                        mat.transparent = true;
+                        mat.opacity = 0.0;
                         mat.depthTest = true;
                     }
                 }catch(e){}
@@ -3305,6 +3607,8 @@ function normalizeCase(caseData) {
 
     async function bootstrapNexus3D() {
         try {
+            await loadModelShapes();
+            await loadModelPositionOverrides();
             await loadSavedPositions();
             await loadComponentDB();
             syncBuildFromPageSelectedParts();

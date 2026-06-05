@@ -1,0 +1,497 @@
+{
+  "models": {
+    "cpu_ryzen_5600g": {
+      "type": "CPU",
+      "socket": "AM4",
+      "cores": 6,
+      "threads": 12,
+      "tdp": 65,
+      "integrated_graphics": true,
+      "bodyColor": "#1a1a1a"
+    },
+    "cpu_ryzen_5600": {
+      "type": "CPU",
+      "socket": "AM4",
+      "cores": 6,
+      "threads": 12,
+      "tdp": 65,
+      "integrated_graphics": false,
+      "bodyColor": "#1a1a1a"
+    },
+    "cpu_ryzen_5700x": {
+      "type": "CPU",
+      "socket": "AM4",
+      "cores": 8,
+      "threads": 16,
+      "tdp": 65,
+      "integrated_graphics": false,
+      "bodyColor": "#1a1a1a"
+    },
+    "cpu_i3_12100f": {
+      "type": "CPU",
+      "socket": "LGA1700",
+      "cores": 4,
+      "threads": 8,
+      "tdp": 60,
+      "integrated_graphics": false,
+      "bodyColor": "#0f1419"
+    },
+    "cpu_i5_12400f": {
+      "type": "CPU",
+      "socket": "LGA1700",
+      "cores": 6,
+      "threads": 12,
+      "tdp": 65,
+      "integrated_graphics": false,
+      "bodyColor": "#0f1419"
+    },
+    "cpu_i5_13400f": {
+      "type": "CPU",
+      "socket": "LGA1700",
+      "cores": 10,
+      "threads": 16,
+      "tdp": 65,
+      "integrated_graphics": false,
+      "bodyColor": "#0f1419"
+    },
+    "gpu_gtx_1650": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 200,
+        "width_mm": 112,
+        "thickness_mm": 38
+      },
+      "vram": 4,
+      "tdp": 75,
+      "rgb": false,
+      "bodyColor": "#1a1a1a"
+    },
+    "gpu_gtx_1660s": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 229,
+        "width_mm": 121,
+        "thickness_mm": 42
+      },
+      "vram": 6,
+      "tdp": 125,
+      "rgb": false,
+      "bodyColor": "#1a1a1a"
+    },
+    "gpu_rx_6600": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 250,
+        "width_mm": 122,
+        "thickness_mm": 45
+      },
+      "vram": 8,
+      "tdp": 132,
+      "rgb": false,
+      "bodyColor": "#1a1a1a"
+    },
+    "gpu_rtx_3060": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 242,
+        "width_mm": 124,
+        "thickness_mm": 45
+      },
+      "vram": 12,
+      "tdp": 170,
+      "rgb": true,
+      "bodyColor": "#1a1a1a"
+    },
+    "gpu_rtx_4060": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 245,
+        "width_mm": 118,
+        "thickness_mm": 42
+      },
+      "vram": 8,
+      "tdp": 115,
+      "rgb": true,
+      "bodyColor": "#1a1a1a"
+    },
+    "gpu_rtx_4070": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 270,
+        "width_mm": 120,
+        "thickness_mm": 42
+      },
+      "vram": 12,
+      "tdp": 200,
+      "rgb": true,
+      "bodyColor": "#1a1a1a"
+    },
+    "gpu_nvidia_rtx_4090": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 335,
+        "width_mm": 140,
+        "thickness_mm": 55
+      },
+      "vram": 24,
+      "tdp": 450,
+      "fans": {
+        "count": 3,
+        "radius_factor": 0.42,
+        "offsets": [-0.33, 0, 0.33]
+      },
+      "rgb": true,
+      "bodyColor": "#eeeeee",
+      "connector": {
+        "width_factor": 0.01,
+        "height_mm": 3,
+        "depth_factor": 0.65,
+        "offsetZ_factor": -0.08,
+        "color": "#eab308"
+      },
+      "fins": {
+        "count": 3,
+        "width_factor": 0.85,
+        "height_factor": 0.6,
+        "length_factor": 0.85
+      },
+      "rgbStrip": {
+        "enabled": true,
+        "width_factor": 0.01,
+        "height_factor": 0.35,
+        "length_factor": 0.58,
+        "offsetX_factor": 0.36,
+        "offsetY_factor": 0.12,
+        "color": "#22d3ee"
+      }
+    },
+    "gpu_rx_7700xt": {
+      "type": "GPU",
+      "dimensions": {
+        "length_mm": 270,
+        "width_mm": 128,
+        "thickness_mm": 50
+      },
+      "vram": 12,
+      "tdp": 245,
+      "rgb": true,
+      "bodyColor": "#1a1a1a"
+    },
+    "ram_8gb_ddr4": {
+      "type": "RAM",
+      "capacity": 8,
+      "speed": 3200,
+      "ram_type": "DDR4",
+      "dimensions": {
+        "length_mm": 133,
+        "height_mm": 44,
+        "thickness_mm": 8
+      },
+      "rgb": false,
+      "bodyColor": "#0a0f14"
+    },
+    "ram_16gb_ddr4": {
+      "type": "RAM",
+      "capacity": 16,
+      "speed": 3200,
+      "ram_type": "DDR4",
+      "dimensions": {
+        "length_mm": 133,
+        "height_mm": 44,
+        "thickness_mm": 8
+      },
+      "rgb": false,
+      "bodyColor": "#0a0f14"
+    },
+    "ram_32gb_ddr4": {
+      "type": "RAM",
+      "capacity": 32,
+      "speed": 3200,
+      "ram_type": "DDR4",
+      "dimensions": {
+        "length_mm": 133,
+        "height_mm": 44,
+        "thickness_mm": 8
+      },
+      "rgb": false,
+      "bodyColor": "#0a0f14"
+    },
+    "ram_32gb_ddr4_3600": {
+      "type": "RAM",
+      "capacity": 32,
+      "speed": 3600,
+      "ram_type": "DDR4",
+      "dimensions": {
+        "length_mm": 133,
+        "height_mm": 44,
+        "thickness_mm": 8
+      },
+      "rgb": false,
+      "bodyColor": "#131c2a"
+    },
+    "ram_16gb_ddr5": {
+      "type": "RAM",
+      "capacity": 16,
+      "speed": 6000,
+      "ram_type": "DDR5",
+      "dimensions": {
+        "length_mm": 133,
+        "height_mm": 46,
+        "thickness_mm": 8
+      },
+      "rgb": false,
+      "bodyColor": "#0d1117"
+    },
+    "ram_32gb_ddr5": {
+      "type": "RAM",
+      "capacity": 32,
+      "speed": 6000,
+      "ram_type": "DDR5",
+      "dimensions": {
+        "length_mm": 133,
+        "height_mm": 46,
+        "thickness_mm": 8
+      },
+      "rgb": false,
+      "bodyColor": "#0d1117"
+    },
+    "mb_a520m_ds3h": {
+      "type": "Motherboard",
+      "socket_type": "AM4",
+      "form_factor": "MATX",
+      "chipset": "A520",
+      "dimensions": {
+        "width_mm": 244,
+        "depth_mm": 244,
+        "height_mm": 1.2
+      },
+      "bodyColor": "#0f1927"
+    },
+    "mb_b450m_pro_vdh": {
+      "type": "Motherboard",
+      "socket_type": "AM4",
+      "form_factor": "MATX",
+      "chipset": "B450",
+      "dimensions": {
+        "width_mm": 244,
+        "depth_mm": 244,
+        "height_mm": 1.2
+      },
+      "bodyColor": "#0f1927"
+    },
+    "mb_b550m_ds3h": {
+      "type": "Motherboard",
+      "socket_type": "AM4",
+      "form_factor": "MATX",
+      "chipset": "B550",
+      "dimensions": {
+        "width_mm": 244,
+        "depth_mm": 244,
+        "height_mm": 1.2
+      },
+      "bodyColor": "#0f1927"
+    },
+    "mb_b550_tomahawk": {
+      "type": "Motherboard",
+      "socket_type": "AM4",
+      "form_factor": "ATX",
+      "chipset": "B550",
+      "dimensions": {
+        "width_mm": 305,
+        "depth_mm": 244,
+        "height_mm": 1.2
+      },
+      "bodyColor": "#0d141f"
+    },
+    "mb_h610m_h": {
+      "type": "Motherboard",
+      "socket_type": "LGA1700",
+      "form_factor": "MATX",
+      "chipset": "H610",
+      "dimensions": {
+        "width_mm": 244,
+        "depth_mm": 244,
+        "height_mm": 1.2
+      },
+      "bodyColor": "#0a0f15"
+    },
+    "mb_b760m_a_wifi": {
+      "type": "Motherboard",
+      "socket_type": "LGA1700",
+      "form_factor": "MATX",
+      "chipset": "B760",
+      "dimensions": {
+        "width_mm": 244,
+        "depth_mm": 244,
+        "height_mm": 1.2
+      },
+      "bodyColor": "#0a0f15"
+    },
+    "psu_550w_bronze": {
+      "type": "PSU",
+      "wattage": 550,
+      "efficiency": "bronze",
+      "form_factor": "ATX",
+      "dimensions": {
+        "width_mm": 150,
+        "height_mm": 80,
+        "depth_mm": 140
+      },
+      "bodyColor": "#0d1419"
+    },
+    "psu_650w_bronze": {
+      "type": "PSU",
+      "wattage": 650,
+      "efficiency": "bronze",
+      "form_factor": "ATX",
+      "dimensions": {
+        "width_mm": 150,
+        "height_mm": 85,
+        "depth_mm": 140
+      },
+      "bodyColor": "#0d1419"
+    },
+    "psu_750w_bronze": {
+      "type": "PSU",
+      "wattage": 750,
+      "efficiency": "bronze",
+      "form_factor": "ATX",
+      "dimensions": {
+        "width_mm": 160,
+        "height_mm": 86,
+        "depth_mm": 140
+      },
+      "bodyColor": "#111827"
+    },
+    "psu_750w_gold": {
+      "type": "PSU",
+      "wattage": 750,
+      "efficiency": "gold",
+      "form_factor": "ATX",
+      "dimensions": {
+        "width_mm": 160,
+        "height_mm": 86,
+        "depth_mm": 140
+      },
+      "bodyColor": "#111827"
+    },
+    "ssd_256gb_sata": {
+      "type": "Storage",
+      "interface": "SATA",
+      "capacity": 256,
+      "dimensions": {
+        "length_mm": 100,
+        "width_mm": 70,
+        "thickness_mm": 7
+      },
+      "bodyColor": "#0e1419"
+    },
+    "ssd_500gb_sata": {
+      "type": "Storage",
+      "interface": "SATA",
+      "capacity": 500,
+      "dimensions": {
+        "length_mm": 100,
+        "width_mm": 70,
+        "thickness_mm": 7
+      },
+      "bodyColor": "#0e1419"
+    },
+    "ssd_500gb_nvme": {
+      "type": "Storage",
+      "interface": "NVMe",
+      "capacity": 500,
+      "dimensions": {
+        "length_mm": 80,
+        "width_mm": 22,
+        "thickness_mm": 2.3
+      },
+      "bodyColor": "#0e1726"
+    },
+    "ssd_1tb_nvme": {
+      "type": "Storage",
+      "interface": "NVMe",
+      "capacity": 1000,
+      "dimensions": {
+        "length_mm": 80,
+        "width_mm": 22,
+        "thickness_mm": 2.3
+      },
+      "bodyColor": "#0e1726"
+    },
+    "cooler_stock": {
+      "type": "Cooling",
+      "tdp_rating": 65,
+      "height_mm": 54,
+      "cooler_type": "air",
+      "bodyColor": "#0a0f14"
+    },
+    "cooler_ak400": {
+      "type": "Cooling",
+      "tdp_rating": 220,
+      "height_mm": 155,
+      "cooler_type": "air",
+      "bodyColor": "#161f2a"
+    },
+    "aio_coolermaster_ml240l": {
+      "type": "Cooling",
+      "tdp_rating": 200,
+      "height_mm": 53,
+      "cooler_type": "liquid",
+      "radiator_size": "240mm",
+      "bodyColor": "#0a0f14"
+    },
+    "aio_deepcool_le520": {
+      "type": "Cooling",
+      "tdp_rating": 220,
+      "height_mm": 52,
+      "cooler_type": "liquid",
+      "radiator_size": "240mm",
+      "bodyColor": "#0f1722"
+    },
+    "aio_arctic_lf2_360": {
+      "type": "Cooling",
+      "tdp_rating": 300,
+      "height_mm": 53,
+      "cooler_type": "liquid",
+      "radiator_size": "360mm",
+      "bodyColor": "#101826"
+    },
+    "case_tecware_m2": {
+      "type": "Case",
+      "form_factor": "MATX",
+      "dimensions": {
+        "width_mm": 210,
+        "height_mm": 400,
+        "depth_mm": 380
+      },
+      "gpu_length_limit_mm": 330,
+      "cpu_cooler_limit_mm": 160,
+      "bodyColor": "#0a0f14"
+    },
+    "case_tecware_atx": {
+      "type": "Case",
+      "form_factor": "ATX",
+      "dimensions": {
+        "width_mm": 220,
+        "height_mm": 450,
+        "depth_mm": 420
+      },
+      "gpu_length_limit_mm": 340,
+      "cpu_cooler_limit_mm": 165,
+      "bodyColor": "#0a0f14"
+    },
+    "case_montech_air100": {
+      "type": "Case",
+      "form_factor": "MATX",
+      "dimensions": {
+        "width_mm": 215,
+        "height_mm": 410,
+        "depth_mm": 390
+      },
+      "gpu_length_limit_mm": 330,
+      "cpu_cooler_limit_mm": 160,
+      "bodyColor": "#0f1419"
+    }
+  }
+}

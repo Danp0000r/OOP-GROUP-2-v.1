@@ -2,10 +2,6 @@ from services.compatibility.utils import Utils
 
 
 class CompatibilityChecker:
-    """
-    Runs all hardware compatibility checks.
-    Returns: (issues, passed, recommendations, watt_est, rec_psu)
-    """
 
     @staticmethod
     def check(groups):

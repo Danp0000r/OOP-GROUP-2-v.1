@@ -3,19 +3,9 @@ from services.compatibility.utils import Utils
 
 
 class ComponentMatcher:
-    """Fuzzy-matches user input to known components."""
 
     @staticmethod
     def get_component(name):
-        """
-        Find the best-matching component for a given name string.
-        Returns the component dict or None.
-        
-        Strategy:
-        1. Exact name/ID match
-        2. Contains match (prefer longest exact match to avoid weaker matches)
-        3. Token-based fuzzy match (≥95% threshold)
-        """
         if not name:
             return None
 
@@ -55,13 +45,6 @@ class ComponentMatcher:
 
     @staticmethod
     def detect_components(parts_input):
-        """
-        Split user input and try to identify every part.
-        Returns a list of detection results.
-        
-        Note: Unknown parts don't block analysis - known components are checked,
-        unknown ones are marked for manual verification.
-        """
         parts = Utils.split(parts_input)
         results = []
         for part in parts:

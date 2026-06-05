@@ -5,9 +5,9 @@ from models.build import Build
 from models.component import Component
 from models.user import User
 from services.compatibility.compatibility_service import CompatibilityService
-from services.compare_builds_service import compare_builds
-from services.build_fix_service import BuildFixService
-from services.activity_service import ActivityService
+from services.comparison.compare_builds_service import compare_builds
+from services.build_finder.build_fix_service import BuildFixService
+from services.activity.activity_service import ActivityService
 
 
 def parse_component_ids(value):
@@ -302,7 +302,7 @@ def export_build(build_id):
 
 @build_bp.route("/api/compatibility", methods=["POST"])
 def compatibility():
-    from services.build_fix_service import BuildFixService
+    from services.build_finder.build_fix_service import BuildFixService
     
     data          = request.get_json()
     component_ids = data.get("component_ids", [])

@@ -7,8 +7,8 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from database.db import db
 from models.build import Build
 from models.component import Component
-from services.questionnaire_service import get_build_recommendation
-from services.activity_service import ActivityService
+from services.build_finder.questionnaire_service import get_build_recommendation
+from services.activity.activity_service import ActivityService
 
 questionnaire_bp = Blueprint("questionnaire", __name__)
 

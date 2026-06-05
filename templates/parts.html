@@ -227,7 +227,8 @@ async function runCompare() {
   const allKeys = payload.all_keys || [];
   const sameType = payload.same_type;
   const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
-  const storeColors = {Shopee:'#ee4d2d',Lazada:'#0f146b','PC Express':'#0a6640'};
+  const storeBg = 'rgba(255,255,255,.08)';
+  const storeHoverBg = 'rgba(255,255,255,.12)';
 
   const cardsHtml = items.map(item => {
     return `
@@ -272,7 +273,7 @@ async function runCompare() {
         <div>
           <div style="font-size:10px;font-weight:800;text-transform:uppercase;color:${catFg[item.cat]||'#a78bfa'};margin-bottom:10px;letter-spacing:.08em;opacity:.8;">${item.cat}</div>
           <div style="display:flex;flex-direction:column;gap:7px;">
-            ${item.links && item.links.length ? item.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;background:${storeColors[l.store_name]||'rgba(255,255,255,.06)'};color:#fff;font-weight:600;font-size:12px;text-decoration:none;transition:all .15s;border:1px solid rgba(255,255,255,.05);" onmouseover="this.style.background='${storeColors[l.store_name]||'rgba(255,255,255,.1)'};this.style.borderColor='rgba(255,255,255,.15)';" onmouseout="this.style.background='${storeColors[l.store_name]||'rgba(255,255,255,.06)'};this.style.borderColor='rgba(255,255,255,.05)'"><span>${l.store_name}</span><span style="color:${catFg[item.cat]||'#a78bfa'};font-weight:700;">₱${Number(l.price).toLocaleString()}</span></a>`).join('') : '<div style="font-size:11px;color:rgba(255,255,255,.3);font-style:italic;padding:10px 0;">Not available</div>'}
+            ${item.links && item.links.length ? item.links.map(l => `<a href="${l.url}" target="_blank" rel="noopener" style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;background:${storeBg};color:#fff;font-weight:600;font-size:12px;text-decoration:none;transition:all .15s;border:1px solid rgba(255,255,255,.05);" onmouseover="this.style.background='${storeHoverBg}';this.style.borderColor='rgba(255,255,255,.15)';" onmouseout="this.style.background='${storeBg}';this.style.borderColor='rgba(255,255,255,.05)'"><span>${l.store_name}</span><span style="color:${catFg[item.cat]||'#a78bfa'};font-weight:700;">₱${Number(l.price).toLocaleString()}</span></a>`).join('') : '<div style="font-size:11px;color:rgba(255,255,255,.3);font-style:italic;padding:10px 0;">Not available</div>'}
           </div>
         </div>`).join('')}
     </div>`;
@@ -333,7 +334,8 @@ function closeCompareModal() {
 function openModal(id, name, brand, cat, price) {
   const catBg = {CPU:'#1e0a3c',Motherboard:'#0a1e3c',GPU:'#0a1040',RAM:'#0a2e1a',Storage:'#2e1a0a',PSU:'#2e0a1a',Cooling:'#0a2030',Case:'#1a1a2e'};
   const catFg = {CPU:'#a78bfa',Motherboard:'#78bffa',GPU:'#60a5fa',RAM:'#6ee7b7',Storage:'#fbbf24',PSU:'#f472b6',Cooling:'#67e8f9',Case:'#c4b5fd'};
-  const storeColors = {Shopee:'#ee4d2d',Lazada:'#0f146b','PC Express':'#0a6640'};
+  const storeBg = 'rgba(255,255,255,.08)';
+  const storeHoverBg = 'rgba(255,255,255,.12)';
 
   // Fetch full component data (specs object + description)
   fetch(`/api/components/${id}`).then(r => r.json()).then(comp => {
@@ -391,7 +393,7 @@ function openModal(id, name, brand, cat, price) {
       .then(r => r.json())
       .then(links => {
         document.getElementById('links-popup-inner').innerHTML = links.length
-          ? links.map(l => `<a href="${l.url}" target="_blank" style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:10px;margin-bottom:8px;background:${storeColors[l.store_name]||'rgba(255,255,255,.08)'};color:#fff;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'"><span>${l.store_name}</span><span>&#8369;${l.price.toLocaleString()}</span></a>`).join('')
+          ? links.map(l => `<a href="${l.url}" target="_blank" style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:10px;margin-bottom:8px;background:${storeBg};color:#fff;font-weight:700;font-size:13px;text-decoration:none;transition:opacity .15s;" onmouseover="this.style.background='${storeHoverBg}';" onmouseout="this.style.background='${storeBg}';"><span>${l.store_name}</span><span>&#8369;${l.price.toLocaleString()}</span></a>`).join('')
           : '<p style="color:rgba(255,255,255,.4);font-style:italic;font-size:13px;">No store links available.</p>';
       });
   }).catch(()=>{

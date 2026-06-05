@@ -1,0 +1,870 @@
+[
+    {
+        "component_name": "Ryzen 5 5600G",
+        "store": "Datablitz",
+        "price": 7995,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=ryzen-5-5600g",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 5 5600G",
+        "store": "EasyPC",
+        "price": 7895,
+        "url": "https://easypc.com.ph/search?q=ryzen-5-5600g",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 5 5600G",
+        "store": "Dynaquest",
+        "price": 7950,
+        "url": "https://dynaquestpc.com/search?q=ryzen-5-5600g",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 5 5600",
+        "store": "Datablitz",
+        "price": 6650,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=ryzen-5-5600",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 5 5600",
+        "store": "EasyPC",
+        "price": 6495,
+        "url": "https://easypc.com.ph/search?q=ryzen-5-5600",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 5 5600",
+        "store": "Dynaquest",
+        "price": 6595,
+        "url": "https://dynaquestpc.com/search?q=ryzen-5-5600",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 7 5700X",
+        "store": "Datablitz",
+        "price": 10995,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=ryzen-7-5700x",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 7 5700X",
+        "store": "EasyPC",
+        "price": 10500,
+        "url": "https://easypc.com.ph/search?q=ryzen-7-5700x",
+        "verified": true
+    },
+    {
+        "component_name": "Ryzen 7 5700X",
+        "store": "Dynaquest",
+        "price": 10750,
+        "url": "https://dynaquestpc.com/search?q=ryzen-7-5700x",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i3-12100F",
+        "store": "Lazada",
+        "price": 5395,
+        "url": "https://www.lazada.com.ph/products/pdp-i19528266982-s13188019497.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i3-12100F",
+        "store": "Datablitz",
+        "price": 5495,
+        "url": "https://ecommerce.datablitz.com.ph/products/intel-core-i3-12100f",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i3-12100F",
+        "store": "Lazada",
+        "price": 5000,
+        "url": "https://www.lazada.com.ph/products/pdp-i21988161477-s13677018116.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i5-12400F",
+        "store": "Lazada",
+        "price": 8395,
+        "url": "https://www.lazada.com.ph/products/pdp-i54799699790-s13333562346.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i5-12400F",
+        "store": "Sanctuary",
+        "price": 8695,
+        "url": "https://www.sanctuary.ph/products/intel-core-i5-12400f-12-core-18-thread-18mb-cache-lga1700-oem-tray?pp=1",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i5-12400F",
+        "store": "PCWorx",
+        "price": 10764,
+        "url": "https://pcworx.ph/products/intel-i5-12400f-2-5ghz-6-core-12-thread-18m-cache-lga1700-tray-type?variant=53790829576405&country=PH&currency=PHP",
+        "verified": true
+    },
+    {
+        "component_name": "Intel i5-13400F",
+        "store": "Netcodex",
+        "price": 10295,
+        "url": "https://netcodex.ph/product/intel-core-i5-13400f-10-core-16-thread-4-6ghz-lga1700-desktop-processor-tray-i5-13400f-tray/",
+        "verified": true
+    },
+    {
+        "component_name": "GTX 1650",
+        "store": "Shopee",
+        "price": 9390,
+        "url": "https://shopee.ph/GTX-1650-D6-VENTUS-XS-OC-i.689769521.42528101209?extraParams=%7B%22display_model_id%22%3A310445287073%2C%22model_selection_logic%22%3A3%7D&sp_atk=3a19e5cb-e2cb-4194-b292-784113d026eb&xptdk=3a19e5cb-e2cb-4194-b292-784113d026eb",
+        "verified": true
+    },
+    {
+        "component_name": "GTX 1650",
+        "store": "Datablitz",
+        "price": 8695,
+        "url": "https://ecommerce.datablitz.com.ph/products/msi-geforce-gtx-1650-ventus-xs-4g-ocv1-graphics-card?_pos=4&_sid=cc4dab83a&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "GTX 1660 Super",
+        "store": "Lazada",
+        "price": 13442.73,
+        "url": "https://www.lazada.com.ph/products/pdp-i15458451184-s133028091883.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "GTX 1660 Super",
+        "store": "Datablitz",
+        "price": 12950,
+        "url": "https://ecommerce.datablitz.com.ph/products/msi-geforce-gtx-1660-super-ventus-xs-oc-6g-gddr6-graphics-card?_pos=4&_sid=c4a637952&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "GTX 1660 Super",
+        "store": "Shopee",
+        "price": 10499,
+        "url": "https://shopee.ph/NVIDIA-Geforce-GTX-1660-Super-6GB-Gaming-Graphics-Cards-GTX-1660S-GPU-6GB-DDR6-14000MHz-1785-MHz-~1830-MHz-192bit-1660s-Video-Card-i.721493043.23333913393?extraParams=%7B%22display_model_id%22%3A175745565417%2C%22model_selection_logic%22%3A3%7D&sp_atk=c5a84994-c045-4281-b692-7ffa5b99491c&xptdk=c5a84994-c045-4281-b692-7ffa5b99491c",
+        "verified": true
+    },
+    {
+        "component_name": "RX 6600",
+        "store": "Shopee",
+        "price": 19080,
+        "url": "https://shopee.ph/MSI-RX-6600-XT-GAMING-X-8G-(PRE-OWNED)-i.689769521.54306162031?extraParams=%7B%22display_model_id%22%3A310560424186%2C%22model_selection_logic%22%3A3%7D&sp_atk=51350f62-a44d-44ab-9d2b-6f0c0970b759&xptdk=51350f62-a44d-44ab-9d2b-6f0c0970b759",
+        "verified": true
+    },
+    {
+        "component_name": "RX 6600",
+        "store": "Datablitz",
+        "price": 20295,
+        "url": "https://ecommerce.datablitz.com.ph/products/asrock-amd-radeon-rx-6600-xt-challenger-itx-8gb-gddr6-graphics-card?_pos=1&_sid=fdb0c9cee&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "RX 6600",
+        "store": "Lazada",
+        "price": 19288,
+        "url": "https://www.lazada.com.ph/products/pdp-i3736778774-s27591214486.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 3060 12GB",
+        "store": "Shopee",
+        "price": 20129,
+        "url": "https://shopee.ph/AISURIX-RTX3060-12GB-Graphics-Card-Nvidia-gpu-GDDR6-For-Gaming-Working-High-Performance-i.889624055.56607795011?extraParams=%7B%22display_model_id%22%3A287484392712%2C%22model_selection_logic%22%3A3%7D&sp_atk=c08d1436-81b6-48c1-a1b5-74a41d198531&xptdk=c08d1436-81b6-48c1-a1b5-74a41d198531",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 3060 12GB",
+        "store": "Datablitz",
+        "price": 19950,
+        "url": "https://ecommerce.datablitz.com.ph/products/asus-tuf-geforce-rtx-3060-12g-v2-gaming-graphics-card?_pos=3&_sid=94b82ee44&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 3060 12GB",
+        "store": "Lazada",
+        "price": 20129,
+        "url": "https://www.lazada.com.ph/products/pdp-i15468063995-s133066915509.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 4060",
+        "store": "Shopee",
+        "price": 21000,
+        "url": "https://shopee.ph/MSI-RTX4060-VENTUS-2X-8GB-OC-BLACK-WHITE-i.141985033.24543518792?extraParams=%7B%22display_model_id%22%3A99150554650%2C%22model_selection_logic%22%3A3%7D&sp_atk=1a793d31-90eb-4491-8a70-839aed887e7d&xptdk=1a793d31-90eb-4491-8a70-839aed887e7d",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 4060",
+        "store": "Lazada",
+        "price": 19399,
+        "url": "https://www.lazada.com.ph/products/pdp-i2019231003-s24713148430.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 4060",
+        "store": "Datablitz",
+        "price": 21595,
+        "url": "https://ecommerce.datablitz.com.ph/products/msi-geforce-rtx-4060-gaming-x-8gb-mlg-gddr6-graphics-card?_pos=2&_sid=53245d69a&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 4070",
+        "store": "Shopee",
+        "price": 44933,
+        "url": "https://shopee.ph/MSI-RTX-4070-12GB-Graphics-Card-TRI-FROZR-3-TORX-FAN-5.0-Collinx-Computer-i.366667598.18289811268?extraParams=%7B%22display_model_id%22%3A184366222413%2C%22model_selection_logic%22%3A3%7D&sp_atk=9fa136d8-20dd-415c-9a8c-b25ca52c3c6a&xptdk=9fa136d8-20dd-415c-9a8c-b25ca52c3c6a",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 4070",
+        "store": "Datablitz",
+        "price": 43795,
+        "url": "https://ecommerce.datablitz.com.ph/products/colorful-igame-geforce-rtx-4070-neptune-oc-v-12gb-gddr6x-graphics-card?_pos=2&_sid=c39b63397&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "RTX 4070",
+        "store": "Lazada",
+        "price": 55927.38,
+        "url": "https://www.lazada.com.ph/products/pdp-i4152227842-s23118857901.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "RX 7700 XT",
+        "store": "Datablitz",
+        "price": 29450,
+        "url": "https://ecommerce.datablitz.com.ph/products/sapphire-nitro-amd-radeon-rx-7700-xt-gaming-oc-12gb-gddr6-dual-hdmi-dual-dp-graphics-card-1?_pos=1&_sid=0bff3516b&_ss=r",
+        "verified": true
+    },
+    {
+        "component_name": "RX 7700 XT",
+        "store": "Lazada",
+        "price": 31895,
+        "url": "https://www.lazada.com.ph/products/gigabyte-radeon-rx-7700-xt-gaming-oc-12g-graphics-card-gv-r77xtgaming-oc-12gd-i4118310004-s22823949235.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "RX 7700 XT",
+        "store": "Datablitz",
+        "price": 29350,
+        "url": "https://ecommerce.datablitz.com.ph/products/sapphire-nitro-amd-radeon-rx-7700-xt-gaming-oc-12gb-gddr6-dual-hdmi-dual-dp-graphics-card",
+        "verified": true
+    },
+    {
+        "component_name": "8GB DDR4 3200MHz",
+        "store": "Datablitz",
+        "price": 6495,
+        "url": "https://ecommerce.datablitz.com.ph/products/kingston-fury-beast-8gb-ddr4-3200mhz-memory-kf432c16bb-8-wp",
+        "verified": true
+    },
+    {
+        "component_name": "8GB DDR4 3200MHz",
+        "store": "PCX",
+        "price": 5900,
+        "url": "https://pcx.com.ph/products/kingston-8gb-ddr4-3200mhz-fury-beast-ram?srsltid=AfmBOooCSFHqXRv7s8WB-ohFcdiKOEOkBhvTwvCXc6vn4B-JW96jeo3T",
+        "verified": true
+    },
+    {
+        "component_name": "8GB DDR4 3200MHz",
+        "store": "EasyPC",
+        "price": 2725,
+        "url": "https://easypc.com.ph/products/kingston-fury-beast-8gb-kf432c16bb-8wp-1x8-3200mt-s-ddr4-memory-black?variant=46023347241131",
+        "verified": true
+    },
+    {
+        "component_name": "16GB DDR4 3200MHz",
+        "store": "Bluearm",
+        "price": 6510,
+        "url": "https://bluearm.ph/products/kingston-fury-beast-16gb-ddr4-3200-kf432c16bb1-16?variant=45464742133919&country=PH&currency=PHP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOopCEz7T-xmVMeKOF_Md_cCKn4l0W7NKUhtVAijRI-VlYSTweIQ6NpM",
+        "verified": true
+    },
+    {
+        "component_name": "16GB DDR4 3200MHz",
+        "store": "Gameone",
+        "price": 5895,
+        "url": "https://gameone.ph/kingston-fury-beast-8gb-16gb-ddr4-memory-3200mhz.html?srsltid=AfmBOoovCTo9He70OHqugHViErNWy_Ae0Euu9n2iuQRKgWeBeX4Cex9cksk",
+        "verified": true
+    },
+    {
+        "component_name": "16GB DDR4 3200MHz",
+        "store": "Bermorzone",
+        "price": 6500,
+        "url": "https://bermorzone.com.ph/shop/memory-modules/desktop-memory/kingston-fury-beast-16gb-2x8-3200-mhz-ddr4-cl16-desktop-memory-kit/?attribute_capacity=8GB&srsltid=AfmBOoqkPL1uTtBAma4LT4IQhAUXUEGH8RyLuXi53HFBGFZe2vm56j7yFQo",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR4 3200MHz",
+        "store": "Lazada",
+        "price": 7424.55,
+        "url": "https://www.lazada.com.ph/products/twteamgroup-t-force-vulcan-tuf-gaming-alliance-ddr4-32gb-16gbx2-3200mhz-tltyd432g3200hc16fdc01-itwkorea-i15486441013-s133128236223.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR4 3200MHz",
+        "store": "Shopee",
+        "price": 14045,
+        "url": "https://shopee.ph/8gb-16gb-32gb-DDR4-3200MHz-3600Mhz-TeamGroup-TForce-Vulcan%27sP-TUF-r-Gaming!q-RAM-i.1769544307.56258584728?extraParams=%7B%22display_model_id%22%3A425761879390%2C%22model_selection_logic%22%3A3%7D",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR4 3200MHz",
+        "store": "Datablitz",
+        "price": 15795,
+        "url": "https://ecommerce.datablitz.com.ph/products/teamgroup-t-force-vulcan-tuf-gaming-alliance-32gb-2x16gb-ddr4-3200mhz-cl16-20-20-40-1-35v-desktop-memory-tltyd432g3200hc16fdc01",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR4 3600MHz",
+        "store": "Dynaquest",
+        "price": 16350,
+        "url": "https://dynaquestpc.com/products/t-force-delta-rgb-32gb-dual-ddr4-3600mhz-cl18",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR4 3600MHz",
+        "store": "Shopee",
+        "price": 18650,
+        "url": "https://shopee.ph/TEAMGROUP-T-Force-Delta-RGB-32GB-Dual-DDR4-3600Mhz-Cl18-TF3D432G3600HC18JDC01-TF4D432G3600HC18JDC01-i.122081568.12756372240",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR4 3600MHz",
+        "store": "Datablitz",
+        "price": 13950,
+        "url": "https://ecommerce.datablitz.com.ph/products/teamgroup-t-force-delta-rgb-ddr4-32gb-2x16gb-3600mhz-cl18-22-22-42-1-35v-gaming-desktop-memory-white-tf4d432g3600hc18jdc01",
+        "verified": true
+    },
+    {
+        "component_name": "16GB DDR5 6000MHz",
+        "store": "Datablitz",
+        "price": 18950,
+        "url": "https://ecommerce.datablitz.com.ph/products/kingston-fury-beast-rgb-16gb-ddr5-6000mt-s-cl30-36-36-1-4v-expo-xmp-desktop-memory-kf560c30bbeak2-16",
+        "verified": true
+    },
+    {
+        "component_name": "16GB DDR5 6000MHz",
+        "store": "Shopee",
+        "price": 14999,
+        "url": "https://shopee.ph/product/291784420/43329680072?gads_t_sig=gqRjZGVrxHCFomtpsTE0MjUxOnRzc19zZGtfa2V5omt20QABpGFsZ2_SAAAAZKNkZWvAomN0xEAAAAAMfaLqlfFS4JwQPCoOJZHE2YMfq1tWF61pnIIHqGuyOlpkjBotHu7Xpb0YRK1tULWVZdcpI_r9hw6jgE9CqmNpcGhlcnRleHTEbgAAAAx17tqc_8x70K_MtfIjwxQAwlQg_SQ-ec59QuACXAE7V4qm1GVCXt6fy-TA5IOoJ2P0afGo1uCsWkL5D7UNYlWMAK4F7GsFRT-kGDITazsN3Lb7PZi-UcvBpPwMgbEsshQgk7-mcJjoi5d5",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR5 6000MHz",
+        "store": "Datablitz",
+        "price": 27795,
+        "url": "https://ecommerce.datablitz.com.ph/products/teamgroup-t-force-delta-rgb-ddr5-32gb-2x16gb-6000mhz-cl38-46-46-84-1-35v-gaming-desktop-memory-black-white-ff3d532g6000hc38jdc01-ff4d532g6000hc38jdc01",
+        "verified": true
+    },
+    {
+        "component_name": "32GB DDR5 6000MHz",
+        "store": "Shopee",
+        "price": 35250,
+        "url": "https://shopee.ph/product/23045985/28935497232?gads_t_sig=gqRjZGVrxHCFomtpsTE0MjUxOnRzc19zZGtfa2V5omt20QABpGFsZ2_SAAAAZKNkZWvAomN0xEAAAAAMfaLqlfFS4JwQPCoOJZHE2YMfq1tWF61pnIIHqGuyOlpkjBotHu7Xpb0YRK1tULWVZdcpI_r9hw6jgE9CqmNpcGhlcnRleHTEbAAAAAxZX9D1ipYplZ8Pq6CTnOQWBqaP0Zywa8Uyv5hXxvVT1NpJhzZnXHU-ZV9t1hPQ-goHigpar8Gzk5KEAZtn0M1JCFBjG_CtniLlODl4CIji69IAiDjPqNAjHNlF_wGLO7ptufWHgd9t-g",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte A520M DS3H",
+        "store": "Datablitz",
+        "price": 3995,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=gigabyte-a520m-ds3h",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte A520M DS3H",
+        "store": "EasyPC",
+        "price": 3795,
+        "url": "https://easypc.com.ph/search?q=gigabyte-a520m-ds3h",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte A520M DS3H",
+        "store": "Dynaquest",
+        "price": 3895,
+        "url": "https://dynaquestpc.com/search?q=gigabyte-a520m-ds3h",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B450M Pro-VDH Max",
+        "store": "Datablitz",
+        "price": 4699,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=msi-b450m-pro-vdh-max",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B450M Pro-VDH Max",
+        "store": "EasyPC",
+        "price": 4395,
+        "url": "https://easypc.com.ph/search?q=msi-b450m-pro-vdh-max",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B450M Pro-VDH Max",
+        "store": "Dynaquest",
+        "price": 4550,
+        "url": "https://dynaquestpc.com/search?q=msi-b450m-pro-vdh-max",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte B550M DS3H",
+        "store": "Datablitz",
+        "price": 5499,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=gigabyte-b550m-ds3h",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte B550M DS3H",
+        "store": "EasyPC",
+        "price": 5195,
+        "url": "https://easypc.com.ph/search?q=gigabyte-b550m-ds3h",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte B550M DS3H",
+        "store": "Dynaquest",
+        "price": 5395,
+        "url": "https://dynaquestpc.com/search?q=gigabyte-b550m-ds3h",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B550 Tomahawk",
+        "store": "Datablitz",
+        "price": 8995,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=msi-b550-tomahawk",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B550 Tomahawk",
+        "store": "EasyPC",
+        "price": 8495,
+        "url": "https://easypc.com.ph/search?q=msi-b550-tomahawk",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B550 Tomahawk",
+        "store": "Dynaquest",
+        "price": 8795,
+        "url": "https://dynaquestpc.com/search?q=msi-b550-tomahawk",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte H610M H",
+        "store": "Datablitz",
+        "price": 4295,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=gigabyte-h610m-h",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte H610M H",
+        "store": "EasyPC",
+        "price": 3995,
+        "url": "https://easypc.com.ph/search?q=gigabyte-h610m-h",
+        "verified": true
+    },
+    {
+        "component_name": "Gigabyte H610M H",
+        "store": "Dynaquest",
+        "price": 4195,
+        "url": "https://dynaquestpc.com/search?q=gigabyte-h610m-h",
+        "verified": true
+    },
+    {
+        "component_name": "ASUS B760M-A WIFI",
+        "store": "Datablitz",
+        "price": 10500,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=asus-b760m-a-wifi",
+        "verified": true
+    },
+    {
+        "component_name": "ASUS B760M-A WIFI",
+        "store": "EasyPC",
+        "price": 9995,
+        "url": "https://easypc.com.ph/search?q=asus-b760m-a-wifi",
+        "verified": true
+    },
+    {
+        "component_name": "ASUS B760M-A WIFI",
+        "store": "Dynaquest",
+        "price": 10250,
+        "url": "https://dynaquestpc.com/search?q=asus-b760m-a-wifi",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B450 Tomahawk Max II",
+        "store": "Datablitz",
+        "price": 5995,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=msi-b450-tomahawk-max-ii",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B450 Tomahawk Max II",
+        "store": "EasyPC",
+        "price": 5695,
+        "url": "https://easypc.com.ph/search?q=msi-b450-tomahawk-max-ii",
+        "verified": true
+    },
+    {
+        "component_name": "MSI B450 Tomahawk Max II",
+        "store": "Dynaquest",
+        "price": 5850,
+        "url": "https://dynaquestpc.com/search?q=msi-b450-tomahawk-max-ii",
+        "verified": true
+    },
+    {
+        "component_name": "550W 80+ Bronze PSU",
+        "store": "Datablitz",
+        "price": 2595,
+        "url": "https://ecommerce.datablitz.com.ph/products/msi-mag-a550bn-550w-80-bronze-power-supply",
+        "verified": true
+    },
+    {
+        "component_name": "550W 80+ Bronze PSU",
+        "store": "Gameone",
+        "price": 2595,
+        "url": "https://gameone.ph/msi-mag-a550bn-550w-80-plus-bronze-certified-gaming-power-supply.html?srsltid=AfmBOooHqLujyAA4CbOO7n_E4wkfO1gxOIkyd9UM67NvO3s8BLi9ZKqo",
+        "verified": true
+    },
+    {
+        "component_name": "550W 80+ Bronze PSU",
+        "store": "EasyPC",
+        "price": 2595,
+        "url": "https://easypc.com.ph/products/msi-mag-a650bn-650watts-a550bn-550watts-80-full-modular-power-supply-bronze?srsltid=AfmBOoqUTUDPs3o-sVrY0eOE22we5CPv9q4b76ymht6kLJQQGUkPsKON",
+        "verified": true
+    },
+    {
+        "component_name": "650W 80+ Bronze PSU",
+        "store": "Dynaquest",
+        "price": 2950,
+        "url": "https://dynaquestpc.com/products/msi-mag-a650bn-bronze-650watts-80-power-supply",
+        "verified": true
+    },
+    {
+        "component_name": "650W 80+ Bronze PSU",
+        "store": "Datablitz",
+        "price": 2950,
+        "url": "https://ecommerce.datablitz.com.ph/products/msi-mag-a650bn-650w-80-bronze-non-modular-power-supply",
+        "verified": true
+    },
+    {
+        "component_name": "650W 80+ Bronze PSU",
+        "store": "EasyPC",
+        "price": 2862,
+        "url": "https://easypc.com.ph/products/msi-mag-a650bn-650watts-a550bn-550watts-80-full-modular-power-supply-bronze?srsltid=AfmBOoquKRSMwIY21unkF9W9ktcn0MincX2LR4Mw7LfjJlw-OjcGLq7a",
+        "verified": true
+    },
+    {
+        "component_name": "750W 80+ Bronze PSU",
+        "store": "Datablitz",
+        "price": 3895,
+        "url": "https://ecommerce.datablitz.com.ph/products/asus-prime-750w-bronze-power-supply",
+        "verified": true
+    },
+    {
+        "component_name": "750W 80+ Bronze PSU",
+        "store": "PCX",
+        "price": 4100,
+        "url": "https://pcx.com.ph/products/asus-prime-750w-80-bronze-non-modular-power-supply?srsltid=AfmBOoriZ941gcbf1DVznt8QFJc2eR705UG8OxFF6kvTSNyjAghCFLhx",
+        "verified": true
+    },
+    {
+        "component_name": "750W 80+ Bronze PSU",
+        "store": "Gameone",
+        "price": 3895,
+        "url": "https://gameone.ph/asus-prime-650w-750w-80-plus-bronze-power-supply.html?srsltid=AfmBOoro1KlK1mkUkD4VqlpULScxs8r4kOl4pnRBIZd0ZkBjcuCi53P9",
+        "verified": true
+    },
+    {
+        "component_name": "750W 80+ Gold PSU",
+        "store": "Datablitz",
+        "price": 4995,
+        "url": "https://ecommerce.datablitz.com.ph/products/gigabyte-ud750gm-pg5-v2-ice-750w-atx-3-1-pcie-gen-5-1-80-gold-modular-power-supply",
+        "verified": true
+    },
+    {
+        "component_name": "750W 80+ Gold PSU",
+        "store": "PCX",
+        "price": 5550,
+        "url": "https://pcx.com.ph/products/gigabyte-750w-gp-ud750gm-pg5-80-gold-modular-power-supply?srsltid=AfmBOoprD57CntXvHgMDgN4pQBwEC4utXm6M2KbsEvBMwUTCKoeAMtb2",
+        "verified": true
+    },
+    {
+        "component_name": "256GB SATA SSD",
+        "store": "PCWorx",
+        "price": 3329,
+        "url": "https://pcworx.ph/products/netac-n600s-2-5-sata-ssd?variant=50852035199189&country=PH&currency=PHP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOooDVRIF7sKUxScPiML3qJ-A2dzKYN8O_Zn0_VXOaPY8ohTk2tZH-cw",
+        "verified": true
+    },
+    {
+        "component_name": "256GB SATA SSD",
+        "store": "Lazada",
+        "price": 2746,
+        "url": "https://www.lazada.com.ph/products/netac-nt01n600s-256g-s3xnt01n600s-512g-s3x-n600s-25-sataiii-3d-nand-ssd-solid-states-drive-256gb-ssd-512gb-ssd-netac-ssd-i4839972681-s31840938451.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "256GB SATA SSD",
+        "store": "Shopee",
+        "price": 6999,
+        "url": "https://shopee.ph/product/1551774030/27087803445?gads_t_sig=gqRjZGVrxHCFomtpsTE0MjUxOnRzc19zZGtfa2V5omt20QABpGFsZ2_SAAAAZKNkZWvAomN0xEAAAAAMfaLqlfFS4JwQPCoOJZHE2YMfq1tWF61pnIIHqGuyOlpkjBotHu7Xpb0YRK1tULWVZdcpI_r9hw6jgE9CqmNpcGhlcnRleHTEcAAAAAxYw_KirtsgCk15czhL87BareLkSJYHic4dURE03vSjX7l9NyVj1HZ4lr9VJkX2U9NJSTrzd3Aj7EoGyDoU0-xA55IyTlHJYIDFoxOxVb3prNIys4vis7lKgeWa5KQb8MHHvbExv1c63zkZFfY",
+        "verified": true
+    },
+    {
+        "component_name": "500GB SATA SSD",
+        "store": "Gameone",
+        "price": 7995,
+        "url": "https://gameone.ph/samsung-ssd-870-evo-sata-iii-2-5-inch-500gb.html?srsltid=AfmBOooORbWQVebbchFhtafy_N5Gu2rkpiMaAZF2l-yOwMzz78OHPR_H85U",
+        "verified": true
+    },
+    {
+        "component_name": "500GB SATA SSD",
+        "store": "Lazada",
+        "price": 9188.66,
+        "url": "https://www.lazada.com.ph/products/samsung-860-870-evo-sata3-25-inch-notebook-desktop-ssd-ssd-500g-i5125060322-s30267885660.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "500GB SATA SSD",
+        "store": "Datablitz",
+        "price": 12195,
+        "url": "https://ecommerce.datablitz.com.ph/products/samsung-870-evo-500gb-sata-iii-2-5-ssd-mz-77e500bw",
+        "verified": true
+    },
+    {
+        "component_name": "500GB NVMe SSD",
+        "store": "PCWorx",
+        "price": 8000,
+        "url": "https://pcworx.ph/products/kingston-snv3s-500g-500gb-nv3-m-2-nvme-pcie-4-0-x4-ssd?variant=51456212992213&country=PH&currency=PHP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOoqgXMPiYV8korRlpMttf-86i7mtGxxzf0WIv8t8IG0KrwJ21ApNRZs",
+        "verified": true
+    },
+    {
+        "component_name": "500GB NVMe SSD",
+        "store": "Datablitz",
+        "price": 8295,
+        "url": "https://ecommerce.datablitz.com.ph/products/kingston-500gb-nv3-m-2-2280-pcie-4-0-nvme-ssd-snv3s-500g",
+        "verified": true
+    },
+    {
+        "component_name": "500GB NVMe SSD",
+        "store": "Shopee",
+        "price": 9350,
+        "url": "https://shopee.ph/product/23045985/26219998115?gads_t_sig=gqRjZGVrxHCFomtpsTE0MjUxOnRzc19zZGtfa2V5omt20QABpGFsZ2_SAAAAZKNkZWvAomN0xEAAAAAMfaLqlfFS4JwQPCoOJZHE2YMfq1tWF61pnIIHqGuyOlpkjBotHu7Xpb0YRK1tULWVZdcpI_r9hw6jgE9CqmNpcGhlcnRleHTEbAAAAAwGFO4WpvaY5Bqrp8u2V3xaQiiX3jmYtiQ--_9ZMlDARSPHVIoEnr7VyESJVtVeDnRmWZp5qVeWvTe7jH7kBbKbbo3O8Z-xRoaw2r39Hpodt3UBM7A2eC-z4aO5FBVNxm2dqEHyrbg68g",
+        "verified": true
+    },
+    {
+        "component_name": "1TB NVMe SSD",
+        "store": "PCWorx",
+        "price": 10000,
+        "url": "https://pcworx.ph/products/kingston-snv3s-2000g-1000g-500g-2tb-nv3-m-2-nvme-pcie-4-0-x4-ssd?variant=51134537400533&country=PH&currency=PHP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&srsltid=AfmBOooNy4SICwdEhwkcxCZiF-vK_RXZL2_xR0-Xu6W0GK7ifwmPRqxH8qE",
+        "verified": true
+    },
+    {
+        "component_name": "1TB NVMe SSD",
+        "store": "Shopee",
+        "price": 8346,
+        "url": "https://shopee.ph/Kingston-NV2-NV3-500GB-1TB-2TB-M.2-2280-NVMe-PCIe-Internal-SSD-PCIe-a-Solid-A-State-s.Drive-i.1768340146.42630808394?extraParams=%7B%22display_model_id%22%3A310910812428%2C%22model_selection_logic%22%3A3%7D",
+        "verified": true
+    },
+    {
+        "component_name": "1TB NVMe SSD",
+        "store": "Lazada",
+        "price": 10975,
+        "url": "https://www.lazada.com.ph/products/kingston-nv3-500gb1tb2tb-m2-2230m2-2280-pcie-40x4-nvme-internal-ssd-solid-state-drive-i4611125797-s26476734873.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Stock Cooler",
+        "store": "Lazada",
+        "price": 499,
+        "url": "https://www.lazada.com.ph/products/original-amd-intel-stock-cpu-cooler-heatsink-fan-wraith-prism-stealth-laminar-12th-14th-gen-i5274167125-s31346182184.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Deepcool AK400",
+        "store": "Datablitz",
+        "price": 1250,
+        "url": "https://ecommerce.datablitz.com.ph/products/deepcool-ak400-performance-cpu-cooler-r-ak400-bknnmn-g-1",
+        "verified": true
+    },
+    {
+        "component_name": "Deepcool AK400",
+        "store": "Dynaquest",
+        "price": 1250,
+        "url": "https://dynaquestpc.com/products/deepcool-ak400-air-cooler-r-ak400-bknnmn-g-1",
+        "verified": true
+    },
+    {
+        "component_name": "Deepcool AK400",
+        "store": "Shopee",
+        "price": 1595,
+        "url": "https://shopee.ph/product/379168804/29564849811?gads_t_sig=gqRjZGVrxHCFomtpsTE0MjUxOnRzc19zZGtfa2V5omt20QABpGFsZ2_SAAAAZKNkZWvAomN0xEAAAAAMfaLqlfFS4JwQPCoOJZHE2YMfq1tWF61pnIIHqGuyOlpkjBotHu7Xpb0YRK1tULWVZdcpI_r9hw6jgE9CqmNpcGhlcnRleHTEbgAAAAzijPrixt99vbeACmQeVz_DUl0yvpmkVWj2dgrfDcFyPc7clqKsVllQ_gIJbWqKfvVfe4JBooEZRvGR5TlwQ0_xkFlSGp8yhl1-gEfSrZ3koqxtAHhhljuDIbssGyKl3rGfYJ1s1dVTpJbw",
+        "verified": true
+    },
+    {
+        "component_name": "Cooler Master ML240L V2",
+        "store": "Datablitz",
+        "price": 3995,
+        "url": "https://ecommerce.datablitz.com.ph/products/cooler-master-masterliquid-ml240l-v2-argb-cpu-cooler-black",
+        "verified": true
+    },
+    {
+        "component_name": "Cooler Master ML240L V2",
+        "store": "Netcodex",
+        "price": 4295,
+        "url": "https://netcodex.ph/product/cooler-master-masterliquid-240l-argb-v2-aio-liquid-cooler-240mm-radiator-2x120mm-sickleflow-argb-fans-cm-ml240l-argb-v2-mlw-d24m-a18pa-r2/",
+        "verified": true
+    },
+    {
+        "component_name": "Cooler Master ML240L V2",
+        "store": "Lazada",
+        "price": 5200,
+        "url": "https://www.lazada.com.ph/products/coolermaster-ml240-illusion-white-edition-aio-coolermlx-d24m-a18p2-r1-i2840209098-s13767440536.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Deepcool LE520",
+        "store": "Shopee",
+        "price": 3158,
+        "url": "https://shopee.ph/product/854953902/22442158038?gads_t_sig=gqRjZGVrxHCFomtpsTE0MjUxOnRzc19zZGtfa2V5omt20QABpGFsZ2_SAAAAZKNkZWvAomN0xEAAAAAMfaLqlfFS4JwQPCoOJZHE2YMfq1tWF61pnIIHqGuyOlpkjBotHu7Xpb0YRK1tULWVZdcpI_r9hw6jgE9CqmNpcGhlcnRleHTEbgAAAAzrKaR7qNxnthPqAe_V1oKkutOCstLgMFffI7R3XU4ZQVPl-UjyRnKMZ2spwR552K8E1pWjfSF2SAxzrUBeLRxPxe3hPuehw1uX0BDJJiKacAXMm6I0a1MZdaFnBXDTpodllp6yQX6Wu_ja",
+        "verified": true
+    },
+    {
+        "component_name": "Deepcool LE520",
+        "store": "Pinklehub",
+        "price": 4740,
+        "url": "https://pinklehub.com/products/deepcool-le520-white-r-le520-whammn-g-1",
+        "verified": true
+    },
+    {
+        "component_name": "Deepcool LE520",
+        "store": "Bermorzone",
+        "price": 3995,
+        "url": "https://bermorzone.com.ph/shop/cooling-systems/aio-liquid-cooling-system/deepcool-le520-240mm-argb-fans-aio-cpu-cooling-black-white/",
+        "verified": true
+    },
+    {
+        "component_name": "Arctic Liquid Freezer II 360",
+        "store": "Datablitz",
+        "price": 6150,
+        "url": "https://ecommerce.datablitz.com.ph/products/liquid-freezer-ii-360-a-rgb-multi-compatible-aio-cpu-water-cooler-black-acfre00101a",
+        "verified": true
+    },
+    {
+        "component_name": "Arctic Liquid Freezer II 360",
+        "store": "EasyPC",
+        "price": 4895,
+        "url": "https://easypc.com.ph/products/arctic-liquid-freezer-ii-240mm-cpu-liquid-cooler-rgb",
+        "verified": true
+    },
+    {
+        "component_name": "Arctic Liquid Freezer II 360",
+        "store": "Lazada",
+        "price": 4749,
+        "url": "https://www.lazada.com.ph/products/pdp-i3139717330-s15579636735.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "NZXT Kraken 240",
+        "store": "Datablitz",
+        "price": 6495,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=nzxt-kraken-240",
+        "verified": true
+    },
+    {
+        "component_name": "NZXT Kraken 240",
+        "store": "EasyPC",
+        "price": 5995,
+        "url": "https://easypc.com.ph/search?q=nzxt-kraken-240",
+        "verified": true
+    },
+    {
+        "component_name": "NZXT Kraken 240",
+        "store": "Dynaquest",
+        "price": 6295,
+        "url": "https://dynaquestpc.com/search?q=nzxt-kraken-240",
+        "verified": true
+    },
+    {
+        "component_name": "Tecware Nexus Air M2",
+        "store": "Datablitz",
+        "price": 1750,
+        "url": "https://ecommerce.datablitz.com.ph/products/tecware-nexus-air-m2-tg-high-airflow-matx-pc-case-with-3x-120mm-non-led-fans",
+        "verified": true
+    },
+    {
+        "component_name": "Tecware Nexus Air M2",
+        "store": "Dynaquest",
+        "price": 1750,
+        "url": "https://dynaquestpc.com/products/tecware-nexus-air-m2-black-mesh-tg-matx-3x120mm",
+        "verified": true
+    },
+    {
+        "component_name": "Tecware Nexus Air M2",
+        "store": "Bermorzone",
+        "price": 1895,
+        "url": "https://bermorzone.com.ph/shop/chassis/tecware-nexus-air-m2-black-high-airflow-matx-case/",
+        "verified": true
+    },
+    {
+        "component_name": "Tecware Forge M",
+        "store": "Datablitz",
+        "price": 2395,
+        "url": "https://ecommerce.datablitz.com.ph/products/tecware-forge-m-omni-case-black",
+        "verified": true
+    },
+    {
+        "component_name": "Tecware Forge M",
+        "store": "Bermorzone",
+        "price": 2600,
+        "url": "https://bermorzone.com.ph/shop/chassis/tecware-forge-m-high-airflow-w-free-4-omni-argb-fans-matx-pc-case-white/",
+        "verified": true
+    },
+    {
+        "component_name": "Tecware Forge M",
+        "store": "Lazada",
+        "price": 3900,
+        "url": "https://www.lazada.com.ph/products/tecware-forge-m-omni-tempered-glass-case-i3058136137-s15074078744.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "Montech Air 100 ARGB",
+        "store": "Datablitz",
+        "price": 3150,
+        "url": "https://ecommerce.datablitz.com.ph/products/montech-air-100-argb-mesh-micro-atx-case",
+        "verified": true
+    },
+    {
+        "component_name": "Montech Air 100 ARGB",
+        "store": "Netcodex",
+        "price": 3265,
+        "url": "https://netcodex.ph/product/montech-air-100-argb-micro-atx-tower-with-four-argb-fans-pre-installed-ultra-minimalist-design-fine-mesh-front-panel-high-airflow-unique-side-swivel-tempered-glass-black/",
+        "verified": true
+    },
+    {
+        "component_name": "Montech Air 100 ARGB",
+        "store": "Lazada",
+        "price": 4200,
+        "url": "https://www.lazada.com.ph/products/pinklehub-montech-air-100-argb-black-case-4710562748086-i2581000646-s12072735846.html?from_gmc=1&fl_tag=1",
+        "verified": true
+    },
+    {
+        "component_name": "NZXT H5 Flow",
+        "store": "Datablitz",
+        "price": 4695,
+        "url": "https://ecommerce.datablitz.com.ph/search?q=nzxt-h5-flow",
+        "verified": true
+    },
+    {
+        "component_name": "NZXT H5 Flow",
+        "store": "EasyPC",
+        "price": 4395,
+        "url": "https://easypc.com.ph/search?q=nzxt-h5-flow",
+        "verified": true
+    },
+    {
+        "component_name": "NZXT H5 Flow",
+        "store": "Dynaquest",
+        "price": 4550,
+        "url": "https://dynaquestpc.com/search?q=nzxt-h5-flow",
+        "verified": true
+    }
+]

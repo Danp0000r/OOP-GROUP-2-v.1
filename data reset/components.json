@@ -1,0 +1,779 @@
+[
+    {
+        "id": "cpu_ryzen_5600g",
+        "name": "Ryzen 5 5600G",
+        "category": "CPU",
+        "brand": "AMD",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/ryzen2.png?raw=true",
+        "description": "6-core, 12-thread desktop processor with powerful built-in Radeon graphics, ideal for entry-level gaming without a dedicated GPU.",
+        "specs": {
+            "socket": "AM4",
+            "cores": 6,
+            "threads": 12,
+            "base_clock": 3.9,
+            "tdp": 65,
+            "integrated_graphics": true
+        },
+        "compatibility": {
+            "motherboard_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 60
+    },
+    {
+        "id": "cpu_ryzen_5600",
+        "name": "Ryzen 5 5600",
+        "category": "CPU",
+        "brand": "AMD",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/ryzen3.png?raw=true",
+        "description": "A highly popular 6-core gaming processor offering excellent mid-range performance and efficiency on the AM4 platform.",
+        "specs": {
+            "socket": "AM4",
+            "cores": 6,
+            "threads": 12,
+            "base_clock": 3.5,
+            "tdp": 65,
+            "integrated_graphics": false
+        },
+        "compatibility": {
+            "motherboard_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 65
+    },
+    {
+        "id": "cpu_ryzen_5700x",
+        "name": "Ryzen 7 5700X",
+        "category": "CPU",
+        "brand": "AMD",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/ryzen1.png?raw=true",
+        "description": "An efficient 8-core, 16-thread processor designed for smooth multitasking, streaming, and heavy gaming workloads.",
+        "specs": {
+            "socket": "AM4",
+            "cores": 8,
+            "threads": 16,
+            "base_clock": 3.4,
+            "tdp": 65,
+            "integrated_graphics": false
+        },
+        "compatibility": {
+            "motherboard_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 80
+    },
+    {
+        "id": "cpu_i3_12100f",
+        "name": "Intel i3-12100F",
+        "category": "CPU",
+        "brand": "Intel",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_INTEL%20I3.webp?raw=true",
+        "description": "A budget-friendly 12th Gen Alder Lake quad-core processor delivering impressive single-core performance for entry-level gaming builds.",
+        "specs": {
+            "socket": "LGA1700",
+            "cores": 4,
+            "threads": 8,
+            "base_clock": 3.3,
+            "tdp": 60,
+            "integrated_graphics": false
+        },
+        "compatibility": {
+            "motherboard_socket": "LGA1700",
+            "ram_type": [
+                "DDR4",
+                "DDR5"
+            ]
+        },
+        "performance_score": 50
+    },
+    {
+        "id": "cpu_i5_12400f",
+        "name": "Intel i5-12400F",
+        "category": "CPU",
+        "brand": "Intel",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_INTEL%20I5.webp?raw=true",
+        "description": "A stellar mid-range 6-core processor providing a perfect price-to-performance balance for mainstream gaming and daily tasks.",
+        "specs": {
+            "socket": "LGA1700",
+            "cores": 6,
+            "threads": 12,
+            "base_clock": 2.5,
+            "tdp": 65,
+            "integrated_graphics": false
+        },
+        "compatibility": {
+            "motherboard_socket": "LGA1700",
+            "ram_type": [
+                "DDR4",
+                "DDR5"
+            ]
+        },
+        "performance_score": 65
+    },
+    {
+        "id": "cpu_i5_13400f",
+        "name": "Intel i5-13400F",
+        "category": "CPU",
+        "brand": "Intel",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_INTEL%20I52.webp?raw=true",
+        "description": "13th Gen processor featuring a hybrid architecture with 10 cores (6 Performance, 4 Efficient) for enhanced gaming and multitasking capacity.",
+        "specs": {
+            "socket": "LGA1700",
+            "cores": 10,
+            "threads": 16,
+            "base_clock": 2.5,
+            "tdp": 65,
+            "integrated_graphics": false
+        },
+        "compatibility": {
+            "motherboard_socket": "LGA1700",
+            "ram_type": [
+                "DDR4",
+                "DDR5"
+            ]
+        },
+        "performance_score": 80
+    },
+    {
+        "id": "gpu_gtx_1650",
+        "name": "GTX 1650",
+        "category": "GPU",
+        "brand": "NVIDIA",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_GPU1.webp?raw=true",
+        "description": "A compact, low-power graphics card built for budget esports setups and 1080p casual gaming.",
+        "specs": {
+            "vram": 4,
+            "tdp": 75,
+            "length_mm": 200,
+            "width_mm": 112,
+            "thickness_mm": 38
+        },
+        "compatibility": {},
+        "rgb": false,
+        "performance_score": 25
+    },
+    {
+        "id": "gpu_gtx_1660s",
+        "name": "GTX 1660 Super",
+        "category": "GPU",
+        "brand": "NVIDIA",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_GPU2.webp?raw=true",
+        "description": "A classic mid-tier GPU upgraded with fast GDDR6 memory, delivering solid, high-framerate 1080p gaming.",
+        "specs": {
+            "vram": 6,
+            "tdp": 125,
+            "length_mm": 229,
+            "width_mm": 121,
+            "thickness_mm": 42
+        },
+        "compatibility": {},
+        "rgb": false,
+        "performance_score": 38
+    },
+    {
+        "id": "gpu_rx_6600",
+        "name": "RX 6600",
+        "category": "GPU",
+        "brand": "AMD",
+        "image_url": "https://dlcdnwebimgs.asus.com/gain/0ce3f6a5-b544-481a-a7fb-3a324fb38f15/",
+        "description": "An incredibly power-efficient graphics card offering smooth performance and advanced feature support for high-refresh 1080p gaming.",
+        "specs": {
+            "vram": 8,
+            "tdp": 132,
+            "length_mm": 250,
+            "width_mm": 122,
+            "thickness_mm": 45
+        },
+        "compatibility": {},
+        "rgb": false,
+        "performance_score": 48
+    },
+    {
+        "id": "gpu_rtx_3060",
+        "name": "RTX 3060 12GB",
+        "category": "GPU",
+        "brand": "NVIDIA",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_GPU4.webp?raw=true",
+        "description": "Features a generous 12GB VRAM buffer and Ray Tracing technology, built to handle complex modern games and creative workloads effortlessly.",
+        "specs": {
+            "vram": 12,
+            "tdp": 170,
+            "length_mm": 242,
+            "width_mm": 124,
+            "thickness_mm": 45
+        },
+        "compatibility": {},
+        "rgb": true,
+        "performance_score": 50
+    },
+    {
+        "id": "gpu_rtx_4060",
+        "name": "RTX 4060",
+        "category": "GPU",
+        "brand": "NVIDIA",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_GPU5.webp?raw=true",
+        "description": "Powered by the highly efficient Ada Lovelace architecture, supporting DLSS 3 frame generation for high-fidelity performance.",
+        "specs": {
+            "vram": 8,
+            "tdp": 115,
+            "length_mm": 245,
+            "width_mm": 118,
+            "thickness_mm": 42
+        },
+        "compatibility": {},
+        "rgb": true,
+        "performance_score": 58
+    },
+    {
+        "id": "gpu_rtx_4070",
+        "name": "RTX 4070",
+        "category": "GPU",
+        "brand": "NVIDIA",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_GPU6.webp?raw=true",
+        "description": "An elite graphics card optimized for flawless high-refresh 1440p gaming and content creation pipelines with advanced Ray Tracing capabilities.",
+        "specs": {
+            "vram": 12,
+            "tdp": 200,
+            "length_mm": 270,
+            "width_mm": 120,
+            "thickness_mm": 42
+        },
+        "compatibility": {},
+        "rgb": true,
+        "performance_score": 80
+    },
+    {
+        "id": "gpu_rx_7700xt",
+        "name": "RX 7700 XT",
+        "category": "GPU",
+        "brand": "AMD",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_GPU7.webp?raw=true",
+        "description": "RDNA 3 architecture GPU offering great value, exceptional memory bandwidth, and high-tier 1440p rasterization gaming speeds.",
+        "specs": {
+            "vram": 12,
+            "tdp": 245,
+            "length_mm": 270,
+            "width_mm": 128,
+            "thickness_mm": 50
+        },
+        "compatibility": {},
+        "rgb": true,
+        "performance_score": 75
+    },
+    {
+        "id": "ram_8gb_ddr4",
+        "name": "8GB DDR4 3200MHz",
+        "category": "RAM",
+        "brand": "TeamGroup",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_RAM1.webp?raw=true",
+        "description": "A single reliable 8GB DDR4 module optimized for responsiveness in essential desktop applications and basic gaming rigs.",
+        "specs": {
+            "type": "DDR4",
+            "capacity": 8,
+            "speed": 3200
+        },
+        "compatibility": {
+            "ram_type": "DDR4"
+        },
+        "performance_score": 30
+    },
+    {
+        "id": "ram_16gb_ddr4",
+        "name": "16GB DDR4 3200MHz",
+        "category": "RAM",
+        "brand": "TeamGroup",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_RAM2.webp?raw=true",
+        "description": "The standard capacity sweet spot for modern PCs, providing smooth multitasking capacity and stable gaming frames.",
+        "specs": {
+            "type": "DDR4",
+            "capacity": 16,
+            "speed": 3200
+        },
+        "compatibility": {
+            "ram_type": "DDR4"
+        },
+        "performance_score": 60
+    },
+    {
+        "id": "ram_32gb_ddr4",
+        "name": "32GB DDR4 3200MHz",
+        "category": "RAM",
+        "brand": "TeamGroup",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_RAM3.webp?raw=true",
+        "description": "High-capacity DDR4 memory kit designed to satisfy resource-heavy video editing tools and heavy multitasking routines.",
+        "specs": {
+            "type": "DDR4",
+            "capacity": 32,
+            "speed": 3200
+        },
+        "compatibility": {
+            "ram_type": "DDR4"
+        },
+        "performance_score": 70
+    },
+    {
+        "id": "ram_32gb_ddr4_3600",
+        "name": "32GB DDR4 3600MHz",
+        "category": "RAM",
+        "brand": "Corsair",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_RAM4.webp?raw=true",
+        "description": "Premium high-speed DDR4 desktop memory kit featuring Corsair styling and tight timings for maximum processor layout efficiency.",
+        "specs": {
+            "type": "DDR4",
+            "capacity": 32,
+            "speed": 3600
+        },
+        "compatibility": {
+            "ram_type": "DDR4"
+        },
+        "performance_score": 75
+    },
+    {
+        "id": "ram_16gb_ddr5",
+        "name": "16GB DDR5 6000MHz",
+        "category": "RAM",
+        "brand": "Corsair",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_RAM5.webp?raw=true",
+        "description": "Next-generation ultra-fast DDR5 performance layout delivering massive data bandwidth speeds for enthusiast level hardware.",
+        "specs": {
+            "type": "DDR5",
+            "capacity": 16,
+            "speed": 6000
+        },
+        "compatibility": {
+            "ram_type": "DDR5"
+        },
+        "performance_score": 65
+    },
+    {
+        "id": "ram_32gb_ddr5",
+        "name": "32GB DDR5 6000MHz",
+        "category": "RAM",
+        "brand": "Corsair",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_RAM6.webp?raw=true",
+        "description": "Elite high-frequency 32GB DDR5 dual-channel memory kit tailored for maximum compatibility and performance headroom.",
+        "specs": {
+            "type": "DDR5",
+            "capacity": 32,
+            "speed": 6000
+        },
+        "compatibility": {
+            "ram_type": "DDR5"
+        },
+        "performance_score": 75
+    },
+    {
+        "id": "mb_a520m_ds3h",
+        "name": "Gigabyte A520M DS3H",
+        "category": "Motherboard",
+        "brand": "Gigabyte",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_MB1.webp?raw=true",
+        "description": "An ultra-durable, highly affordable micro-ATX motherboard featuring basic essential connectivity options for AM4 setups.",
+        "specs": {
+            "socket_type": "AM4",
+            "form_factor": "MATX",
+            "ram_type": "DDR4",
+            "chipset": "A520",
+            "m2_slots": 1,
+            "sata_ports": 4,
+            "width_mm": 244,
+            "depth_mm": 244
+        },
+        "compatibility": {
+            "cpu_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 40
+    },
+    {
+        "id": "mb_b450m_pro_vdh",
+        "name": "MSI B450M Pro-VDH Max",
+        "category": "Motherboard",
+        "brand": "MSI",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_MB2.webp?raw=true",
+        "description": "A dependable, classic AM4 motherboard featuring robust cooling features and optimized trace routing configurations.",
+        "specs": {
+            "socket_type": "AM4",
+            "form_factor": "MATX",
+            "ram_type": "DDR4",
+            "chipset": "B450",
+            "m2_slots": 1,
+            "sata_ports": 6,
+            "width_mm": 244,
+            "depth_mm": 244
+        },
+        "compatibility": {
+            "cpu_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 50
+    },
+    {
+        "id": "mb_b550m_ds3h",
+        "name": "Gigabyte B550M DS3H",
+        "category": "Motherboard",
+        "brand": "Gigabyte",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_MB3.webp?raw=true",
+        "description": "Features PCIe 4.0 storage capability and reliable digital power stages, providing a solid upgrade platform for Ryzen 5000 series chips.",
+        "specs": {
+            "socket_type": "AM4",
+            "form_factor": "MATX",
+            "ram_type": "DDR4",
+            "chipset": "B550",
+            "m2_slots": 1,
+            "sata_ports": 4,
+            "width_mm": 244,
+            "depth_mm": 244
+        },
+        "compatibility": {
+            "cpu_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 60
+    },
+    {
+        "id": "mb_b550_tomahawk",
+        "name": "MSI B550 Tomahawk",
+        "category": "Motherboard",
+        "brand": "MSI",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_MB4.webp?raw=true",
+        "description": "An enthusiast-class full ATX board featuring premium VRM heatsinks, dual M.2 slots, and excellent system tuning capabilities.",
+        "specs": {
+            "socket_type": "AM4",
+            "form_factor": "ATX",
+            "ram_type": "DDR4",
+            "chipset": "B550",
+            "m2_slots": 2,
+            "sata_ports": 6,
+            "width_mm": 305,
+            "depth_mm": 244
+        },
+        "compatibility": {
+            "cpu_socket": "AM4",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 65
+    },
+    {
+        "id": "mb_h610m_h",
+        "name": "Gigabyte H610M H",
+        "category": "Motherboard",
+        "brand": "Gigabyte",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_MB5.webp?raw=true",
+        "description": "An entry-level LGA1700 motherboard with optimized components built to safely house Intel 12th and 13th Gen core processors.",
+        "specs": {
+            "socket_type": "LGA1700",
+            "form_factor": "MATX",
+            "ram_type": "DDR4",
+            "chipset": "H610",
+            "m2_slots": 1,
+            "sata_ports": 4,
+            "width_mm": 244,
+            "depth_mm": 244
+        },
+        "compatibility": {
+            "cpu_socket": "LGA1700",
+            "ram_type": "DDR4"
+        },
+        "performance_score": 45
+    },
+    {
+        "id": "mb_b760m_a_wifi",
+        "name": "ASUS B760M-A WIFI",
+        "category": "Motherboard",
+        "brand": "ASUS",
+        "image_url": "https://c1.neweggimages.com/ProductImage/13-119-617-02.jpg",
+        "description": "A feature-rich Intel board boasting speedy DDR5 memory support alongside built-in Wi-Fi connectivity channels.",
+        "specs": {
+            "socket_type": "LGA1700",
+            "form_factor": "MATX",
+            "ram_type": "DDR5",
+            "chipset": "B760",
+            "m2_slots": 2,
+            "sata_ports": 4,
+            "width_mm": 244,
+            "depth_mm": 244
+        },
+        "compatibility": {
+            "cpu_socket": "LGA1700",
+            "ram_type": "DDR5"
+        },
+        "performance_score": 70
+    },
+    {
+        "id": "psu_550w_bronze",
+        "name": "550W 80+ Bronze PSU",
+        "category": "PSU",
+        "brand": "Cooler Master",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_PSU1.webp?raw=true",
+        "description": "A stable and secure 80 Plus Bronze certified power supply module perfect for running energy conscious gaming builds.",
+        "specs": {
+            "wattage": 550,
+            "efficiency": "bronze",
+            "form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 50
+    },
+    {
+        "id": "psu_650w_bronze",
+        "name": "650W 80+ Bronze PSU",
+        "category": "PSU",
+        "brand": "Cooler Master",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_PSU2.webp?raw=true",
+        "description": "Provides clean 650W power rails, accommodating mainstream GPU builds with increased stability margins.",
+        "specs": {
+            "wattage": 650,
+            "efficiency": "bronze",
+            "form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 60
+    },
+    {
+        "id": "psu_750w_bronze",
+        "name": "750W 80+ Bronze PSU",
+        "category": "PSU",
+        "brand": "Corsair",
+        "image_url": "https://c1.neweggimages.com/ProductImage/17-139-323-01.jpg",
+        "description": "A durable, low-noise power distribution box giving hardware enthusiasts extra configuration safety headroom.",
+        "specs": {
+            "wattage": 750,
+            "efficiency": "bronze",
+            "form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 65
+    },
+    {
+        "id": "psu_750w_gold",
+        "name": "750W 80+ Gold PSU",
+        "category": "PSU",
+        "brand": "Corsair",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_PSU4.webp?raw=true",
+        "description": "High-tier 80 Plus Gold certified module delivering extreme power efficiency, fully modular cables, and completely silent operation modes.",
+        "specs": {
+            "wattage": 750,
+            "efficiency": "gold",
+            "form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 75
+    },
+    {
+        "id": "ssd_256gb_sata",
+        "name": "256GB SATA SSD",
+        "category": "Storage",
+        "brand": "Kingston",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/sto1.png?raw=true",
+        "description": "A snappy 2.5-inch storage drive built to dramatically improve boot sequences over aging traditional hard disks.",
+        "specs": {
+            "interface": "SATA",
+            "capacity": 256
+        },
+        "compatibility": {},
+        "performance_score": 35
+    },
+    {
+        "id": "ssd_500gb_sata",
+        "name": "500GB SATA SSD",
+        "category": "Storage",
+        "brand": "Kingston",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_STO2.webp?raw=true",
+        "description": "Mid-sized reliable flash memory offering great storage capability for system files and a modest game library collection.",
+        "specs": {
+            "interface": "SATA",
+            "capacity": 500
+        },
+        "compatibility": {},
+        "performance_score": 40
+    },
+    {
+        "id": "ssd_500gb_nvme",
+        "name": "500GB NVMe SSD",
+        "category": "Storage",
+        "brand": "Kingston",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_STO3.webp?raw=true",
+        "description": "High speed M.2 NVMe layout transferring raw files significantly faster than old legacy SATA connection speeds.",
+        "specs": {
+            "interface": "NVMe",
+            "capacity": 500
+        },
+        "compatibility": {},
+        "performance_score": 55
+    },
+    {
+        "id": "ssd_1tb_nvme",
+        "name": "1TB NVMe SSD",
+        "category": "Storage",
+        "brand": "Samsung",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_STO4.webp?raw=true",
+        "description": "Top-tier 1TB NVMe internal storage module providing bleeding-edge read/write thresholds for gaming and large file transfers.",
+        "specs": {
+            "interface": "NVMe",
+            "capacity": 1000
+        },
+        "compatibility": {},
+        "performance_score": 65
+    },
+    {
+        "id": "cooler_stock",
+        "name": "Stock Cooler",
+        "category": "Cooling",
+        "brand": "AMD/Intel",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_COOL1.webp?raw=true",
+        "description": "The factory-standard thermal solution shipped with low TDP chips, providing safe cooling parameters for baseline operations.",
+        "specs": {
+            "tdp_rating": 65,
+            "height_mm": 54,
+            "type": "air"
+        },
+        "compatibility": {},
+        "performance_score": 40
+    },
+    {
+        "id": "cooler_ak400",
+        "name": "Deepcool AK400",
+        "category": "Cooling",
+        "brand": "Deepcool",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_COOL2.webp?raw=true",
+        "description": "An excellent aftermarket air cooling tower designed to lower system acoustics while managing demanding CPU thermals under load.",
+        "specs": {
+            "tdp_rating": 220,
+            "height_mm": 155,
+            "type": "air"
+        },
+        "compatibility": {},
+        "performance_score": 70
+    },
+    {
+        "id": "aio_coolermaster_ml240l",
+        "name": "Cooler Master ML240L V2",
+        "category": "Cooling",
+        "brand": "Cooler Master",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_COOL3.webp?raw=true",
+        "description": "A striking 240mm liquid cooling loops system featuring an upgraded dual-chamber pump assembly and quiet fans.",
+        "specs": {
+            "tdp_rating": 200,
+            "height_mm": 53,
+            "type": "liquid"
+        },
+        "compatibility": {
+            "cpu_socket": [
+                "AM4",
+                "LGA1700"
+            ]
+        },
+        "performance_score": 75
+    },
+    {
+        "id": "aio_deepcool_le520",
+        "name": "Deepcool LE520",
+        "category": "Cooling",
+        "brand": "Deepcool",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_COOL4.webp?raw=true",
+        "description": "High-efficiency liquid cooling loop fitted with brilliant ARGB lighting grids and advanced leak prevention systems.",
+        "specs": {
+            "tdp_rating": 220,
+            "height_mm": 52,
+            "type": "liquid"
+        },
+        "compatibility": {
+            "cpu_socket": [
+                "AM4",
+                "LGA1700"
+            ]
+        },
+        "performance_score": 78
+    },
+    {
+        "id": "aio_arctic_lf2_360",
+        "name": "Arctic Liquid Freezer II 360",
+        "category": "Cooling",
+        "brand": "Arctic",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_COOL5.webp?raw=true",
+        "description": "An award-winning, industrial-grade 360mm multi-fan AIO built to handle overclocked flagship desktop processing architectures.",
+        "specs": {
+            "tdp_rating": 300,
+            "height_mm": 53,
+            "type": "liquid"
+        },
+        "compatibility": {
+            "cpu_socket": [
+                "AM4",
+                "LGA1700"
+            ]
+        },
+        "performance_score": 85
+    },
+    {
+        "id": "case_tecware_m2",
+        "name": "Tecware Nexus Air M2",
+        "category": "Case",
+        "brand": "Tecware",
+        "image_url": "https://static.wixstatic.com/media/8517ed_8d0ae9a124ad456ca7ff908ef51994cf~mv2.png/v1/fill/w_250,h_250,al_c,q_95,enc_auto/8517ed_8d0ae9a124ad456ca7ff908ef51994cf~mv2.png",
+        "description": "A compact Micro-ATX chassis sporting full high-airflow mesh front fascia panel structures.",
+        "specs": {
+            "form_factor": "MATX",
+            "gpu_length_limit": 330,
+            "height_mm": 400,
+            "width_mm": 210,
+            "depth_mm": 380,
+            "cpu_cooler_limit_mm": 160,
+            "radiator_support": [
+                "240mm",
+                "120mm"
+            ],
+            "psu_form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 50
+    },
+    {
+        "id": "case_tecware_atx",
+        "name": "Tecware Forge M",
+        "category": "Case",
+        "brand": "Tecware",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_CASE2.webp?raw=true",
+        "description": "Spacious full ATX mid-tower chassis offering excellent component layouts and superior radiator mounting configurations.",
+        "specs": {
+            "form_factor": "ATX",
+            "gpu_length_limit": 340,
+            "height_mm": 450,
+            "width_mm": 220,
+            "depth_mm": 420,
+            "cpu_cooler_limit_mm": 165,
+            "radiator_support": [
+                "360mm",
+                "240mm",
+                "120mm"
+            ],
+            "psu_form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 55
+    },
+    {
+        "id": "case_montech_air100",
+        "name": "Montech Air 100 ARGB",
+        "category": "Case",
+        "brand": "Montech",
+        "image_url": "https://github.com/andrewbh1/pc-parts-images/blob/main/processed_CASE3.webp?raw=true",
+        "description": "A highly rated Micro-ATX compact tower shipped pre-installed with four premium addressable RGB cooling loops.",
+        "specs": {
+            "form_factor": "MATX",
+            "gpu_length_limit": 330,
+            "height_mm": 410,
+            "width_mm": 215,
+            "depth_mm": 390,
+            "cpu_cooler_limit_mm": 160,
+            "radiator_support": [
+                "240mm",
+                "120mm"
+            ],
+            "psu_form_factor": "ATX"
+        },
+        "compatibility": {},
+        "performance_score": 60
+    }
+]

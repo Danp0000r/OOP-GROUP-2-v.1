@@ -1,7 +1,4 @@
-"""
-Admin routes — dashboard, component management, user management.
-Protected by login_required + admin_required decorators.
-"""
+
 import json
 import os
 import re
@@ -163,8 +160,11 @@ def add_component():
     specs_data = parse_json_field(request.form.get("specs", ""))
     compatibility_data = parse_json_field(request.form.get("compatibility", ""))
     extra_data = parse_json_field(request.form.get("extra", ""))
+    geometry_data = parse_json_field(request.form.get("geometry", ""))
     if isinstance(extra_data, dict):
         specs_data.update(extra_data)
+    if isinstance(geometry_data, dict) and geometry_data:
+        specs_data["geometry"] = geometry_data
 
     pending_links = []
     pending_prices = []
@@ -253,8 +253,13 @@ def edit_component(cid):
         c.performance_score = 50
     c.specs = parse_json_field(request.form.get("specs", ""))
     extra_data = parse_json_field(request.form.get("extra", ""))
+    geometry_data = parse_json_field(request.form.get("geometry", ""))
     if isinstance(extra_data, dict):
         c.specs.update(extra_data)
+    if isinstance(geometry_data, dict) and geometry_data:
+        specs = c.specs or {}
+        specs["geometry"] = geometry_data
+        c.specs = specs
     c.compatibility = parse_json_field(request.form.get("compatibility", ""))
     c.image_url = request.form.get("image_url", "") or ""
     c.description = request.form.get("description", "") or ""

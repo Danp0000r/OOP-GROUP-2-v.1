@@ -4,7 +4,7 @@ from database.db import db
 from models.user import User
 from models.activity import Activity
 from models.build import Build
-from services.activity_service import ActivityService
+from services.activity.activity_service import ActivityService
 import datetime
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")

@@ -35,7 +35,6 @@ def _make_cache_key(fn, args, kwargs):
 
 
 def memoize(timeout=300):
-    """Decorator for caching function results in memory."""
     def decorator(fn):
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
@@ -58,7 +57,6 @@ def memoize(timeout=300):
 
 
 def clear_cache(prefix=None):
-    """Clear cache entries globally or by key prefix."""
     if prefix is None:
         _cache_store.clear()
         return

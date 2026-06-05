@@ -2,12 +2,10 @@ from services.cache import memoize
 
 
 class ComponentLoader:
-    """Loads components from the database only (no JSON fallback)."""
 
     @staticmethod
     @memoize(timeout=600)
     def load():
-        """Return the cached list of component dicts from database."""
         try:
             from models.component import Component
             components = Component.query.all()

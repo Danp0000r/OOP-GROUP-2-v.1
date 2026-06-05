@@ -1,5 +1,6 @@
 ﻿import json
 import os
+import importlib.util
 from flask import Flask, request, jsonify, render_template, send_from_directory, session
 from flask_login import LoginManager
 
@@ -12,6 +13,9 @@ login_manager = LoginManager()
 def create_app():
 
     app = Flask(__name__, template_folder="templates", static_folder="static")
+    app.config['ENV'] = os.environ.get('FLASK_ENV', 'production')
+    app.config['DEBUG'] = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    app.debug = app.config['DEBUG']
 
     # ensure instance folder exists inside the project
     instance_dir = os.path.join(app.root_path, "instance")
@@ -104,8 +108,13 @@ def create_app():
     app.register_blueprint(questionnaire_bp)
 
     # Register CLI commands for database updates
-    from data.update_db import register_cli_commands
-    register_cli_commands(app)
+    update_db_path = os.path.join(os.path.dirname(__file__), "data reset", "update_db.py")
+    spec = importlib.util.spec_from_file_location("data_reset_update_db", update_db_path)
+    if not spec or not spec.loader:
+        raise ImportError(f"Unable to load database update module from {update_db_path}")
+    update_db_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(update_db_module)
+    update_db_module.register_cli_commands(app)
 
     # Serve and persist Nexus3D positions JSON in the instance folder.
     @app.route('/nexus3d_positions.json', methods=['GET', 'POST'])

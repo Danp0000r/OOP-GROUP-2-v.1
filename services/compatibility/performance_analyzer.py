@@ -1,15 +1,7 @@
 class PerformanceAnalyzer:
-    """Provides performance scores, FPS estimates, bottleneck analysis, and tier ratings.
-    
-    Improvements:
-    - Uses component.performance_score from database (scalable)
-    - FPS based on realistic GPU baselines with CPU modifiers
-    - Transparent estimates with confidence disclaimers
-    """
 
     @staticmethod
     def cpu_score(name_or_component):
-        """Extract CPU performance score from component dict or fallback to name matching."""
         if isinstance(name_or_component, dict):
             return name_or_component.get("performance_score", 50)
         
@@ -28,7 +20,6 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def gpu_score(name_or_component):
-        """Extract GPU performance score from component dict or fallback to name matching."""
         if isinstance(name_or_component, dict):
             return name_or_component.get("performance_score", 50)
         
@@ -46,7 +37,6 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def tier(cpu_s, gpu_s):
-        """Classify build into tier based on GPU-weighted performance."""
         s = gpu_s * 0.7 + cpu_s * 0.3
         # Slightly more conservative thresholds to classify low-end builds as Budget
         if s < 35:
@@ -62,11 +52,6 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def resolution(gpu_s):
-        """Realistic resolution recommendations based on GPU tier.
-        
-        Conservative estimates at High settings (not Ultra).
-        4K recommendations are for Medium-High settings only.
-        """
         if gpu_s >= 75:
             return "1440p High / 4K Medium-High (60+ fps)"
         elif gpu_s >= 58:
@@ -82,7 +67,6 @@ class PerformanceAnalyzer:
     
     @staticmethod
     def fps_disclaimer():
-        """Transparency: explain estimate limitations."""
         return (
             "FPS estimates are approximate conservative benchmarks at 1080p High settings. "
             "Assumes DLSS/FSR enabled where available (recommended for AAA titles). "
@@ -94,13 +78,6 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def fps(cpu_s, gpu_s):
-        """Calculate FPS estimates using baseline tables with CPU modifiers.
-        
-        Strategy:
-        - GPU determines baseline FPS (realistic benchmark-derived)
-        - CPU applies ±10-20% modifier based on balance ratio
-        - Results are conservative estimates; actual varies by drivers, settings
-        """
         # GPU baseline FPS tables (1080p High settings, with DLSS enabled where available)
         # Conservative estimates - actual may vary by driver, OS, background apps
         gpu_baselines = {
@@ -180,10 +157,6 @@ class PerformanceAnalyzer:
 
     @staticmethod
     def upgrades(gpu_s, cpu_s=None, has_gpu=False, ram_capacity=0, psu_w=0):
-        """Smart upgrade suggestions based on current hardware and PSU headroom.
-        
-        Considers: GPU tier, CPU/GPU balance, PSU capacity, RAM adequacy
-        """
         if not has_gpu:
             return ["Add a dedicated GPU for gaming (RTX 4060 or RX 6600 recommended)."]
         

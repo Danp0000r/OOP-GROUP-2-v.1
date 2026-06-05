@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template, request, jsonify, session
 from models.component import Component
 from models.link import Link
-from services.compare_parts_service import compare_components
-from services.activity_service import ActivityService
+from services.comparison.compare_parts_service import compare_components
+from services.activity.activity_service import ActivityService
 
 component_bp = Blueprint("components", __name__)
 
