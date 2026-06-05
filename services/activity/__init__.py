@@ -1,4 +1,3 @@
-
 from .activity_service import ActivityService
 
 __all__ = [

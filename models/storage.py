@@ -1,26 +1,19 @@
 from models.component import Component
 
+
 class Storage:
 
     @staticmethod
     def get_all_storage():
-        return Component.query.filter_by(
-            category="Storage"
-        ).all()
+        return Component.query.filter_by(category="Storage").all()
 
     @staticmethod
     def get_storage_by_name(name):
-        return Component.query.filter_by(
-            category="Storage",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="Storage", name=name).first()
 
     @staticmethod
     def get_storage_by_brand(brand):
-        return Component.query.filter_by(
-            category="Storage",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="Storage", brand=brand).all()
 
     @staticmethod
     def get_storage_by_type(storage_type):
@@ -101,6 +94,3 @@ class Storage:
         if drive:
             return drive.specs.get("write_speed")
         return None
-
-
-

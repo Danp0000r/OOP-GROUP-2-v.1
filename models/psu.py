@@ -1,26 +1,19 @@
 from models.component import Component
 
+
 class PSU:
 
     @staticmethod
     def get_all_psus():
-        return Component.query.filter_by(
-            category="PSU"
-        ).all()
+        return Component.query.filter_by(category="PSU").all()
 
     @staticmethod
     def get_psu_by_name(name):
-        return Component.query.filter_by(
-            category="PSU",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="PSU", name=name).first()
 
     @staticmethod
     def get_psus_by_brand(brand):
-        return Component.query.filter_by(
-            category="PSU",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="PSU", brand=brand).all()
 
     @staticmethod
     def get_psus_by_wattage(wattage):
@@ -85,4 +78,3 @@ class PSU:
         if psu:
             return psu.specs.get("form_factor")
         return None
-

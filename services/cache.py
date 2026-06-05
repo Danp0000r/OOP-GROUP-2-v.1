@@ -13,7 +13,7 @@ def _normalize_value(value):
         return [_normalize_value(item) for item in value]
     if isinstance(value, dict):
         return {str(key): _normalize_value(value[key]) for key in sorted(value)}
-    if hasattr(value, 'to_dict'):
+    if hasattr(value, "to_dict"):
         try:
             return _normalize_value(value.to_dict())
         except Exception:
@@ -26,11 +26,11 @@ def _normalize_value(value):
 
 def _make_cache_key(fn, args, kwargs):
     payload = {
-        'func': f'{fn.__module__}.{fn.__name__}',
-        'args': _normalize_value(args),
-        'kwargs': _normalize_value(kwargs),
+        "func": f"{fn.__module__}.{fn.__name__}",
+        "args": _normalize_value(args),
+        "kwargs": _normalize_value(kwargs),
     }
-    raw = json.dumps(payload, sort_keys=True, separators=(',', ':'), ensure_ascii=False)
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return f"{payload['func']}:{hashlib.sha256(raw.encode('utf-8')).hexdigest()}"
 
 
@@ -41,12 +41,12 @@ def memoize(timeout=300):
             key = _make_cache_key(fn, args, kwargs)
             now = time.time()
             entry = _cache_store.get(key)
-            if entry is not None and entry['expires_at'] > now:
-                return entry['value']
+            if entry is not None and entry["expires_at"] > now:
+                return entry["value"]
             value = fn(*args, **kwargs)
             _cache_store[key] = {
-                'value': value,
-                'expires_at': now + timeout,
+                "value": value,
+                "expires_at": now + timeout,
             }
             return value
 

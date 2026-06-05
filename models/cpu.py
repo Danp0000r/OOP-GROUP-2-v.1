@@ -6,51 +6,31 @@ class CPU:
     @staticmethod
     def get_all_cpus():
 
-        return Component.query.filter_by(
-            category="CPU"
-        ).all()
+        return Component.query.filter_by(category="CPU").all()
 
     @staticmethod
     def get_cpu_by_name(name):
 
-        return Component.query.filter_by(
-            category="CPU",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="CPU", name=name).first()
 
     @staticmethod
     def get_cpus_by_brand(brand):
 
-        return Component.query.filter_by(
-            category="CPU",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="CPU", brand=brand).all()
 
     @staticmethod
     def get_cpus_by_socket(socket):
 
         cpus = CPU.get_all_cpus()
 
-        return [
-
-            cpu for cpu in cpus
-
-            if cpu.specs.get("socket") == socket
-
-        ]
+        return [cpu for cpu in cpus if cpu.specs.get("socket") == socket]
 
     @staticmethod
     def get_cpus_by_core_count(core_count):
 
         cpus = CPU.get_all_cpus()
 
-        return [
-
-            cpu for cpu in cpus
-
-            if cpu.specs.get("cores") == core_count
-
-        ]
+        return [cpu for cpu in cpus if cpu.specs.get("cores") == core_count]
 
     @staticmethod
     def get_cpu_socket(name):

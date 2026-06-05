@@ -7,9 +7,7 @@ import logging
 from pathlib import Path
 
 # Root project directory
-ROOT_DIR = os.path.dirname(
-    os.path.dirname(__file__)
-)
+ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +34,7 @@ def ensure_users_created_at(users_db_path):
         except Exception:
             pass
 
+
 # Allow root imports
 sys.path.insert(0, ROOT_DIR)
 
@@ -53,9 +52,7 @@ def load_json_file(path):
 
     if not os.path.exists(path):
 
-        raise FileNotFoundError(
-            f"Required data file not found: {path}"
-        )
+        raise FileNotFoundError(f"Required data file not found: {path}")
 
     with open(path, "r", encoding="utf-8") as file:
 
@@ -93,7 +90,9 @@ def update_database():
         engine = db.engines["components"]
         Link.__table__.drop(engine, checkfirst=True)
         Component.__table__.drop(engine, checkfirst=True)
-        db.metadata.create_all(bind=engine, tables=[Component.__table__, Link.__table__])
+        db.metadata.create_all(
+            bind=engine, tables=[Component.__table__, Link.__table__]
+        )
 
         # Also recreate main DB tables (users/builds) in the default bind (users.db)
         # Remove any existing users.db to ensure schema matches models
@@ -123,22 +122,12 @@ def update_database():
         db.session.commit()
 
         # JSON file paths
-        components_path = os.path.join(
-            ROOT_DIR,
-            "data reset",
-            "components.json"
-        )
+        components_path = os.path.join(ROOT_DIR, "data reset", "components.json")
 
-        links_path = os.path.join(
-            ROOT_DIR,
-            "data reset",
-            "links.json"
-        )
+        links_path = os.path.join(ROOT_DIR, "data reset", "links.json")
 
         # Load components
-        components = load_json_file(
-            components_path
-        )
+        components = load_json_file(components_path)
 
         for item in components:
 
@@ -165,33 +154,18 @@ def update_database():
                 raw_description = ", ".join(parts)
 
             component = Component(
-
                 external_id=item.get("id"),
-
                 name=item.get("name"),
-
                 category=item.get("category"),
-
                 brand=item.get("brand"),
-
                 specs=specs,
-
                 compatibility=item.get("compatibility", {}),
-
                 # Components no longer carry a default price in components.json.
                 # Price will be derived from associated links (lowest link price).
                 price=0,
-
-                performance_score=item.get(
-                    "performance_score",
-                    50
-                ),
-
-                image_url=item.get(
-                    "image_url",
-                    ""
-                ),
-                description=raw_description
+                performance_score=item.get("performance_score", 50),
+                image_url=item.get("image_url", ""),
+                description=raw_description,
             )
 
             db.session.add(component)
@@ -215,7 +189,9 @@ def update_database():
 
             # Fallback: case-insensitive contains match
             if not component and name:
-                component = Component.query.filter(Component.name.ilike(f"%{name}%")).first()
+                component = Component.query.filter(
+                    Component.name.ilike(f"%{name}%")
+                ).first()
 
             if not component:
                 unmatched += 1
@@ -243,7 +219,9 @@ def update_database():
         for comp in all_components:
             link_rows = Link.query.filter_by(component_id=comp.component_id).all()
             if link_rows:
-                prices = [float(l.price or 0) for l in link_rows if (l.price is not None)]
+                prices = [
+                    float(l.price or 0) for l in link_rows if (l.price is not None)
+                ]
                 comp.price = min(prices) if prices else 0
             else:
                 comp.price = 0
@@ -276,7 +254,13 @@ def update_database():
                 for b in u.get("builds", []):
                     comp_ids = b.get("component_ids", []) or []
                     # compute total price from component prices
-                    comps = Component.query.filter(Component.component_id.in_(comp_ids)).all() if comp_ids else []
+                    comps = (
+                        Component.query.filter(
+                            Component.component_id.in_(comp_ids)
+                        ).all()
+                        if comp_ids
+                        else []
+                    )
                     total = sum([float(c.price or 0) for c in comps])
                     build = Build(
                         user_id=user.user_id,
@@ -284,7 +268,7 @@ def update_database():
                         component_ids=json.dumps(comp_ids),
                         total_price=total,
                         compatibility_status=b.get("compatibility_status", ""),
-                        created_at=datetime.datetime.utcnow()
+                        created_at=datetime.datetime.utcnow(),
                     )
                     db.session.add(build)
                     builds_added += 1
@@ -293,26 +277,31 @@ def update_database():
                 db.session.rollback()
                 continue
 
-        logger.info(f"Database updated successfully! Components: {len(components)}, Links added: {added}, Unmatched links: {unmatched}, Users added: {users_added}, Builds added: {builds_added}")
-        
+        logger.info(
+            f"Database updated successfully! Components: {len(components)}, Links added: {added}, Unmatched links: {unmatched}, Users added: {users_added}, Builds added: {builds_added}"
+        )
+
         return {
             "components": len(components),
             "links_added": added,
             "unmatched_links": unmatched,
             "users_added": users_added,
-            "builds_added": builds_added
+            "builds_added": builds_added,
         }
 
 
 def register_cli_commands(app):
     """Register database update command with Flask CLI"""
+
     @app.cli.command()
     def update_db():
         """Update database with JSON data"""
         try:
             result = update_database()
             logger.info("Database update completed successfully")
-            print(f"✓ Database updated: {result['components']} components, {result['links_added']} links, {result['users_added']} users")
+            print(
+                f"✓ Database updated: {result['components']} components, {result['links_added']} links, {result['users_added']} users"
+            )
         except Exception as e:
             logger.error(f"Database update failed: {str(e)}", exc_info=True)
             print(f"✗ Database update failed: {str(e)}")

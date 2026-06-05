@@ -9,10 +9,7 @@ class User(UserMixin, db.Model):
 
     __tablename__ = "users"
 
-    user_id = db.Column(
-        db.Integer,
-        primary_key=True
-    )
+    user_id = db.Column(db.Integer, primary_key=True)
 
     def get_id(self):
         return str(self.user_id)
@@ -21,51 +18,25 @@ class User(UserMixin, db.Model):
     def id(self):
         return self.user_id
 
-    username = db.Column(
-        db.String(100),
-        unique=True,
-        nullable=False
-    )
+    username = db.Column(db.String(100), unique=True, nullable=False)
 
-    password = db.Column(
-        db.String(255),
-        nullable=False
-    )
+    password = db.Column(db.String(255), nullable=False)
 
-    email = db.Column(
-        db.String(255)
-    )
+    email = db.Column(db.String(255))
 
-    profile_picture = db.Column(
-        db.String(500),
-        default=None
-    )
+    profile_picture = db.Column(db.String(500), default=None)
 
-    is_admin = db.Column(
-        db.Boolean,
-        default=False
-    )
+    is_admin = db.Column(db.Boolean, default=False)
 
-    country = db.Column(
-        db.String(100),
-        default="Philippines"
-    )
+    country = db.Column(db.String(100), default="Philippines")
 
     created_at = db.Column(
-        db.DateTime,
-        default=datetime.datetime.utcnow,
-        nullable=False
+        db.DateTime, default=datetime.datetime.utcnow, nullable=False
     )
 
-    is_active = db.Column(
-        db.Boolean,
-        default=False
-    )
+    is_active = db.Column(db.Boolean, default=False)
 
-    last_active = db.Column(
-        db.DateTime,
-        nullable=True
-    )
+    last_active = db.Column(db.DateTime, nullable=True)
 
     def set_password(self, raw):
         self.password = generate_password_hash(raw)

@@ -1,11 +1,10 @@
 from models.component import Component
 
+
 class RAM:
     @staticmethod
     def get_all_ram():
-        return Component.query.filter_by(
-            category="RAM"
-        ).all()
+        return Component.query.filter_by(category="RAM").all()
 
     @staticmethod
     def get_all_rams():
@@ -13,10 +12,7 @@ class RAM:
 
     @staticmethod
     def get_ram_by_name(name):
-        return Component.query.filter_by(
-            category="RAM",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="RAM", name=name).first()
 
     @staticmethod
     def get_ram_name(name):
@@ -25,10 +21,7 @@ class RAM:
     @staticmethod
     def get_ram_brand(brand):
 
-        return Component.query.filter_by(
-            category="RAM",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="RAM", brand=brand).all()
 
     @staticmethod
     def get_ram_by_type(ram_type):

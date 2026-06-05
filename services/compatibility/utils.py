@@ -1,12 +1,15 @@
 import re
 
+
 class Utils:
 
     @staticmethod
     def norm(text):
         if not text:
             return ""
-        return " ".join(re.findall(r"[a-z0-9]+", re.sub(r"[_\-]+", " ", str(text)).lower()))
+        return " ".join(
+            re.findall(r"[a-z0-9]+", re.sub(r"[_\-]+", " ", str(text)).lower())
+        )
 
     @staticmethod
     def num(value):

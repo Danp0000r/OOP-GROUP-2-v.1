@@ -12,14 +12,21 @@ class CompatibilityService:
     def evaluate_build(parts_input):
         # ── 1. Detect components ────────────────────────────────
         # Accept either: a free-form string/list of names, or a list of component dicts
-        if isinstance(parts_input, list) and parts_input and isinstance(parts_input[0], dict):
+        if (
+            isinstance(parts_input, list)
+            and parts_input
+            and isinstance(parts_input[0], dict)
+        ):
             # Already-provided component dicts (e.g. from DB) — use directly
-            detected = [{
-                "input": p.get("name") or str(p),
-                "component": p,
-                "source": p.get("source", "provided"),
-                "verified": p.get("verified", True),
-            } for p in parts_input]
+            detected = [
+                {
+                    "input": p.get("name") or str(p),
+                    "component": p,
+                    "source": p.get("source", "provided"),
+                    "verified": p.get("verified", True),
+                }
+                for p in parts_input
+            ]
         else:
             detected = ComponentMatcher.detect_components(parts_input)
 
@@ -27,11 +34,14 @@ class CompatibilityService:
         unknown = [i["input"] for i in detected if i["component"] is None]
         unknown_issues = []
         if unknown:
-            unknown_issues = [{
-                "severity": "warning",
-                "component": u,
-                "message": f"Unknown component: {u}. Analysis is based on known parts only."
-            } for u in unknown]
+            unknown_issues = [
+                {
+                    "severity": "warning",
+                    "component": u,
+                    "message": f"Unknown component: {u}. Analysis is based on known parts only.",
+                }
+                for u in unknown
+            ]
 
         # ── 3. Group by category ────────────────────────────────
         groups = {}
@@ -102,7 +112,9 @@ class CompatibilityService:
             res = PerformanceAnalyzer.resolution(gpu_s)
             fps_data = PerformanceAnalyzer.fps(cpu_s, gpu_s)
             bot = PerformanceAnalyzer.bottleneck(cpu_s, gpu_s)
-            ups = PerformanceAnalyzer.upgrades(gpu_s, cpu_s=cpu_s, has_gpu=True, ram_capacity=ram_cap, psu_w=psu_w)
+            ups = PerformanceAnalyzer.upgrades(
+                gpu_s, cpu_s=cpu_s, has_gpu=True, ram_capacity=ram_cap, psu_w=psu_w
+            )
         elif status != "incompatible" and cpu and not gpu:
             cpu_s = PerformanceAnalyzer.cpu_score(cpu)
             gpu_s = 0
@@ -110,21 +122,25 @@ class CompatibilityService:
             res = PerformanceAnalyzer.resolution(gpu_s)
             fps_data = PerformanceAnalyzer.fps(cpu_s, gpu_s)
             bot = PerformanceAnalyzer.bottleneck(cpu_s, gpu_s)
-            ups = PerformanceAnalyzer.upgrades(gpu_s, cpu_s=cpu_s, has_gpu=False, psu_w=psu_w)
+            ups = PerformanceAnalyzer.upgrades(
+                gpu_s, cpu_s=cpu_s, has_gpu=False, psu_w=psu_w
+            )
 
         # ── 8. Build output parts list ──────────────────────────
         parts_out = []
         for i in detected:
             c = i["component"]
             p = Utils.num(c.get("price")) if c else None
-            parts_out.append({
-                "name": c.get("name", i["input"]) if c else i["input"],
-                "type": c.get("category", "Unknown") if c else "Unknown",
-                "source": i["source"],
-                "verified": i["verified"],
-                "price": p,
-                "priceFormatted": f"₱{p:,.2f}" if p else "N/A"
-            })
+            parts_out.append(
+                {
+                    "name": c.get("name", i["input"]) if c else i["input"],
+                    "type": c.get("category", "Unknown") if c else "Unknown",
+                    "source": i["source"],
+                    "verified": i["verified"],
+                    "price": p,
+                    "priceFormatted": f"₱{p:,.2f}" if p else "N/A",
+                }
+            )
 
         # ── 9. Return final report ──────────────────────────────
         return {
@@ -143,5 +159,5 @@ class CompatibilityService:
             "bottleneckAnalysis": bot,
             "gamingResolution": res,
             "estimatedFps": fps_data or {},
-            "upgradeSuggestions": ups
+            "upgradeSuggestions": ups,
         }

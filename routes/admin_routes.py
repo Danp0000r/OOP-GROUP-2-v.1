@@ -1,16 +1,24 @@
-
 import json
 import os
 import re
 from urllib.parse import urlparse, urlunparse
-from flask import Blueprint, render_template, redirect, url_for, request, flash, session, jsonify
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    request,
+    flash,
+    session,
+    jsonify,
+)
 from functools import wraps
 from sqlalchemy.exc import IntegrityError
 from database.db import db
 from models.component import Component
-from models.link      import Link
-from models.user      import User
-from models.build     import Build
+from models.link import Link
+from models.user import User
+from models.build import Build
 from services.cache import clear_cache
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -23,6 +31,7 @@ def admin_required(f):
             flash("Admin access required.", "danger")
             return redirect(url_for("auth.login"))
         return f(*args, **kwargs)
+
     return decorated
 
 
@@ -31,18 +40,22 @@ def admin_required(f):
 def dashboard():
     from sqlalchemy import func
     import datetime
-    
-    cat_counts = dict(db.session.query(Component.category, func.count(Component.component_id)).group_by(Component.category).all())
+
+    cat_counts = dict(
+        db.session.query(Component.category, func.count(Component.component_id))
+        .group_by(Component.category)
+        .all()
+    )
     stats = {
-        "components":  Component.query.count(),
-        "users":       User.query.count(),
-        "builds":      Build.query.count(),
-        "links":       Link.query.count(),
+        "components": Component.query.count(),
+        "users": User.query.count(),
+        "builds": Build.query.count(),
+        "links": Link.query.count(),
         "by_category": cat_counts,
     }
     components = Component.query.order_by(Component.category, Component.name).all()
     users = User.query.order_by(User.created_at.desc()).all()
-    
+
     # Add online status to each user (based on last_active timestamp)
     inactivity_timeout_seconds = 120
     now = datetime.datetime.utcnow()
@@ -52,15 +65,17 @@ def dashboard():
             user.is_online = time_since_last_active < inactivity_timeout_seconds
         else:
             user.is_online = False
-    
-    return render_template("admin/dashboard.html", stats=stats, components=components, users=users)
+
+    return render_template(
+        "admin/dashboard.html", stats=stats, components=components, users=users
+    )
 
 
 @admin_bp.route("/components")
 @admin_required
 def manage_components():
     category = request.args.get("category", "")
-    search   = request.args.get("search", "")
+    search = request.args.get("search", "")
     q = Component.query
     if category:
         q = q.filter_by(category=category)
@@ -69,11 +84,14 @@ def manage_components():
     components = q.order_by(Component.category, Component.name).all()
     selected_id = request.args.get("selected")
     categories = db.session.query(Component.category).distinct().all()
-    return render_template("admin/manage_components.html",
-                           components=components,
-                           categories=[c[0] for c in categories],
-                           search=search, active_category=category,
-                           selected_component_id=selected_id)
+    return render_template(
+        "admin/manage_components.html",
+        components=components,
+        categories=[c[0] for c in categories],
+        search=search,
+        active_category=category,
+        selected_component_id=selected_id,
+    )
 
 
 def parse_json_field(value, default=None):
@@ -108,14 +126,14 @@ def _normalize_pending_links(raw_links):
     normalized = []
     seen = set()
     for item in raw_links or []:
-        store = (item.get('store_name') or item.get('store') or '').strip()
-        url = (item.get('url') or '').strip()
+        store = (item.get("store_name") or item.get("store") or "").strip()
+        url = (item.get("url") or "").strip()
         if not url:
             continue
-        if url and not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', url):
-            url = f'https://{url}'
+        if url and not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", url):
+            url = f"https://{url}"
         try:
-            price = float(item.get('price', 0) or 0)
+            price = float(item.get("price", 0) or 0)
         except (ValueError, TypeError):
             continue
         if price <= 0:
@@ -124,7 +142,7 @@ def _normalize_pending_links(raw_links):
         if key in seen:
             continue
         seen.add(key)
-        normalized.append({'store_name': store, 'url': url, 'price': price})
+        normalized.append({"store_name": store, "url": url, "price": price})
     return normalized
 
 
@@ -141,7 +159,9 @@ def _redirect_back(default_endpoint="admin.manage_components"):
     if path.rstrip("/") == "/admin":
         return redirect(url_for("admin.dashboard", tab="components"))
 
-    return redirect(urlunparse(("", "", path, parsed.params, parsed.query, parsed.fragment)))
+    return redirect(
+        urlunparse(("", "", path, parsed.params, parsed.query, parsed.fragment))
+    )
 
 
 @admin_bp.route("/components/add", methods=["POST"])
@@ -168,7 +188,7 @@ def add_component():
 
     pending_links = []
     pending_prices = []
-    pending_raw = request.form.get('pending_links', '')
+    pending_raw = request.form.get("pending_links", "")
     if pending_raw:
         try:
             parsed_pending = json.loads(pending_raw)
@@ -176,9 +196,9 @@ def add_component():
                 pending_links = _normalize_pending_links(parsed_pending)
         except Exception:
             pending_links = []
-    for item in (pending_links or []):
+    for item in pending_links or []:
         try:
-            item_price = float(item.get('price', 0) or 0)
+            item_price = float(item.get("price", 0) or 0)
         except (ValueError, TypeError):
             continue
         if item_price > 0:
@@ -186,11 +206,16 @@ def add_component():
     if pending_prices:
         price_val = min(pending_prices)
 
-    external_id = normalize_external_id(request.form.get("external_id", ""), request.form.get("name", ""))
+    external_id = normalize_external_id(
+        request.form.get("external_id", ""), request.form.get("name", "")
+    )
 
     existing_component = Component.query.filter_by(external_id=external_id).first()
     if existing_component:
-        flash(f"External ID '{external_id}' is already in use. Please choose a different external ID.", "danger")
+        flash(
+            f"External ID '{external_id}' is already in use. Please choose a different external ID.",
+            "danger",
+        )
         return redirect(url_for("admin.manage_components"))
 
     c = Component(
@@ -203,29 +228,40 @@ def add_component():
         compatibility=compatibility_data,
         performance_score=perf_score,
         image_url=request.form.get("image_url", "") or "",
-        description=request.form.get("description", "") or ""
+        description=request.form.get("description", "") or "",
     )
     db.session.add(c)
     try:
         db.session.commit()
     except IntegrityError as exc:
         db.session.rollback()
-        flash("Failed to add component: duplicate external ID or database constraint violation.", "danger")
+        flash(
+            "Failed to add component: duplicate external ID or database constraint violation.",
+            "danger",
+        )
         return redirect(url_for("admin.manage_components"))
 
     # handle any pending links submitted along with the new component
-    for p in (pending_links or []):
-        raw_url = (p.get('url', '') or '').strip()
-        if raw_url and not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', raw_url):
-            raw_url = f'https://{raw_url}'
-        link = Link(component_id=c.component_id, store=p.get('store_name') or p.get('store') or '', url=raw_url, price=float(p.get('price') or 0))
+    for p in pending_links or []:
+        raw_url = (p.get("url", "") or "").strip()
+        if raw_url and not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", raw_url):
+            raw_url = f"https://{raw_url}"
+        link = Link(
+            component_id=c.component_id,
+            store=p.get("store_name") or p.get("store") or "",
+            url=raw_url,
+            price=float(p.get("price") or 0),
+        )
         db.session.add(link)
     if pending_links:
         try:
             db.session.commit()
         except Exception:
             db.session.rollback()
-            flash("Component was added but links could not be saved. Please edit the component to add links.", "warning")
+            flash(
+                "Component was added but links could not be saved. Please edit the component to add links.",
+                "warning",
+            )
             return redirect(url_for("admin.manage_components"))
 
     clear_cache()
@@ -279,9 +315,14 @@ def edit_component(cid):
         db.session.query(Link).filter_by(component_id=c.component_id).delete()
         for p in pending_links:
             raw_url = (p.get("url", "") or "").strip()
-            if raw_url and not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', raw_url):
-                raw_url = f'https://{raw_url}'
-            link = Link(component_id=c.component_id, store=p.get('store_name') or p.get('store') or '', url=raw_url, price=float(p.get('price') or 0))
+            if raw_url and not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", raw_url):
+                raw_url = f"https://{raw_url}"
+            link = Link(
+                component_id=c.component_id,
+                store=p.get("store_name") or p.get("store") or "",
+                url=raw_url,
+                price=float(p.get("price") or 0),
+            )
             db.session.add(link)
         try:
             db.session.commit()
@@ -291,7 +332,12 @@ def edit_component(cid):
             return _redirect_back()
 
     from sqlalchemy import func
-    min_price = db.session.query(func.min(Link.price)).filter_by(component_id=c.component_id).scalar()
+
+    min_price = (
+        db.session.query(func.min(Link.price))
+        .filter_by(component_id=c.component_id)
+        .scalar()
+    )
     if min_price is not None:
         c.price = float(min_price)
         db.session.commit()
@@ -323,23 +369,25 @@ def get_links(cid):
 @admin_required
 def get_component_details(cid):
     c = Component.query.get_or_404(cid)
-    return jsonify({
-        "id": c.id,
-        "name": c.name,
-        "brand": c.brand,
-        "category": c.category,
-        "external_id": c.external_id,
-        "price": c.price,
-        "performance_score": c.performance_score,
-        "image_url": c.image_url,
-        "description": c.description,
-        "specs": c.specs or {},
-        "compatibility": c.compatibility or {},
-        "links": [
-            {"id": l.link_id, "store": l.store, "url": l.url, "price": l.price}
-            for l in c.links
-        ]
-    })
+    return jsonify(
+        {
+            "id": c.id,
+            "name": c.name,
+            "brand": c.brand,
+            "category": c.category,
+            "external_id": c.external_id,
+            "price": c.price,
+            "performance_score": c.performance_score,
+            "image_url": c.image_url,
+            "description": c.description,
+            "specs": c.specs or {},
+            "compatibility": c.compatibility or {},
+            "links": [
+                {"id": l.link_id, "store": l.store, "url": l.url, "price": l.price}
+                for l in c.links
+            ],
+        }
+    )
 
 
 @admin_bp.route("/components/<int:cid>/links/add", methods=["POST"])
@@ -349,7 +397,7 @@ def add_link(cid):
     if not data:
         return jsonify({"error": "Invalid data"}), 400
     raw_url = (data.get("url", "") or "").strip()
-    if raw_url and not re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*://', raw_url):
+    if raw_url and not re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*://", raw_url):
         raw_url = f"https://{raw_url}"
 
     link = Link(
@@ -403,11 +451,11 @@ def toggle_admin(uid):
 def get_users_status():
     """Get online/offline status for all users (JSON endpoint for real-time updates)"""
     import datetime
-    
+
     users = User.query.order_by(User.created_at.desc()).all()
     inactivity_timeout_seconds = 120  # Mark offline after 2 minutes of no heartbeat
     now = datetime.datetime.utcnow()
-    
+
     users_data = []
     for user in users:
         # Determine if user is online
@@ -415,19 +463,19 @@ def get_users_status():
         if user.last_active:
             time_since_last_active = (now - user.last_active).total_seconds()
             is_online = time_since_last_active < inactivity_timeout_seconds
-        
-        users_data.append({
-            'id': user.user_id,
-            'username': user.username,
-            'email': user.email,
-            'is_admin': user.is_admin,
-            'is_online': is_online,
-            'last_active': user.last_active.isoformat() if user.last_active else None,
-            'profile_picture': user.profile_picture
-        })
-    
-    return jsonify({
-        "success": True,
-        "users": users_data,
-        "timestamp": now.isoformat()
-    })
+
+        users_data.append(
+            {
+                "id": user.user_id,
+                "username": user.username,
+                "email": user.email,
+                "is_admin": user.is_admin,
+                "is_online": is_online,
+                "last_active": (
+                    user.last_active.isoformat() if user.last_active else None
+                ),
+                "profile_picture": user.profile_picture,
+            }
+        )
+
+    return jsonify({"success": True, "users": users_data, "timestamp": now.isoformat()})

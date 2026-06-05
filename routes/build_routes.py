@@ -1,5 +1,15 @@
 import json
-from flask import Blueprint, render_template, redirect, url_for, flash, request, session, jsonify, Response
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+    request,
+    session,
+    jsonify,
+    Response,
+)
 from database.db import db
 from models.build import Build
 from models.component import Component
@@ -27,17 +37,18 @@ def calculate_build_total(component_ids):
     components = Component.query.filter(Component.component_id.in_(component_ids)).all()
     return sum(c.price for c in components)
 
+
 build_bp = Blueprint("build", __name__)
 
 
 @build_bp.route("/builder")
 def builder():
     from sqlalchemy.orm import joinedload
-    
+
     # Check if a build_id is provided to load
     build_id = request.args.get("build_id")
     selected_build = None
-    
+
     if build_id:
         try:
             build_id = int(build_id)
@@ -46,17 +57,23 @@ def builder():
                 selected_build = None
         except (ValueError, TypeError):
             selected_build = None
-    
-    components = Component.query.options(joinedload(Component.links)).order_by(Component.category).all()
+
+    components = (
+        Component.query.options(joinedload(Component.links))
+        .order_by(Component.category)
+        .all()
+    )
     categories = sorted(set(c.category for c in components))
-    
+
     return render_template(
         "builder/builder.html",
         components=components,
         categories=categories,
         is_admin=session.get("is_admin", False),
         selected_build=selected_build,
-        selected_build_components=parse_component_ids(selected_build.component_ids) if selected_build else []
+        selected_build_components=(
+            parse_component_ids(selected_build.component_ids) if selected_build else []
+        ),
     )
 
 
@@ -73,7 +90,11 @@ def saved_builds():
         flash("Your session is no longer valid. Please log in again.", "warning")
         return redirect(url_for("auth.login"))
 
-    builds = Build.query.filter_by(user_id=session["user_id"]).order_by(Build.created_at.desc()).all()
+    builds = (
+        Build.query.filter_by(user_id=session["user_id"])
+        .order_by(Build.created_at.desc())
+        .all()
+    )
 
     total_spend = 0
     total_parts = 0
@@ -100,8 +121,8 @@ def saved_builds():
 def save_build():
     if "user_id" not in session:
         return jsonify({"error": "Login required"}), 401
-    data          = request.get_json()
-    name          = data.get("name", "My Build")
+    data = request.get_json()
+    name = data.get("name", "My Build")
     component_ids = data.get("component_ids", [])
     build = Build(
         name=name,
@@ -111,10 +132,10 @@ def save_build():
     )
     db.session.add(build)
     db.session.commit()
-    
+
     # Log activity
     ActivityService.log_build_created(session["user_id"], name)
-    
+
     return jsonify({"message": "Build saved!", "id": build.id})
 
 
@@ -125,11 +146,11 @@ def delete_build(build_id):
     build = Build.query.filter_by(build_id=build_id, user_id=session["user_id"]).first()
     if not build:
         return jsonify({"error": "Build not found"}), 404
-    
+
     # Log activity before deletion
     build_name = build.name
     ActivityService.log_build_deleted(session["user_id"], build_name)
-    
+
     db.session.delete(build)
     db.session.commit()
     return jsonify({"message": "Build deleted."})
@@ -143,12 +164,12 @@ def update_build(build_id):
     if not build:
         return jsonify({"error": "Build not found"}), 404
     data = request.get_json() or {}
-    
+
     # Update name if provided
     name = data.get("name")
     if name is not None:
         build.name = str(name).strip() or "My Build"
-    
+
     # Update component_ids if provided
     component_ids = data.get("component_ids")
     if component_ids is not None:
@@ -157,16 +178,16 @@ def update_build(build_id):
             build.total_price = calculate_build_total(component_ids)
         else:
             return jsonify({"error": "component_ids must be a list"}), 400
-    
+
     # Check if anything was updated
     if name is None and component_ids is None:
         return jsonify({"error": "No fields to update."}), 400
-    
+
     db.session.commit()
-    
+
     # Log activity
     ActivityService.log_build_updated(session["user_id"], build.name)
-    
+
     return jsonify({"message": "Build updated.", "name": build.name})
 
 
@@ -179,21 +200,21 @@ def import_build():
     data = None
     if request.is_json:
         data = request.get_json()
-    elif 'file' in request.files:
+    elif "file" in request.files:
         # uploaded file — try JSON first, otherwise treat as text
-        raw = request.files['file'].read()
+        raw = request.files["file"].read()
         try:
-            data = json.loads(raw.decode('utf-8'))
+            data = json.loads(raw.decode("utf-8"))
         except Exception:
             try:
-                data = raw.decode('utf-8')
+                data = raw.decode("utf-8")
             except Exception:
                 return jsonify({"error": "Invalid file encoding."}), 400
     else:
         # raw body: could be JSON or plain text
-        raw = request.get_data(as_text=True) or ''
+        raw = request.get_data(as_text=True) or ""
         raw_stripped = raw.strip()
-        if raw_stripped.startswith('{') or raw_stripped.startswith('['):
+        if raw_stripped.startswith("{") or raw_stripped.startswith("["):
             try:
                 data = json.loads(raw_stripped)
             except Exception:
@@ -202,17 +223,24 @@ def import_build():
             data = raw
 
     # If it's a JSON import, expect name + component_ids
-    if data and isinstance(data, dict) and 'component_ids' in data and isinstance(data['component_ids'], list):
-        component_ids = [int(x) for x in data['component_ids'] if str(x).isdigit()]
+    if (
+        data
+        and isinstance(data, dict)
+        and "component_ids" in data
+        and isinstance(data["component_ids"], list)
+    ):
+        component_ids = [int(x) for x in data["component_ids"] if str(x).isdigit()]
         build = Build(
-            name=data.get('name', 'Imported Build'),
-            user_id=session['user_id'],
+            name=data.get("name", "Imported Build"),
+            user_id=session["user_id"],
             component_ids=json.dumps(component_ids),
             total_price=calculate_build_total(component_ids),
         )
         db.session.add(build)
         db.session.commit()
-        return jsonify({"message": "Build imported.", "id": build.id, "name": build.name})
+        return jsonify(
+            {"message": "Build imported.", "id": build.id, "name": build.name}
+        )
 
     # Otherwise, try to parse a plaintext export (.txt) created by export_build()
     # Expected lines: "<category> <name> (Brand)  —  P<price>". We'll extract name and brand and try to resolve components.
@@ -220,7 +248,7 @@ def import_build():
         text = data
     else:
         # if original request was a file, `data` may be None here; try raw body
-        text = request.get_data(as_text=True) or ''
+        text = request.get_data(as_text=True) or ""
 
     if text:
         lines = [l.strip() for l in text.splitlines() if l.strip()]
@@ -228,32 +256,47 @@ def import_build():
         comp_lines = []
         for l in lines:
             # skip header/date/divider lines
-            if l.startswith('BuildLab') or l.startswith('Saved:') or set(l) == {'='}:
+            if l.startswith("BuildLab") or l.startswith("Saved:") or set(l) == {"="}:
                 continue
             # match category + name + (brand) — categories and names separated by multiple spaces
             import re
-            m = re.match(r"^(?P<category>.+?)\s{2,}(?P<name>.+?)\s*\((?P<brand>[^)]+)\)\s*[-–—]{1,3}\s*P(?P<price>[0-9,\,\.]+)$", l)
+
+            m = re.match(
+                r"^(?P<category>.+?)\s{2,}(?P<name>.+?)\s*\((?P<brand>[^)]+)\)\s*[-–—]{1,3}\s*P(?P<price>[0-9,\,\.]+)$",
+                l,
+            )
             if m:
-                comp_lines.append((m.group('name').strip(), m.group('brand').strip()))
+                comp_lines.append((m.group("name").strip(), m.group("brand").strip()))
         # Resolve component ids by exact name+brand then name-only fallback
         resolved_ids = []
         from models.component import Component as CompModel
+
         for name, brand in comp_lines:
             c = CompModel.query.filter_by(name=name, brand=brand).first()
             if not c:
                 # try case-insensitive name match
-                c = CompModel.query.filter(CompModel.name.ilike(f"%{name}%"), CompModel.brand.ilike(f"%{brand}%")).first()
+                c = CompModel.query.filter(
+                    CompModel.name.ilike(f"%{name}%"),
+                    CompModel.brand.ilike(f"%{brand}%"),
+                ).first()
             if not c:
                 c = CompModel.query.filter(CompModel.name.ilike(f"%{name}%")).first()
             if c:
                 resolved_ids.append(c.component_id)
 
         if not resolved_ids:
-            return jsonify({"error": "Could not resolve any components from the provided text. Try JSON import or ensure names/brands match."}), 400
+            return (
+                jsonify(
+                    {
+                        "error": "Could not resolve any components from the provided text. Try JSON import or ensure names/brands match."
+                    }
+                ),
+                400,
+            )
 
         build = Build(
-            name=(lines[0] if lines else 'Imported Build'),
-            user_id=session['user_id'],
+            name=(lines[0] if lines else "Imported Build"),
+            user_id=session["user_id"],
             component_ids=json.dumps(resolved_ids),
             total_price=calculate_build_total(resolved_ids),
         )
@@ -273,8 +316,8 @@ def export_build(build_id):
         return redirect(url_for("build.saved_builds"))
 
     component_ids = parse_component_ids(build.component_ids)
-    components    = Component.query.filter(Component.component_id.in_(component_ids)).all()
-    comp_map      = {c.id: c for c in components}
+    components = Component.query.filter(Component.component_id.in_(component_ids)).all()
+    comp_map = {c.id: c for c in components}
 
     lines = []
     lines.append(f"BuildLab — {build.name}")
@@ -291,40 +334,42 @@ def export_build(build_id):
     lines.append("=" * 40)
     lines.append(f"{'TOTAL':<14} P{total:,.0f}")
 
-    content  = "\n".join(lines)
+    content = "\n".join(lines)
     filename = build.name.replace(" ", "_") + ".txt"
     return Response(
         content,
         mimetype="text/plain",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 
 @build_bp.route("/api/compatibility", methods=["POST"])
 def compatibility():
     from services.build_finder.build_fix_service import BuildFixService
-    
-    data          = request.get_json()
+
+    data = request.get_json()
     component_ids = data.get("component_ids", [])
-    components    = Component.query.filter(Component.component_id.in_(component_ids)).all()
+    components = Component.query.filter(Component.component_id.in_(component_ids)).all()
     # CompatibilityService can accept a list of component dicts (with prices)
     comp_list = []
     for c in components:
-        comp_list.append({
-            "name": c.name,
-            "category": c.category,
-            "brand": c.brand,
-            "specs": c.specs or {},
-            "performance_score": c.performance_score,
-            "price": c.price,
-        })
+        comp_list.append(
+            {
+                "name": c.name,
+                "category": c.category,
+                "brand": c.brand,
+                "specs": c.specs or {},
+                "performance_score": c.performance_score,
+                "price": c.price,
+            }
+        )
     result = CompatibilityService.evaluate_build(comp_list)
-    
+
     # Log activity if user is logged in
     if "user_id" in session:
         status = result.get("status", "unknown")
         ActivityService.log_compatibility_check(session["user_id"], "Build", status)
-    
+
     # If incompatible, also suggest fixes
     if result.get("status") == "incompatible":
         fix_result = BuildFixService.fix_build(comp_list)
@@ -335,11 +380,13 @@ def compatibility():
             result["can_be_fixed"] = True
             result["fix_suggestion"] = {
                 "fixed": True,
-                "final_status": fix_result.get("compatibility_report", {}).get("status"),
+                "final_status": fix_result.get("compatibility_report", {}).get(
+                    "status"
+                ),
                 "changes": fix_result.get("changes", []),
-                "fixed_components": fix_result.get("components", [])
+                "fixed_components": fix_result.get("components", []),
             }
-    
+
     return jsonify(result)
 
 
@@ -352,20 +399,22 @@ def compatibility_fix():
     components = Component.query.filter(Component.component_id.in_(component_ids)).all()
     comp_list = []
     for c in components:
-        comp_list.append({
-            "name": c.name,
-            "category": c.category,
-            "brand": c.brand,
-            "specs": c.specs or {},
-            "performance_score": c.performance_score,
-            "price": c.price,
-        })
+        comp_list.append(
+            {
+                "name": c.name,
+                "category": c.category,
+                "brand": c.brand,
+                "specs": c.specs or {},
+                "performance_score": c.performance_score,
+                "price": c.price,
+            }
+        )
     result = BuildFixService.fix_build(comp_list, answers=answers)
-    
+
     # Log activity if user is logged in and fixes were applied
     if "user_id" in session and result.get("fixed"):
         ActivityService.log_compatibility_fix(session["user_id"], "Build")
-    
+
     return jsonify(result)
 
 
@@ -376,7 +425,7 @@ def compatibility_evaluate():
     Expects JSON: { "parts": "Intel i5-12400F, RTX 4060, 750W 80+ Gold PSU" }
     """
     data = request.get_json(silent=True) or {}
-    parts = data.get('parts') or data.get('query') or ''
+    parts = data.get("parts") or data.get("query") or ""
     if not parts:
         return jsonify({"error": "No parts provided."}), 400
     # CompatibilityService accepts a string or list; pass through the raw string
@@ -393,7 +442,16 @@ def load_build(build_id):
         return jsonify({"error": "Build not found"}), 404
     component_ids = parse_component_ids(build.component_ids)
     components = Component.query.filter(Component.component_id.in_(component_ids)).all()
-    comp_data = [{"id": c.id, "name": c.name, "brand": c.brand, "category": c.category, "price": c.price} for c in components]
+    comp_data = [
+        {
+            "id": c.id,
+            "name": c.name,
+            "brand": c.brand,
+            "category": c.category,
+            "price": c.price,
+        }
+        for c in components
+    ]
     return jsonify({"name": build.name, "components": comp_data})
 
 
@@ -401,20 +459,26 @@ def load_build(build_id):
 def user_builds():
     if "user_id" not in session:
         return jsonify({"error": "Login required"}), 401
-    builds = Build.query.filter_by(user_id=session["user_id"]).order_by(Build.created_at.desc()).all()
+    builds = (
+        Build.query.filter_by(user_id=session["user_id"])
+        .order_by(Build.created_at.desc())
+        .all()
+    )
     result = []
     for b in builds:
         ids = parse_component_ids(b.component_ids)
         comps = Component.query.filter(Component.component_id.in_(ids)).all()
         total = sum(c.price for c in comps)
-        result.append({
-            "id": b.id,
-            "name": b.name,
-            "created_at": b.created_at.strftime('%b %d, %Y'),
-            "part_count": len(ids),
-            "total": total,
-            "component_ids": ids,
-        })
+        result.append(
+            {
+                "id": b.id,
+                "name": b.name,
+                "created_at": b.created_at.strftime("%b %d, %Y"),
+                "part_count": len(ids),
+                "total": total,
+                "component_ids": ids,
+            }
+        )
     return jsonify(result)
 
 
@@ -423,12 +487,12 @@ def compare_builds_route():
     if "user_id" not in session:
         return jsonify({"error": "Login required"}), 401
 
-    raw_ids = request.args.get('ids', '')
+    raw_ids = request.args.get("ids", "")
     if not raw_ids:
         return jsonify({"error": "No builds selected."}), 400
 
     build_ids = []
-    for raw_id in raw_ids.split(','):
+    for raw_id in raw_ids.split(","):
         raw_id = raw_id.strip()
         if raw_id.isdigit():
             build_ids.append(int(raw_id))
@@ -436,8 +500,8 @@ def compare_builds_route():
     if not build_ids:
         return jsonify({"error": "No valid build IDs provided."}), 400
 
-    payload = compare_builds(build_ids, session['user_id'])
-    if not payload.get('items'):
+    payload = compare_builds(build_ids, session["user_id"])
+    if not payload.get("items"):
         return jsonify({"error": "No matching builds found."}), 404
 
     return jsonify(payload)
@@ -449,4 +513,6 @@ def share_build_page(build_id):
     component_ids = parse_component_ids(build.component_ids)
     components = Component.query.filter(Component.component_id.in_(component_ids)).all()
     total = sum(c.price for c in components)
-    return render_template("builder/share_preview.html", build=build, components=components, total=total)
+    return render_template(
+        "builder/share_preview.html", build=build, components=components, total=total
+    )

@@ -1,4 +1,3 @@
-
 from models.activity import Activity
 from database.db import db
 from services.base_service import BusinessLogicService
@@ -8,17 +7,20 @@ logger = logging.getLogger(__name__)
 
 
 class ActivityService(BusinessLogicService):
-    
+
     def execute(self, activity_type, user_id, description):
         return self._create_activity(user_id, activity_type, description)
-    
+
     def _create_activity(self, user_id, activity_type, description):
         try:
             activity = Activity.log_activity(user_id, activity_type, description)
             self._cache_result(f"activity_{activity.activity_id}", activity)
             return activity
         except Exception as e:
-            self._log_error(f"Failed to create activity", {"user_id": user_id, "type": activity_type})
+            self._log_error(
+                f"Failed to create activity",
+                {"user_id": user_id, "type": activity_type},
+            )
             logger.error(f"Error creating activity: {str(e)}")
             return None
 
@@ -28,12 +30,8 @@ class ActivityService(BusinessLogicService):
             description = "Updated profile"
             if changes:
                 description += f": {', '.join(changes)}"
-            
-            return Activity.log_activity(
-                user_id,
-                "profile_update",
-                description
-            )
+
+            return Activity.log_activity(user_id, "profile_update", description)
         except Exception as e:
             logger.error(f"Error logging profile update: {str(e)}")
             return None
@@ -41,11 +39,7 @@ class ActivityService(BusinessLogicService):
     @staticmethod
     def log_password_change(user_id):
         try:
-            return Activity.log_activity(
-                user_id,
-                "password_change",
-                "Changed password"
-            )
+            return Activity.log_activity(user_id, "password_change", "Changed password")
         except Exception as e:
             logger.error(f"Error logging password change: {str(e)}")
             return None
@@ -54,9 +48,7 @@ class ActivityService(BusinessLogicService):
     def log_build_created(user_id, build_name):
         try:
             return Activity.log_activity(
-                user_id,
-                "build_created",
-                f"Created build: {build_name}"
+                user_id, "build_created", f"Created build: {build_name}"
             )
         except Exception as e:
             logger.error(f"Error logging build creation: {str(e)}")
@@ -66,9 +58,7 @@ class ActivityService(BusinessLogicService):
     def log_build_updated(user_id, build_name):
         try:
             return Activity.log_activity(
-                user_id,
-                "build_updated",
-                f"Updated build: {build_name}"
+                user_id, "build_updated", f"Updated build: {build_name}"
             )
         except Exception as e:
             logger.error(f"Error logging build update: {str(e)}")
@@ -78,9 +68,7 @@ class ActivityService(BusinessLogicService):
     def log_build_deleted(user_id, build_name):
         try:
             return Activity.log_activity(
-                user_id,
-                "build_deleted",
-                f"Deleted build: {build_name}"
+                user_id, "build_deleted", f"Deleted build: {build_name}"
             )
         except Exception as e:
             logger.error(f"Error logging build deletion: {str(e)}")
@@ -92,7 +80,7 @@ class ActivityService(BusinessLogicService):
             return Activity.log_activity(
                 user_id,
                 "compatibility_check",
-                f"Checked compatibility for {build_name} - Result: {status}"
+                f"Checked compatibility for {build_name} - Result: {status}",
             )
         except Exception as e:
             logger.error(f"Error logging compatibility check: {str(e)}")
@@ -104,7 +92,7 @@ class ActivityService(BusinessLogicService):
             return Activity.log_activity(
                 user_id,
                 "compatibility_fix",
-                f"Applied compatibility fixes to {build_name}"
+                f"Applied compatibility fixes to {build_name}",
             )
         except Exception as e:
             logger.error(f"Error logging compatibility fix: {str(e)}")
@@ -116,7 +104,7 @@ class ActivityService(BusinessLogicService):
             return Activity.log_activity(
                 user_id,
                 "build_shared",
-                f"Shared build '{build_name}' with {shared_with}"
+                f"Shared build '{build_name}' with {shared_with}",
             )
         except Exception as e:
             logger.error(f"Error logging build share: {str(e)}")
@@ -128,7 +116,7 @@ class ActivityService(BusinessLogicService):
             return Activity.log_activity(
                 user_id,
                 "comparison_made",
-                f"Compared {compared_items} {comparison_type}"
+                f"Compared {compared_items} {comparison_type}",
             )
         except Exception as e:
             logger.error(f"Error logging comparison: {str(e)}")
@@ -140,7 +128,7 @@ class ActivityService(BusinessLogicService):
             return Activity.log_activity(
                 user_id,
                 "questionnaire_completed",
-                "Completed PC questionnaire for recommendations"
+                "Completed PC questionnaire for recommendations",
             )
         except Exception as e:
             logger.error(f"Error logging questionnaire: {str(e)}")
@@ -166,17 +154,14 @@ class ActivityService(BusinessLogicService):
     def get_activity_stats(user_id):
         try:
             all_activities = Activity.query.filter_by(user_id=user_id).all()
-            
+
             # Count by action type
-            stats = {
-                "total_activities": len(all_activities),
-                "by_type": {}
-            }
-            
+            stats = {"total_activities": len(all_activities), "by_type": {}}
+
             for activity in all_activities:
                 action_type = activity.action_type
                 stats["by_type"][action_type] = stats["by_type"].get(action_type, 0) + 1
-            
+
             return stats
         except Exception as e:
             logger.error(f"Error getting activity stats: {str(e)}")

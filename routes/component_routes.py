@@ -10,7 +10,7 @@ component_bp = Blueprint("components", __name__)
 @component_bp.route("/parts")
 def parts():
     category = request.args.get("category", "")
-    search   = request.args.get("search", "")
+    search = request.args.get("search", "")
     min_price = request.args.get("min_price", type=float)
     max_price = request.args.get("max_price", type=float)
 
@@ -19,8 +19,8 @@ def parts():
         query = query.filter_by(category=category)
     if search:
         query = query.filter(
-            (Component.name.ilike(f"%{search}%")) |
-            (Component.brand.ilike(f"%{search}%"))
+            (Component.name.ilike(f"%{search}%"))
+            | (Component.brand.ilike(f"%{search}%"))
         )
     if min_price is not None:
         query = query.filter(Component.price >= min_price)
@@ -34,14 +34,19 @@ def parts():
         components.append(component_data)
 
     categories = sorted(set(c.category for c in Component.query.all()))
-    return render_template("parts.html", components=components, categories=categories,
-                           active_category=category, search=search)
+    return render_template(
+        "parts.html",
+        components=components,
+        categories=categories,
+        active_category=category,
+        search=search,
+    )
 
 
 @component_bp.route("/api/components")
 def api_components():
-    category  = request.args.get("category", "")
-    search    = request.args.get("search", "")
+    category = request.args.get("category", "")
+    search = request.args.get("search", "")
     query = Component.query
     if category:
         query = query.filter_by(category=category)
@@ -69,7 +74,9 @@ def api_compare_components():
         return jsonify({"error": "No component IDs provided."}), 400
 
     try:
-        component_ids = [int(value.strip()) for value in ids.split(",") if value.strip()]
+        component_ids = [
+            int(value.strip()) for value in ids.split(",") if value.strip()
+        ]
     except ValueError:
         return jsonify({"error": "Invalid component IDs."}), 400
 
@@ -82,6 +89,8 @@ def api_compare_components():
 
     # Log activity if user is logged in
     if "user_id" in session:
-        ActivityService.log_comparison(session["user_id"], len(component_ids), "components")
+        ActivityService.log_comparison(
+            session["user_id"], len(component_ids), "components"
+        )
 
     return jsonify(result)

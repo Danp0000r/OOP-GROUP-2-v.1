@@ -3,6 +3,7 @@ from database.db import db
 
 class Component(db.Model):
     """PC component model with specs and pricing."""
+
     __bind_key__ = "components"
     __tablename__ = "components"
 
@@ -17,7 +18,9 @@ class Component(db.Model):
     performance_score = db.Column(db.Integer, default=50, nullable=False)
     image_url = db.Column(db.String(500), default="")
     description = db.Column(db.Text, default="")
-    links = db.relationship('Link', backref='component', lazy=True, cascade='all, delete-orphan')
+    links = db.relationship(
+        "Link", backref="component", lazy=True, cascade="all, delete-orphan"
+    )
 
     @property
     def id(self):
@@ -37,7 +40,7 @@ class Component(db.Model):
             "performance_score": self.performance_score,
             "image_url": self.image_url,
             "description": self.description,
-            "links": [l.to_dict() for l in self.links] if self.links else []
+            "links": [l.to_dict() for l in self.links] if self.links else [],
         }
 
     def get_details(self):
@@ -46,16 +49,10 @@ class Component(db.Model):
             "id": self.component_id,
             "name": self.name,
             "brand": self.brand,
-
             "category": self.category,
-
             "specs": self.specs,
-
             "price": self.price,
-
             "performance_score": self.performance_score,
-
             "image_url": self.image_url,
-
-            "description": self.description
+            "description": self.description,
         }

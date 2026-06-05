@@ -6,64 +6,38 @@ class GPU:
     @staticmethod
     def get_all_gpus():
 
-        return Component.query.filter_by(
-            category="GPU"
-        ).all()
+        return Component.query.filter_by(category="GPU").all()
 
     @staticmethod
     def get_gpu_by_name(name):
 
-        return Component.query.filter_by(
-            category="GPU",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="GPU", name=name).first()
 
     @staticmethod
     def get_gpus_by_brand(brand):
 
-        return Component.query.filter_by(
-            category="GPU",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="GPU", brand=brand).all()
 
     @staticmethod
     def get_gpus_by_vram(vram):
 
         gpus = GPU.get_all_gpus()
 
-        return [
-
-            gpu for gpu in gpus
-
-            if gpu.specs.get("vram") == vram
-
-        ]
+        return [gpu for gpu in gpus if gpu.specs.get("vram") == vram]
 
     @staticmethod
     def get_gpus_by_chipset(chipset):
 
         gpus = GPU.get_all_gpus()
 
-        return [
-
-            gpu for gpu in gpus
-
-            if gpu.specs.get("chipset") == chipset
-
-        ]
+        return [gpu for gpu in gpus if gpu.specs.get("chipset") == chipset]
 
     @staticmethod
     def get_gpus_by_interface(interface):
 
         gpus = GPU.get_all_gpus()
 
-        return [
-
-            gpu for gpu in gpus
-
-            if gpu.specs.get("interface") == interface
-
-        ]
+        return [gpu for gpu in gpus if gpu.specs.get("interface") == interface]
 
     @staticmethod
     def get_gpu_tdp(name):

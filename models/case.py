@@ -1,26 +1,19 @@
 from models.component import Component
 
+
 class Case:
 
     @staticmethod
     def get_all_cases():
-        return Component.query.filter_by(
-            category="Case"
-        ).all()
+        return Component.query.filter_by(category="Case").all()
 
     @staticmethod
     def get_case_by_name(name):
-        return Component.query.filter_by(
-            category="Case",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="Case", name=name).first()
 
     @staticmethod
     def get_cases_by_brand(brand):
-        return Component.query.filter_by(
-            category="Case",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="Case", brand=brand).all()
 
     @staticmethod
     def get_cases_by_form_factor(form_factor):

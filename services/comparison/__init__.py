@@ -1,4 +1,3 @@
-
 from .compare_builds_service import compare_builds
 from .compare_parts_service import compare_components
 

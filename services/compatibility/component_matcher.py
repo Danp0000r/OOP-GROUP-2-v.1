@@ -26,15 +26,19 @@ class ComponentMatcher:
         for c in components:
             if query in Utils.norm(c.get("name", "")):
                 contains_matches.append(c)
-        
+
         if contains_matches:
             # Return the shortest matching name to prefer exact/base SKUs.
-            return min(contains_matches, key=lambda x: len(Utils.norm(x.get("name", ""))))
+            return min(
+                contains_matches, key=lambda x: len(Utils.norm(x.get("name", "")))
+            )
 
         # 3) Token-based match (≥95% threshold)
         best_score, best = 0, None
         for c in components:
-            search = Utils.norm(c.get("name", "")) + " " + Utils.norm(c.get("brand", ""))
+            search = (
+                Utils.norm(c.get("name", "")) + " " + Utils.norm(c.get("brand", ""))
+            )
             tokens = set(search.split())
             matched = sum(1 for t in query_tokens if t in tokens)
             score = matched / max(len(query_tokens), 1)
@@ -50,18 +54,22 @@ class ComponentMatcher:
         for part in parts:
             comp = ComponentMatcher.get_component(part)
             if comp:
-                results.append({
-                    "input": part,
-                    "component": comp,
-                    "source": "database",
-                    "verified": True
-                })
+                results.append(
+                    {
+                        "input": part,
+                        "component": comp,
+                        "source": "database",
+                        "verified": True,
+                    }
+                )
             else:
-                results.append({
-                    "input": part,
-                    "component": None,
-                    "source": "unknown",
-                    "verified": False,
-                    "note": f"'{part}' not found in database. Add manually or verify compatibility separately."
-                })
+                results.append(
+                    {
+                        "input": part,
+                        "component": None,
+                        "source": "unknown",
+                        "verified": False,
+                        "note": f"'{part}' not found in database. Add manually or verify compatibility separately.",
+                    }
+                )
         return results

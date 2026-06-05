@@ -22,7 +22,11 @@ def profile():
         session.pop("is_admin", None)
         flash("Your session is no longer valid. Please log in again.", "warning")
         return redirect(url_for("auth.login"))
-    builds = Build.query.filter_by(user_id=session["user_id"]).order_by(Build.created_at.desc()).all()
+    builds = (
+        Build.query.filter_by(user_id=session["user_id"])
+        .order_by(Build.created_at.desc())
+        .all()
+    )
     return render_template("profile.html", builds=builds)
 
 
@@ -35,7 +39,7 @@ def update_profile():
         return redirect(url_for("auth.login"))
 
     new_username = request.form.get("username", "").strip()
-    new_email    = request.form.get("email", "").strip()
+    new_email = request.form.get("email", "").strip()
     new_password = request.form.get("password", "")
 
     if new_username:

@@ -1,12 +1,11 @@
 from models.component import Component
 
+
 class Cooling:
 
     @staticmethod
     def get_all_coolers():
-        return Component.query.filter_by(
-            category="Cooling"
-        ).all()
+        return Component.query.filter_by(category="Cooling").all()
 
     @staticmethod
     def get_all_cooling():
@@ -14,17 +13,11 @@ class Cooling:
 
     @staticmethod
     def get_cooler_by_name(name):
-        return Component.query.filter_by(
-            category="Cooling",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="Cooling", name=name).first()
 
     @staticmethod
     def get_coolers_by_brand(brand):
-        return Component.query.filter_by(
-            category="Cooling",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="Cooling", brand=brand).all()
 
     @staticmethod
     def get_coolers_by_type(cooler_type):
@@ -73,5 +66,3 @@ class Cooling:
         if cooler:
             return cooler.specs.get("tdp_rating")
         return None
-
-

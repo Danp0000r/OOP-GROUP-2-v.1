@@ -16,13 +16,13 @@ def compare_components(component_ids: list) -> dict:
         item["cat"] = item["category"]
         items.append(item)
 
-    all_keys = sorted({
-        key
-        for item in items
-        for key in (item.get("specs") or {}).keys()
-    })
+    all_keys = sorted(
+        {key for item in items for key in (item.get("specs") or {}).keys()}
+    )
 
-    same_type = len(items) > 0 and all(item["category"] == items[0]["category"] for item in items)
+    same_type = len(items) > 0 and all(
+        item["category"] == items[0]["category"] for item in items
+    )
 
     export_lines = ["Component Comparison", "====================="]
     export_lines.extend(
@@ -32,15 +32,12 @@ def compare_components(component_ids: list) -> dict:
     export_lines.append("")
     export_lines.append("Specs:")
     for key in all_keys:
-        values = [
-            (item.get("specs") or {}).get(key, "—")
-            for item in items
-        ]
+        values = [(item.get("specs") or {}).get(key, "—") for item in items]
         export_lines.append(f"{key}: {' | '.join(str(value) for value in values)}")
 
     return {
         "items": items,
         "all_keys": all_keys,
         "same_type": same_type,
-        "export_text": "\n".join(export_lines)
+        "export_text": "\n".join(export_lines),
     }

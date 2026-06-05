@@ -1,26 +1,19 @@
 from models.component import Component
 
+
 class Motherboard:
 
     @staticmethod
     def get_all_motherboards():
-        return Component.query.filter_by(
-            category="Motherboard"
-        ).all()
+        return Component.query.filter_by(category="Motherboard").all()
 
     @staticmethod
     def get_motherboard_by_name(name):
-        return Component.query.filter_by(
-            category="Motherboard",
-            name=name
-        ).first()
+        return Component.query.filter_by(category="Motherboard", name=name).first()
 
     @staticmethod
     def get_motherboards_by_brand(brand):
-        return Component.query.filter_by(
-            category="Motherboard",
-            brand=brand
-        ).all()
+        return Component.query.filter_by(category="Motherboard", brand=brand).all()
 
     @staticmethod
     def get_motherboards_by_socket_type(socket_type):
@@ -149,5 +142,3 @@ class Motherboard:
         if mb:
             return mb.specs.get("sata_ports")
         return None
-
-

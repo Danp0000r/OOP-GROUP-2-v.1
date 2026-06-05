@@ -18,37 +18,49 @@ class CompatibilityChecker:
 
         # ── Socket ──────────────────────────────────────────────
         if cpu and mb:
-            cs = (cpu.get("compatibility", {}).get("motherboard_socket") or
-                  cpu.get("specs", {}).get("socket", "")).upper()
-            ms = (mb.get("compatibility", {}).get("cpu_socket") or
-                  mb.get("specs", {}).get("socket_type", "")).upper()
+            cs = (
+                cpu.get("compatibility", {}).get("motherboard_socket")
+                or cpu.get("specs", {}).get("socket", "")
+            ).upper()
+            ms = (
+                mb.get("compatibility", {}).get("cpu_socket")
+                or mb.get("specs", {}).get("socket_type", "")
+            ).upper()
             if cs and ms:
                 if cs != ms:
-                    issues.append({
-                        "severity": "critical",
-                        "component": "CPU/Motherboard",
-                        "message": f"Socket mismatch: {cs} vs {ms}"
-                    })
+                    issues.append(
+                        {
+                            "severity": "critical",
+                            "component": "CPU/Motherboard",
+                            "message": f"Socket mismatch: {cs} vs {ms}",
+                        }
+                    )
                     recs.append(f"Use {cs} motherboard or {ms} CPU.")
                 else:
                     passed.append(f"✓ Socket: {cs}")
 
         # ── RAM (motherboard + CPU) ─────────────────────────────
         if ram and mb:
-            rt = (ram.get("compatibility", {}).get("ram_type") or
-                  ram.get("specs", {}).get("type", "")).upper()
-            mr = (mb.get("compatibility", {}).get("ram_type") or
-                  mb.get("specs", {}).get("ram_type", "")).upper()
+            rt = (
+                ram.get("compatibility", {}).get("ram_type")
+                or ram.get("specs", {}).get("type", "")
+            ).upper()
+            mr = (
+                mb.get("compatibility", {}).get("ram_type")
+                or mb.get("specs", {}).get("ram_type", "")
+            ).upper()
 
             ram_ok = True
 
             # Motherboard compatibility
             if rt and mr and rt != mr:
-                issues.append({
-                    "severity": "critical",
-                    "component": "RAM/Motherboard",
-                    "message": f"RAM type mismatch: RAM is {rt}, motherboard requires {mr}"
-                })
+                issues.append(
+                    {
+                        "severity": "critical",
+                        "component": "RAM/Motherboard",
+                        "message": f"RAM type mismatch: RAM is {rt}, motherboard requires {mr}",
+                    }
+                )
                 recs.append(f"Use {mr} RAM.")
                 ram_ok = False
 
@@ -59,11 +71,13 @@ class CompatibilityChecker:
                     cr = [cr]
                 cr = [x.upper() for x in cr]
                 if cr and rt and rt not in cr:
-                    issues.append({
-                        "severity": "critical",
-                        "component": "CPU/RAM",
-                        "message": f"CPU does not support {rt} RAM. Supported: {', '.join(cr)}"
-                    })
+                    issues.append(
+                        {
+                            "severity": "critical",
+                            "component": "CPU/RAM",
+                            "message": f"CPU does not support {rt} RAM. Supported: {', '.join(cr)}",
+                        }
+                    )
                     recs.append(f"Use RAM compatible with CPU ({', '.join(cr)}).")
                     ram_ok = False
 
@@ -74,16 +88,25 @@ class CompatibilityChecker:
         cpu_w = Utils.num(cpu.get("specs", {}).get("tdp", 65)) if cpu else 65
         gpu_w = Utils.num(gpu.get("specs", {}).get("tdp", 100)) if gpu else 0
         watt_est = int((cpu_w + gpu_w + 100) * 1.25)
-        rec_psu = next((t for t in [450, 500, 550, 600, 650, 750, 850, 1000] if t >= int(watt_est * 1.3)), 500)
+        rec_psu = next(
+            (
+                t
+                for t in [450, 500, 550, 600, 650, 750, 850, 1000]
+                if t >= int(watt_est * 1.3)
+            ),
+            500,
+        )
 
         if psu:
             pw = Utils.num(psu.get("specs", {}).get("wattage", 0))
             if pw < watt_est:
-                issues.append({
-                    "severity": "critical",
-                    "component": "PSU",
-                    "message": f"{pw}W insufficient for {watt_est}W"
-                })
+                issues.append(
+                    {
+                        "severity": "critical",
+                        "component": "PSU",
+                        "message": f"{pw}W insufficient for {watt_est}W",
+                    }
+                )
                 recs.append(f"Get {rec_psu}W+ PSU.")
             elif pw >= rec_psu:
                 passed.append(f"✓ PSU: {pw}W (load ~{watt_est}W)")
@@ -99,30 +122,37 @@ class CompatibilityChecker:
             fits = {
                 "ATX": ["ATX", "MATX", "MICROATX", "ITX"],
                 "MATX": ["MATX", "MICROATX", "ITX"],
-                "ITX": ["ITX"]
+                "ITX": ["ITX"],
             }
             if mf in fits.get(cf, []):
                 passed.append(f"✓ Form: {mf} in {cf}")
             else:
-                issues.append({
-                    "severity": "critical",
-                    "component": "Case",
-                    "message": f"{mf} doesn't fit {cf}"
-                })
+                issues.append(
+                    {
+                        "severity": "critical",
+                        "component": "Case",
+                        "message": f"{mf} doesn't fit {cf}",
+                    }
+                )
 
         # ── GPU Clearance ───────────────────────────────────────
         if gpu and case:
-            gl = Utils.num(gpu.get("specs", {}).get("length_mm",
-                            gpu.get("specs", {}).get("length", "0mm")))
+            gl = Utils.num(
+                gpu.get("specs", {}).get(
+                    "length_mm", gpu.get("specs", {}).get("length", "0mm")
+                )
+            )
             cl = Utils.num(case.get("specs", {}).get("gpu_length_limit", 999))
             if gl and cl and gl <= cl:
                 passed.append(f"✓ GPU: {gl}mm in {cl}mm")
             elif gl and cl:
-                issues.append({
-                    "severity": "critical",
-                    "component": "GPU/Case",
-                    "message": f"GPU {gl}mm > case {cl}mm"
-                })
+                issues.append(
+                    {
+                        "severity": "critical",
+                        "component": "GPU/Case",
+                        "message": f"GPU {gl}mm > case {cl}mm",
+                    }
+                )
 
         # ── CPU Cooler Height Clearance (air coolers) ───────────
         if cooler and case:
@@ -133,11 +163,13 @@ class CompatibilityChecker:
                 if ch <= cl:
                     passed.append(f"✓ Cooler: {ch}mm fits (limit {cl}mm)")
                 else:
-                    issues.append({
-                        "severity": "critical",
-                        "component": "Cooler/Case",
-                        "message": f"CPU cooler {ch}mm exceeds case limit {cl}mm"
-                    })
+                    issues.append(
+                        {
+                            "severity": "critical",
+                            "component": "Cooler/Case",
+                            "message": f"CPU cooler {ch}mm exceeds case limit {cl}mm",
+                        }
+                    )
 
         # ── Radiator Support (liquid coolers) ───────────────────
         if cooler and case:
@@ -148,17 +180,21 @@ class CompatibilityChecker:
                 if rad in rad_support:
                     passed.append(f"✓ Radiator: {rad} supported by case")
                 else:
-                    issues.append({
-                        "severity": "critical",
-                        "component": "Cooler/Case",
-                        "message": f"Case does not support {rad} radiator"
-                    })
+                    issues.append(
+                        {
+                            "severity": "critical",
+                            "component": "Cooler/Case",
+                            "message": f"Case does not support {rad} radiator",
+                        }
+                    )
 
         # ── Cooler Socket Compatibility ─────────────────────────
         if cooler and cpu:
             cooler_sockets = cooler.get("compatibility", {}).get("cpu_socket", [])
-            cpu_socket = (cpu.get("compatibility", {}).get("motherboard_socket") or
-                         cpu.get("specs", {}).get("socket", "")).upper()
+            cpu_socket = (
+                cpu.get("compatibility", {}).get("motherboard_socket")
+                or cpu.get("specs", {}).get("socket", "")
+            ).upper()
             if cooler_sockets and cpu_socket:
                 if isinstance(cooler_sockets, str):
                     cooler_sockets = [cooler_sockets]
@@ -166,10 +202,12 @@ class CompatibilityChecker:
                 if cpu_socket in cooler_sockets:
                     passed.append(f"✓ Cooler compatible with {cpu_socket}")
                 else:
-                    issues.append({
-                        "severity": "warning",
-                        "component": "Cooler/CPU",
-                        "message": f"Cooler may not support {cpu_socket} socket"
-                    })
+                    issues.append(
+                        {
+                            "severity": "warning",
+                            "component": "Cooler/CPU",
+                            "message": f"Cooler may not support {cpu_socket} socket",
+                        }
+                    )
 
         return issues, passed, recs, watt_est, rec_psu
